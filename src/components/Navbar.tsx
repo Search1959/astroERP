@@ -165,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 rounded-lg p-3 flex items-center gap-3 transition cursor-pointer"
           >
             <div className="w-9 h-9 rounded-full bg-indigo-900 border border-indigo-700/60 flex items-center justify-center font-bold text-indigo-300 text-xs shrink-0">
-              {currentUser?.name.charAt(0) || 'A'}
+              {(currentUser?.name || 'A').charAt(0)}
             </div>
             <div className="overflow-hidden flex-1">
               <p className="text-xs text-white font-medium truncate">
@@ -202,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onOpenLoginModal}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-md text-xs text-slate-200 border border-slate-700 cursor-pointer"
           >
-            {currentUser?.name.split(' ')[0] || 'User'}
+            {currentUser?.name ? currentUser.name.split(' ')[0] : 'User'}
           </button>
           <button
             type="button"

@@ -108,8 +108,8 @@ import {
 } from './data/initialDemoData';
 
 export function App() {
-  // Navigation
-  const [activeTab, setActiveTab] = useState<string>('astrology');
+  // Navigation - default to executive command center dashboard
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   // Application Data States
   const [chartData, setChartData] = useState<AstrologyChartData | null>(null);
@@ -989,7 +989,7 @@ export function App() {
   const currencySymbol = settings?.currencySymbol || '$';
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white relative">
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col lg:flex-row font-sans antialiased selection:bg-indigo-600 selection:text-white relative w-full">
       {/* Comprehensive SEO Meta Tags */}
       <SEOHead
         activeTab={activeTab}
@@ -1004,7 +1004,7 @@ export function App() {
         pageDescription="AstroERP is an automated astrological ERP platform with zero-human-overhead inventory, auto-purchases, auto-dispensing, and ephemeris calculations."
       />
 
-      {/* Top Main Navigation Bar */}
+      {/* Sidebar Navigation (Desktop Fixed Sidebar / Mobile Top Bar) */}
       <Navbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -1014,44 +1014,46 @@ export function App() {
         settings={settings}
       />
 
-      {/* Zero Overhead Automation Quick Status Banner */}
-      <div className="bg-slate-950/80 border-b border-slate-800 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
-          <span>Manual Entry restricted to Add Stock. Dealer Purchases & Sales Invoicing auto-synchronized.</span>
+      {/* Main Right-Side Workspace Area */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-hidden bg-slate-900">
+        {/* Zero Overhead Automation Quick Status Banner (Placed at the top of content pane) */}
+        <div className="bg-slate-950/90 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2 shrink-0 z-20">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
+            <span>Manual Entry restricted to Add Stock. Dealer Purchases & Sales Invoicing auto-synchronized.</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setScannerPurpose('stock_add');
+                setIsScannerModalOpen(true);
+              }}
+              className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              Camera Scan
+            </button>
+            <button
+              onClick={() => setIsCsvImportModalOpen(true)}
+              className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              Excel Import
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              setScannerPurpose('stock_add');
-              setIsScannerModalOpen(true);
-            }}
-            className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
-          >
-            <Camera className="w-3.5 h-3.5" />
-            Camera Scan
-          </button>
-          <button
-            onClick={() => setIsCsvImportModalOpen(true)}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            Excel Import
-          </button>
-        </div>
-      </div>
-
-      {/* Main Container View Area */}
-      <div className="flex-1 bg-slate-900 overflow-y-auto">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-20">
-          {/* ========================================================================= */}
-          {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
-          {/* ========================================================================= */}
+        {/* Scrollable Main Viewport Container */}
+        <div className="flex-1 overflow-y-auto w-full">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 w-full">
+            {/* ========================================================================= */}
+            {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
+            {/* ========================================================================= */}
           {activeTab === 'astrology' && (
             <div className="space-y-8">
               {/* Top Banner & Language Selector */}
@@ -1389,6 +1391,7 @@ export function App() {
           )}
         </main>
       </div>
+    </div>
 
       {/* Floating Auto-Notification Toast */}
       {autoToast && (

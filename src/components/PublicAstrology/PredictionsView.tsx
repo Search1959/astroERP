@@ -24,9 +24,13 @@ import {
   Gem,
   Award,
   ExternalLink,
-  Maximize2
 } from 'lucide-react';
-import { LanguageCode, getTranslation, getGemstoneName } from '../../utils/indianLanguages';
+import {
+  LanguageCode,
+  getTranslation,
+  getGemstoneName,
+  getStatusName,
+} from '../../utils/indianLanguages';
 import { generateAstrologicalPredictions } from '../../utils/predictionEngine';
 
 interface PredictionsViewProps {
@@ -45,18 +49,23 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
 
   const t = (key: string) => getTranslation(key, selectedLanguage);
 
-  // Retrieve predictions or compute dynamically if missing
   const sun = chartData.planets.find(p => p.name === 'Sun');
   const moon = chartData.planets.find(p => p.name === 'Moon');
-  
-  const predictions: AstrologyPredictions = chartData.interpretations?.predictions || generateAstrologicalPredictions({
+  const ascendant = chartData.interpretations?.coreAscendant?.sign || 'Aries';
+  const moonSign = moon?.sign || 'Taurus';
+  const sunSign = sun?.sign || 'Leo';
+  const primaryGemstone = chartData.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Yellow Sapphire';
+
+  // Compute predictions dynamically based on the current selected language
+  const predictions: AstrologyPredictions = generateAstrologicalPredictions({
     subjectName: chartData.subjectName,
-    ascendantSign: chartData.interpretations.coreAscendant.sign,
-    moonSign: moon?.sign || 'Taurus',
-    sunSign: sun?.sign || 'Leo',
+    ascendantSign: ascendant,
+    moonSign,
+    sunSign,
     planets: chartData.planets,
     houses: chartData.houses,
-    gemstoneName: chartData.interpretations.gemstoneRecommendations[0]?.stone || 'Yellow Sapphire',
+    gemstoneName: primaryGemstone,
+    language: selectedLanguage,
   });
 
   const currentPrediction: TimeframePrediction = predictions[activePeriod];
@@ -152,7 +161,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
               title="Open Weekly, Monthly & Yearly Predictions with Full Birth Details in Dedicated Window"
             >
               <ExternalLink className="w-3.5 h-3.5 text-amber-300" />
-              <span>Dedicated Window</span>
+              <span>{t('dedicatedWindow')}</span>
             </button>
           )}
         </div>
@@ -174,7 +183,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           {/* Period Score Meter */}
           <div className="flex items-center gap-2.5 bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/15">
             <div className="text-right">
-              <div className="text-[10px] text-indigo-200 font-medium uppercase tracking-wider">Auspicious Index</div>
+              <div className="text-[10px] text-indigo-200 font-medium uppercase tracking-wider">{t('overallAuspiciousness')}</div>
               <div className="text-sm font-black text-amber-300">{currentPrediction.overallScore} / 100</div>
             </div>
             <div className="w-8 h-8 rounded-full border-2 border-amber-400 flex items-center justify-center text-xs font-bold text-white bg-amber-500/20">
@@ -206,7 +215,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
                 <span>{t('careerAndMoney')}</span>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadge(currentPrediction.careerAndMoney.status)}`}>
-                {currentPrediction.careerAndMoney.status} ({currentPrediction.careerAndMoney.score}%)
+                {getStatusName(currentPrediction.careerAndMoney.status, selectedLanguage)} ({currentPrediction.careerAndMoney.score}%)
               </span>
             </div>
 
@@ -218,7 +227,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <div className="pt-2.5 border-t border-slate-200/80 bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-100/80 text-[11px] text-indigo-950 flex items-start gap-2">
             <Lightbulb className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-indigo-900 block">{t('actionableTip')}:</span>
+              <span className="font-bold text-indigo-900 block">{t('strategicAction')}:</span>
               <span className="text-indigo-800/90">{currentPrediction.careerAndMoney.actionableTip}</span>
             </div>
           </div>
@@ -235,7 +244,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
                 <span>{t('loveAndFamily')}</span>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadge(currentPrediction.loveAndFamily.status)}`}>
-                {currentPrediction.loveAndFamily.status} ({currentPrediction.loveAndFamily.score}%)
+                {getStatusName(currentPrediction.loveAndFamily.status, selectedLanguage)} ({currentPrediction.loveAndFamily.score}%)
               </span>
             </div>
 
@@ -247,7 +256,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <div className="pt-2.5 border-t border-slate-200/80 bg-rose-50/60 p-2.5 rounded-lg border border-rose-100/80 text-[11px] text-rose-950 flex items-start gap-2">
             <Lightbulb className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-rose-900 block">{t('actionableTip')}:</span>
+              <span className="font-bold text-rose-900 block">{t('harmonizingDirective')}:</span>
               <span className="text-rose-800/90">{currentPrediction.loveAndFamily.actionableTip}</span>
             </div>
           </div>
@@ -264,7 +273,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
                 <span>{t('healthAndVitality')}</span>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadge(currentPrediction.healthAndVitality.status)}`}>
-                {currentPrediction.healthAndVitality.status} ({currentPrediction.healthAndVitality.score}%)
+                {getStatusName(currentPrediction.healthAndVitality.status, selectedLanguage)} ({currentPrediction.healthAndVitality.score}%)
               </span>
             </div>
 
@@ -276,7 +285,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <div className="pt-2.5 border-t border-slate-200/80 bg-emerald-50/60 p-2.5 rounded-lg border border-emerald-100/80 text-[11px] text-emerald-950 flex items-start gap-2">
             <Lightbulb className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold text-emerald-900 block">{t('actionableTip')}:</span>
+              <span className="font-bold text-emerald-900 block">{t('vitalityDirective')}:</span>
               <span className="text-emerald-800/90">{currentPrediction.healthAndVitality.actionableTip}</span>
             </div>
           </div>
@@ -289,7 +298,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
         <div className="p-4.5 bg-emerald-50/50 border border-emerald-200/80 rounded-xl space-y-3">
           <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs uppercase tracking-wider">
             <CheckCircle className="w-4 h-4 text-emerald-600" />
-            <span>{t('favorableActivities')}</span>
+            <span>{t('auspiciousActivities')}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-700">
             {currentPrediction.favorableActivities.map((act, i) => (
@@ -305,7 +314,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
         <div className="p-4.5 bg-rose-50/50 border border-rose-200/80 rounded-xl space-y-3">
           <div className="flex items-center gap-2 text-rose-900 font-bold text-xs uppercase tracking-wider">
             <AlertTriangle className="w-4 h-4 text-rose-600" />
-            <span>{t('cautionActivities')}</span>
+            <span>{t('planetaryCautions')}</span>
           </div>
           <ul className="space-y-2 text-xs text-slate-700">
             {currentPrediction.cautionActivities.map((act, i) => (
@@ -322,13 +331,13 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
       <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
         <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
           <ShieldCheck className="w-4 h-4 text-indigo-600" />
-          <span>{t('luckyElements')}</span>
+          <span>{t('vedicRemediesAndMantra')}</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           {/* Lucky Colors */}
           <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1 shadow-2xs">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase">Lucky Colors</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase">{t('auspiciousColorsLabel')}</span>
             <div className="font-bold text-slate-900 flex flex-wrap gap-1">
               {currentPrediction.luckyElements.luckyColors.map((c, i) => (
                 <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded text-[11px]">
@@ -340,7 +349,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
 
           {/* Lucky Numbers */}
           <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1 shadow-2xs">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase">Lucky Numbers</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase">{t('luckyNumbersLabel')}</span>
             <div className="font-bold text-indigo-700 flex flex-wrap gap-1">
               {currentPrediction.luckyElements.luckyNumbers.map((n, i) => (
                 <span key={i} className="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-800 rounded font-black text-xs">
@@ -352,7 +361,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
 
           {/* Lucky Days */}
           <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1 shadow-2xs">
-            <span className="text-[10px] font-semibold text-slate-500 uppercase">Auspicious Days</span>
+            <span className="text-[10px] font-semibold text-slate-500 uppercase">{t('auspiciousDaysLabel')}</span>
             <div className="font-bold text-slate-900 flex flex-wrap gap-1">
               {currentPrediction.luckyElements.luckyDays.map((d, i) => (
                 <span key={i} className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[11px]">
@@ -366,7 +375,7 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1 shadow-2xs">
             <span className="text-[10px] font-semibold text-slate-500 uppercase flex items-center gap-1">
               <Compass className="w-3 h-3 text-slate-400" />
-              <span>Auspicious Direction</span>
+              <span>{t('favorableDirectionLabel')}</span>
             </span>
             <div className="font-bold text-slate-900 text-xs">
               {currentPrediction.luckyElements.auspiciousDirection}
@@ -379,13 +388,13 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           <div className="flex items-center gap-2 text-slate-700">
             <Gem className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              <span className="font-semibold text-slate-900">Recommended Ratna:</span>{' '}
+              <span className="font-semibold text-slate-900">{t('lifeGemstone')}:</span>{' '}
               {getGemstoneName(currentPrediction.luckyElements.favorableGemstone, selectedLanguage)}
             </span>
           </div>
 
           <div className="p-2.5 bg-indigo-50 border border-indigo-100 rounded-lg text-indigo-900 text-[11px] flex-1 sm:max-w-xl">
-            <span className="font-bold block mb-0.5">Sacred Mantra & Affirmation:</span>
+            <span className="font-bold block mb-0.5">{t('dailyVedicMantra')}:</span>
             <span className="italic text-indigo-800">{currentPrediction.luckyElements.mantraOrAffirmation}</span>
           </div>
         </div>

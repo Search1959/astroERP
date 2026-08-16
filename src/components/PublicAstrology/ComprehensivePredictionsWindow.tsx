@@ -1,47 +1,51 @@
 /**
- * Dedicated Comprehensive Astrological Predictions Window
- * Displays in-depth Weekly, Monthly, and Yearly Jyotish forecasts
- * with complete, prominent Birth Details Information.
- * Supports Multilingual Indian Languages, Standalone Browser Popout, and PDF/Print Export.
+ * Comprehensive Astrological Predictions Dedicated Window
+ * Features:
+ * - Weekly Forecast, Monthly Outlook, and Yearly Master Transits
+ * - Complete verified birth detail information (Date, Time, Place, Coordinates, Ascendant, Moon Sign, Sun Sign, Dasha)
+ * - Complete localization into 12 Indian Languages (Hindi, Sanskrit, Gujarati, Marathi, Bengali, Tamil, Telugu, etc.)
+ * - Standalone Browser Popout Window option with clean printable layout
+ * - Copy to clipboard, PDF Export / Print capability
  */
 
 import React, { useState } from 'react';
-import { AstrologyChartData, AstrologyPredictions, TimeframePrediction, GemstoneRecommendation } from '../../types';
+import {
+  AstrologyChartData,
+  AstrologyPredictions,
+  TimeframePrediction,
+  GemstoneRecommendation,
+} from '../../types';
 import {
   Sparkles,
   Calendar,
+  Moon,
+  Star,
   Briefcase,
   Heart,
   Activity,
-  TrendingUp,
-  Compass,
-  ShieldCheck,
-  AlertTriangle,
   CheckCircle2,
+  AlertTriangle,
+  Compass,
+  Copy,
+  Check,
   Printer,
-  Download,
   ExternalLink,
   X,
   Maximize2,
   Minimize2,
-  Copy,
-  Check,
-  Sun,
-  Moon,
-  Star,
-  Gem,
-  Clock,
-  MapPin,
+  ShieldCheck,
   User,
-  Shield,
-  Layers,
-  ChevronRight,
-  Flame,
-  Award,
-  Zap,
-  Globe
+  MapPin,
+  Globe,
+  Gem,
 } from 'lucide-react';
-import { LanguageCode, getGemstoneName, getPlanetName, getSignName, getTranslation } from '../../utils/indianLanguages';
+import {
+  LanguageCode,
+  getTranslation,
+  getSignName,
+  getGemstoneName,
+  getStatusName,
+} from '../../utils/indianLanguages';
 import { LanguageSelector } from '../Common/LanguageSelector';
 import { generateAstrologicalPredictions } from '../../utils/predictionEngine';
 
@@ -79,20 +83,23 @@ export const ComprehensivePredictionsWindow: React.FC<ComprehensivePredictionsWi
   const sunSign = sun?.sign || 'Leo';
 
   // Active Vimshottari period
-  const activeDashaPeriod = 'Jupiter - Saturn (Active Mahadasha)';
+  const activeDashaPeriod = selectedLanguage === 'hi' 
+    ? 'बृहस्पति - शनि (सक्रिय महादशा / अंतर्दशा)'
+    : 'Jupiter - Saturn (Active Mahadasha)';
 
-  // Retrieve or compute predictions
-  const predictions: AstrologyPredictions =
-    chartData.interpretations?.predictions ||
-    generateAstrologicalPredictions({
-      subjectName: chartData.subjectName,
-      ascendantSign: ascendant,
-      moonSign,
-      sunSign,
-      planets: chartData.planets,
-      houses: chartData.houses,
-      gemstoneName: chartData.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Yellow Sapphire',
-    });
+  const primaryGemstone = chartData.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Yellow Sapphire';
+
+  // Always compute predictions strictly in the active selectedLanguage so language switching is instantaneous and flawless
+  const predictions: AstrologyPredictions = generateAstrologicalPredictions({
+    subjectName: chartData.subjectName,
+    ascendantSign: ascendant,
+    moonSign,
+    sunSign,
+    planets: chartData.planets,
+    houses: chartData.houses,
+    gemstoneName: primaryGemstone,
+    language: selectedLanguage,
+  });
 
   const currentPrediction: TimeframePrediction = predictions[activeTab];
 
@@ -120,18 +127,18 @@ export const ComprehensivePredictionsWindow: React.FC<ComprehensivePredictionsWi
   };
 
   const handleCopySummary = () => {
-    const summaryText = `ASTROLOGICAL PREDICTIONS REPORT (${activeTab.toUpperCase()})
-Subject: ${chartData.subjectName}
-Birth Date: ${chartData.birthDate} | Time: ${chartData.birthTime} | Place: ${chartData.birthPlace}
-Ascendant: ${ascendant} | Moon Sign: ${moonSign} | Sun Sign: ${sunSign}
-Active Period: ${currentPrediction.timeframeLabel}
-Headline: ${currentPrediction.headline}
-Overall Score: ${currentPrediction.overallScore}/100
-Career & Wealth: ${currentPrediction.careerAndMoney.prediction} (${currentPrediction.careerAndMoney.score}%)
-Love & Family: ${currentPrediction.loveAndFamily.prediction} (${currentPrediction.loveAndFamily.score}%)
-Health & Vitality: ${currentPrediction.healthAndVitality.prediction} (${currentPrediction.healthAndVitality.score}%)
-Auspicious Days: ${currentPrediction.luckyElements.luckyDays.join(', ')}
-Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
+    const summaryText = `${t('predictionsWindowTitle')} (${activeTab.toUpperCase()})
+${t('subjectName') || 'Subject'}: ${chartData.subjectName}
+${t('birthDate') || 'Birth Date'}: ${chartData.birthDate} | ${t('birthTime') || 'Time'}: ${chartData.birthTime} | ${t('birthPlace') || 'Place'}: ${chartData.birthPlace}
+${t('ascendant') || 'Ascendant'}: ${getSignName(ascendant, selectedLanguage)} | ${t('moonSign') || 'Moon Sign'}: ${getSignName(moonSign, selectedLanguage)} | ${t('sunSign') || 'Sun Sign'}: ${getSignName(sunSign, selectedLanguage)}
+${t('predictionHorizon')}: ${currentPrediction.timeframeLabel}
+${currentPrediction.headline}
+${t('overallAuspiciousness')}: ${currentPrediction.overallScore}/100
+${t('careerAndMoney')}: ${currentPrediction.careerAndMoney.prediction} (${currentPrediction.careerAndMoney.score}%)
+${t('loveAndFamily')}: ${currentPrediction.loveAndFamily.prediction} (${currentPrediction.loveAndFamily.score}%)
+${t('healthAndVitality')}: ${currentPrediction.healthAndVitality.prediction} (${currentPrediction.healthAndVitality.score}%)
+${t('auspiciousDaysLabel')}: ${currentPrediction.luckyElements.luckyDays.join(', ')}
+${t('dailyVedicMantra')}: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
 
     navigator.clipboard.writeText(summaryText);
     setCopied(true);
@@ -154,10 +161,10 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
     if (popup) {
       popup.document.write(`
         <!DOCTYPE html>
-        <html lang="en">
+        <html lang="${selectedLanguage}">
         <head>
           <meta charset="UTF-8">
-          <title>${chartData.subjectName} - Astrological Predictions Window</title>
+          <title>${chartData.subjectName} - ${t('predictionsWindowTitle')}</title>
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }
             .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
@@ -178,24 +185,24 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
         <body>
           <div class="header">
             <div>
-              <span class="badge">AstroERP Astrological Master Forecast</span>
+              <span class="badge">${t('dedicatedWindow')}</span>
               <h1>${chartData.subjectName}</h1>
-              <div class="meta-item" style="margin-top: 4px;">Generated on ${new Date().toLocaleDateString()} via High-Precision Swiss Ephemeris</div>
+              <div class="meta-item" style="margin-top: 4px;">${t('swissPrecision')}</div>
             </div>
-            <button class="btn" onclick="window.print()">Print / Export PDF</button>
+            <button class="btn" onclick="window.print()">${t('printBtn')}</button>
           </div>
 
           <div class="card">
-            <h2>Complete Birth Detail Information</h2>
+            <h2>${t('verifiedBirthDetails')}</h2>
             <div class="grid-4">
-              <div class="meta-item">Birth Date: <span class="meta-val">${chartData.birthDate}</span></div>
-              <div class="meta-item">Birth Time: <span class="meta-val">${chartData.birthTime}</span></div>
-              <div class="meta-item">Birth Place: <span class="meta-val">${chartData.birthPlace}</span></div>
-              <div class="meta-item">Coordinates: <span class="meta-val">${chartData.latitude?.toFixed(2)}° N, ${chartData.longitude?.toFixed(2)}° E</span></div>
-              <div class="meta-item">Ascendant (Lagna): <span class="meta-val">${ascendant}</span></div>
-              <div class="meta-item">Moon Sign (Rashi): <span class="meta-val">${moonSign}</span></div>
-              <div class="meta-item">Sun Sign (Surya): <span class="meta-val">${sunSign}</span></div>
-              <div class="meta-item">Active Dasha: <span class="meta-val">${activeDashaPeriod}</span></div>
+              <div class="meta-item">${t('birthDate') || 'Birth Date'}: <span class="meta-val">${chartData.birthDate}</span></div>
+              <div class="meta-item">${t('birthTime') || 'Birth Time'}: <span class="meta-val">${chartData.birthTime}</span></div>
+              <div class="meta-item">${t('birthPlace') || 'Birth Place'}: <span class="meta-val">${chartData.birthPlace}</span></div>
+              <div class="meta-item">${t('coordinates')}: <span class="meta-val">${chartData.latitude?.toFixed(2)}° N, ${chartData.longitude?.toFixed(2)}° E</span></div>
+              <div class="meta-item">${t('ascendant') || 'Ascendant'}: <span class="meta-val">${getSignName(ascendant, selectedLanguage)}</span></div>
+              <div class="meta-item">${t('moonSign') || 'Moon Sign'}: <span class="meta-val">${getSignName(moonSign, selectedLanguage)}</span></div>
+              <div class="meta-item">${t('sunSign') || 'Sun Sign'}: <span class="meta-val">${getSignName(sunSign, selectedLanguage)}</span></div>
+              <div class="meta-item">${t('currentMahadasha')}: <span class="meta-val">${activeDashaPeriod}</span></div>
             </div>
           </div>
 
@@ -207,7 +214,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                 <p style="font-size:13px; color:#94a3b8; margin-top:6px;">${currentPrediction.summary}</p>
               </div>
               <div style="text-align:right;">
-                <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Overall Auspiciousness</div>
+                <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">${t('overallAuspiciousness')}</div>
                 <div class="score-circle">${currentPrediction.overallScore}/100</div>
               </div>
             </div>
@@ -215,44 +222,44 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
 
           <div class="grid-2">
             <div class="card">
-              <h3>💼 Career & Financial Growth (${currentPrediction.careerAndMoney.score}%)</h3>
+              <h3>💼 ${t('careerAndMoney')} (${currentPrediction.careerAndMoney.score}%)</h3>
               <p style="color:#94a3b8; font-size:14px; line-height:1.6;">${currentPrediction.careerAndMoney.prediction}</p>
               <div style="background:#0f172a; padding:10px; border-radius:6px; font-size:12px; color:#c7d2fe;">
-                <strong>Strategic Advice:</strong> ${currentPrediction.careerAndMoney.actionableTip}
+                <strong>${t('strategicAction')}:</strong> ${currentPrediction.careerAndMoney.actionableTip}
               </div>
             </div>
 
             <div class="card">
-              <h3>❤️ Relationships, Marriage & Family (${currentPrediction.loveAndFamily.score}%)</h3>
+              <h3>❤️ ${t('loveAndFamily')} (${currentPrediction.loveAndFamily.score}%)</h3>
               <p style="color:#94a3b8; font-size:14px; line-height:1.6;">${currentPrediction.loveAndFamily.prediction}</p>
               <div style="background:#0f172a; padding:10px; border-radius:6px; font-size:12px; color:#c7d2fe;">
-                <strong>Guidance:</strong> ${currentPrediction.loveAndFamily.actionableTip}
+                <strong>${t('harmonizingDirective')}:</strong> ${currentPrediction.loveAndFamily.actionableTip}
               </div>
             </div>
 
             <div class="card">
-              <h3>🧘 Vitality, Health & Energy (${currentPrediction.healthAndVitality.score}%)</h3>
+              <h3>🧘 ${t('healthAndVitality')} (${currentPrediction.healthAndVitality.score}%)</h3>
               <p style="color:#94a3b8; font-size:14px; line-height:1.6;">${currentPrediction.healthAndVitality.prediction}</p>
               <div style="background:#0f172a; padding:10px; border-radius:6px; font-size:12px; color:#c7d2fe;">
-                <strong>Care Directive:</strong> ${currentPrediction.healthAndVitality.actionableTip}
+                <strong>${t('vitalityDirective')}:</strong> ${currentPrediction.healthAndVitality.actionableTip}
               </div>
             </div>
 
             <div class="card">
-              <h3>✨ Favorable & Caution Activities</h3>
-              <p style="color:#34d399; font-size:13px;"><strong>Do's:</strong> ${currentPrediction.favorableActivities.join(', ')}</p>
-              <p style="color:#f87171; font-size:13px; margin-top:8px;"><strong>Don'ts:</strong> ${currentPrediction.cautionActivities.join(', ')}</p>
+              <h3>✨ ${t('auspiciousActivities')} & ${t('planetaryCautions')}</h3>
+              <p style="color:#34d399; font-size:13px;"><strong>${t('auspiciousActivities')}:</strong> ${currentPrediction.favorableActivities.join(', ')}</p>
+              <p style="color:#f87171; font-size:13px; margin-top:8px;"><strong>${t('planetaryCautions')}:</strong> ${currentPrediction.cautionActivities.join(', ')}</p>
             </div>
           </div>
 
           <div class="card">
-            <h2>Jyotish Remedies & Auspicious Guidance</h2>
-            <p><strong>Affirmation & Mantra:</strong> ${currentPrediction.luckyElements.mantraOrAffirmation}</p>
-            <p><strong>Auspicious Days:</strong> ${currentPrediction.luckyElements.luckyDays.join(', ')}</p>
-            <p><strong>Auspicious Colors:</strong> ${currentPrediction.luckyElements.luckyColors.join(', ')}</p>
-            <p><strong>Auspicious Numbers:</strong> ${currentPrediction.luckyElements.luckyNumbers.join(', ')}</p>
-            <p><strong>Favorable Direction:</strong> ${currentPrediction.luckyElements.auspiciousDirection}</p>
-            <p><strong>Recommended Gemstone:</strong> ${currentPrediction.luckyElements.favorableGemstone}</p>
+            <h2>${t('vedicRemediesAndMantra')}</h2>
+            <p><strong>${t('dailyVedicMantra')}:</strong> ${currentPrediction.luckyElements.mantraOrAffirmation}</p>
+            <p><strong>${t('auspiciousDaysLabel')}:</strong> ${currentPrediction.luckyElements.luckyDays.join(', ')}</p>
+            <p><strong>${t('auspiciousColorsLabel')}:</strong> ${currentPrediction.luckyElements.luckyColors.join(', ')}</p>
+            <p><strong>${t('luckyNumbersLabel')}:</strong> ${currentPrediction.luckyElements.luckyNumbers.join(', ')}</p>
+            <p><strong>${t('favorableDirectionLabel')}:</strong> ${currentPrediction.luckyElements.auspiciousDirection}</p>
+            <p><strong>${t('lifeGemstone')}:</strong> ${currentPrediction.luckyElements.favorableGemstone}</p>
           </div>
         </body>
         </html>
@@ -283,14 +290,14 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded-md">
-                  Dedicated Predictions Window
+                  {t('dedicatedWindow')}
                 </span>
                 <span className="text-xs text-slate-400 font-mono">
-                  Swiss Ephemeris Precision
+                  {t('swissPrecision')}
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-bold text-white mt-0.5">
-                Astrological Life Forecast • {chartData.subjectName}
+                {t('predictionsWindowTitle')} • {chartData.subjectName}
               </h2>
             </div>
           </div>
@@ -309,10 +316,10 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               type="button"
               onClick={handleCopySummary}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-              title="Copy Summary to Clipboard"
+              title={t('copyBtn')}
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-              <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+              <span className="hidden sm:inline">{copied ? t('copiedBtn') : t('copyBtn')}</span>
             </button>
 
             <button
@@ -320,10 +327,10 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               type="button"
               onClick={handleOpenStandaloneWindow}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-              title="Open in Separate Browser Window"
+              title={t('popOutWindowBtn')}
             >
               <ExternalLink className="w-4 h-4 text-indigo-400" />
-              <span className="hidden sm:inline">Pop Out Window</span>
+              <span className="hidden sm:inline">{t('popOutWindowBtn')}</span>
             </button>
 
             <button
@@ -331,10 +338,10 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               type="button"
               onClick={handlePrint}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
-              title="Print Predictions Report"
+              title={t('printBtn')}
             >
               <Printer className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Print</span>
+              <span className="hidden sm:inline">{t('printBtn')}</span>
             </button>
 
             <button
@@ -350,7 +357,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               type="button"
               onClick={onClose}
               className="p-2 text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-300 rounded-xl transition cursor-pointer"
-              title="Close Window"
+              title={t('closeBtn')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -367,7 +374,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-indigo-400" />
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Verified Birth Details & Astrological Identity
+                  {t('verifiedBirthDetails')}
                 </h3>
               </div>
               <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
@@ -378,32 +385,32 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-400 block uppercase font-bold">Date of Birth</span>
+                <span className="text-[10px] text-slate-400 block uppercase font-bold">{t('birthDate') || 'Date of Birth'}</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">{chartData.birthDate}</span>
               </div>
 
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-400 block uppercase font-bold">Time of Birth</span>
+                <span className="text-[10px] text-slate-400 block uppercase font-bold">{t('birthTime') || 'Time of Birth'}</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">{chartData.birthTime}</span>
               </div>
 
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-indigo-400 block uppercase font-bold">Ascendant (Lagna)</span>
+                <span className="text-[10px] text-indigo-400 block uppercase font-bold">{t('ascendant') || 'Ascendant'} (Lagna)</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">{getSignName(ascendant, selectedLanguage)}</span>
               </div>
 
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-cyan-400 block uppercase font-bold">Moon Sign (Rashi)</span>
+                <span className="text-[10px] text-cyan-400 block uppercase font-bold">{t('moonSign') || 'Moon Sign'} (Rashi)</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">{getSignName(moonSign, selectedLanguage)}</span>
               </div>
 
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-amber-400 block uppercase font-bold">Sun Sign (Surya)</span>
+                <span className="text-[10px] text-amber-400 block uppercase font-bold">{t('sunSign') || 'Sun Sign'} (Surya)</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">{getSignName(sunSign, selectedLanguage)}</span>
               </div>
 
               <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-emerald-400 block uppercase font-bold">Current Mahadasha</span>
+                <span className="text-[10px] text-emerald-400 block uppercase font-bold">{t('currentMahadasha')}</span>
                 <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">
                   {activeDashaPeriod}
                 </span>
@@ -414,18 +421,18 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div className="flex flex-wrap items-center justify-between text-[11px] bg-indigo-950/40 border border-indigo-900/50 rounded-xl px-4 py-2.5 gap-3 text-slate-300">
               <div className="flex items-center gap-2">
                 <Star className="w-3.5 h-3.5 text-amber-400" />
-                <span className="font-semibold text-white">House System:</span>
+                <span className="font-semibold text-white">{t('houseSystem')}:</span>
                 <span>Placidus / Sripathi Equatorial</span>
               </div>
               <div className="flex items-center gap-2">
                 <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="font-semibold text-white">Lat/Lon:</span>
+                <span className="font-semibold text-white">{t('coordinates')}:</span>
                 <span>{chartData.latitude?.toFixed(2)}°, {chartData.longitude?.toFixed(2)}° (UTC{chartData.timezoneOffset ? `+${chartData.timezoneOffset}` : '+05:30'})</span>
               </div>
               <div className="flex items-center gap-2">
                 <Gem className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="font-semibold text-white">Life Gemstone:</span>
-                <span>{chartData.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Yellow Sapphire'}</span>
+                <span className="font-semibold text-white">{t('lifeGemstone')}:</span>
+                <span>{getGemstoneName(primaryGemstone, selectedLanguage)}</span>
               </div>
             </div>
           </div>
@@ -434,7 +441,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
           <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950 border border-slate-800 p-3 rounded-2xl">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2">
-                Prediction Horizon:
+                {t('predictionHorizon')}:
               </span>
               <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800">
                 <button
@@ -448,7 +455,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Weekly Forecast</span>
+                  <span>{t('weeklyForecastTab')}</span>
                 </button>
 
                 <button
@@ -462,7 +469,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                   }`}
                 >
                   <Moon className="w-3.5 h-3.5" />
-                  <span>Monthly Outlook</span>
+                  <span>{t('monthlyOutlookTab')}</span>
                 </button>
 
                 <button
@@ -476,13 +483,13 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                   }`}
                 >
                   <Star className="w-3.5 h-3.5" />
-                  <span>Yearly Master Transit</span>
+                  <span>{t('yearlyMasterTab')}</span>
                 </button>
               </div>
             </div>
 
             <div className="flex items-center gap-2 px-2">
-              <span className="text-xs text-slate-400">Overall Auspiciousness:</span>
+              <span className="text-xs text-slate-400">{t('overallAuspiciousness')}:</span>
               <span className="text-lg font-black text-emerald-400 font-mono">
                 {currentPrediction.overallScore}/100
               </span>
@@ -497,7 +504,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                   {currentPrediction.timeframeLabel}
                 </span>
                 <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${getStatusBadge(currentPrediction.careerAndMoney.status)}`}>
-                  {currentPrediction.careerAndMoney.status} Outlook
+                  {getStatusName(currentPrediction.careerAndMoney.status, selectedLanguage)} {t('statusOutlook')}
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-white">
@@ -510,13 +517,13 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
 
             <div className="flex flex-col items-center justify-center bg-slate-900/90 border border-slate-800 p-5 rounded-2xl text-center min-w-[160px] self-start md:self-center shadow-inner">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                Planetary Harmony
+                {t('planetaryHarmony')}
               </span>
               <div className="text-3xl font-black text-emerald-400 font-mono">
                 {currentPrediction.overallScore}%
               </div>
               <span className="text-[11px] text-emerald-300/90 font-semibold mt-1">
-                {currentPrediction.overallMood || 'Auspicious Window'}
+                {currentPrediction.overallMood}
               </span>
             </div>
           </div>
@@ -532,13 +539,12 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                       <Briefcase className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Career & Wealth</h4>
-                      <span className="text-[11px] text-slate-400">Professional Inflows</span>
+                      <h4 className="text-sm font-bold text-white">{t('careerAndMoney')}</h4>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${getStatusBadge(currentPrediction.careerAndMoney.status)}`}>
-                      {currentPrediction.careerAndMoney.status}
+                      {getStatusName(currentPrediction.careerAndMoney.status, selectedLanguage)}
                     </span>
                     <span className={`text-sm font-bold font-mono ${getScoreColor(currentPrediction.careerAndMoney.score)}`}>
                       {currentPrediction.careerAndMoney.score}%
@@ -552,7 +558,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               </div>
 
               <div className="p-3 bg-indigo-950/30 border border-indigo-900/40 rounded-xl text-xs text-indigo-200 mt-2">
-                <span className="font-bold text-indigo-300 block mb-0.5">Strategic Action:</span>
+                <span className="font-bold text-indigo-300 block mb-0.5">{t('strategicAction')}:</span>
                 {currentPrediction.careerAndMoney.actionableTip}
               </div>
             </div>
@@ -566,13 +572,12 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                       <Heart className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Love & Relationships</h4>
-                      <span className="text-[11px] text-slate-400">Marriage & Family</span>
+                      <h4 className="text-sm font-bold text-white">{t('loveAndFamily')}</h4>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${getStatusBadge(currentPrediction.loveAndFamily.status)}`}>
-                      {currentPrediction.loveAndFamily.status}
+                      {getStatusName(currentPrediction.loveAndFamily.status, selectedLanguage)}
                     </span>
                     <span className={`text-sm font-bold font-mono ${getScoreColor(currentPrediction.loveAndFamily.score)}`}>
                       {currentPrediction.loveAndFamily.score}%
@@ -586,7 +591,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               </div>
 
               <div className="p-3 bg-rose-950/30 border border-rose-900/40 rounded-xl text-xs text-rose-200 mt-2">
-                <span className="font-bold text-rose-300 block mb-0.5">Harmonizing Directive:</span>
+                <span className="font-bold text-rose-300 block mb-0.5">{t('harmonizingDirective')}:</span>
                 {currentPrediction.loveAndFamily.actionableTip}
               </div>
             </div>
@@ -600,13 +605,12 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                       <Activity className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Health & Vitality</h4>
-                      <span className="text-[11px] text-slate-400">Physical & Mental Energy</span>
+                      <h4 className="text-sm font-bold text-white">{t('healthAndVitality')}</h4>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${getStatusBadge(currentPrediction.healthAndVitality.status)}`}>
-                      {currentPrediction.healthAndVitality.status}
+                      {getStatusName(currentPrediction.healthAndVitality.status, selectedLanguage)}
                     </span>
                     <span className={`text-sm font-bold font-mono ${getScoreColor(currentPrediction.healthAndVitality.score)}`}>
                       {currentPrediction.healthAndVitality.score}%
@@ -620,7 +624,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               </div>
 
               <div className="p-3 bg-cyan-950/30 border border-cyan-900/40 rounded-xl text-xs text-cyan-200 mt-2">
-                <span className="font-bold text-cyan-300 block mb-0.5">Vitality Directive:</span>
+                <span className="font-bold text-cyan-300 block mb-0.5">{t('vitalityDirective')}:</span>
                 {currentPrediction.healthAndVitality.actionableTip}
               </div>
             </div>
@@ -631,7 +635,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div className="bg-slate-950 border border-emerald-900/40 rounded-2xl p-5 shadow-sm space-y-3">
               <div className="flex items-center gap-2 text-emerald-400">
                 <CheckCircle2 className="w-4 h-4" />
-                <h4 className="text-xs uppercase font-bold tracking-wider">Auspicious Activities & Initiatives</h4>
+                <h4 className="text-xs uppercase font-bold tracking-wider">{t('auspiciousActivities')}</h4>
               </div>
               <ul className="space-y-2 text-xs text-slate-300">
                 {currentPrediction.favorableActivities.map((act, i) => (
@@ -646,7 +650,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div className="bg-slate-950 border border-rose-900/40 rounded-2xl p-5 shadow-sm space-y-3">
               <div className="flex items-center gap-2 text-rose-400">
                 <AlertTriangle className="w-4 h-4" />
-                <h4 className="text-xs uppercase font-bold tracking-wider">Planetary Cautions & Warnings</h4>
+                <h4 className="text-xs uppercase font-bold tracking-wider">{t('planetaryCautions')}</h4>
               </div>
               <ul className="space-y-2 text-xs text-slate-300">
                 {currentPrediction.cautionActivities.map((act, i) => (
@@ -664,28 +668,28 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
               <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-                Vedic Remedies, Auspicious Elements & Mantra
+                {t('vedicRemediesAndMantra')}
               </h4>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-amber-400 uppercase font-bold block mb-1">Auspicious Days</span>
+                <span className="text-[10px] text-amber-400 uppercase font-bold block mb-1">{t('auspiciousDaysLabel')}</span>
                 <span className="text-xs font-semibold text-white">{currentPrediction.luckyElements.luckyDays.join(', ')}</span>
               </div>
 
               <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-indigo-400 uppercase font-bold block mb-1">Auspicious Colors</span>
+                <span className="text-[10px] text-indigo-400 uppercase font-bold block mb-1">{t('auspiciousColorsLabel')}</span>
                 <span className="text-xs font-semibold text-white">{currentPrediction.luckyElements.luckyColors.join(', ')}</span>
               </div>
 
               <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-emerald-400 uppercase font-bold block mb-1">Lucky Numbers</span>
+                <span className="text-[10px] text-emerald-400 uppercase font-bold block mb-1">{t('luckyNumbersLabel')}</span>
                 <span className="text-xs font-semibold text-white font-mono">{currentPrediction.luckyElements.luckyNumbers.join(', ')}</span>
               </div>
 
               <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-rose-400 uppercase font-bold block mb-1">Favorable Direction</span>
+                <span className="text-[10px] text-rose-400 uppercase font-bold block mb-1">{t('favorableDirectionLabel')}</span>
                 <span className="text-xs font-semibold text-white">{currentPrediction.luckyElements.auspiciousDirection}</span>
               </div>
             </div>
@@ -693,7 +697,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
             <div className="p-4 bg-indigo-950/40 border border-indigo-800/50 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="text-[10px] uppercase font-bold text-indigo-300">
-                  Daily Vedic Mantra & Affirmation
+                  {t('dailyVedicMantra')}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-indigo-100 italic">
                   "{currentPrediction.luckyElements.mantraOrAffirmation}"
@@ -707,7 +711,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
                   className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md transition cursor-pointer whitespace-nowrap"
                 >
                   <Gem className="w-4 h-4" />
-                  Dispense {chartData.interpretations.gemstoneRecommendations[0].stone}
+                  {t('dispenseGemstone')} {getGemstoneName(primaryGemstone, selectedLanguage)}
                 </button>
               )}
             </div>
@@ -720,7 +724,7 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
         <div className="flex flex-wrap items-center justify-between px-6 py-3 border-t border-slate-800 bg-slate-950 text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>AstroERP Astronomical AI Ephemeris Calculations Active</span>
+            <span>{t('ephemerisCalculationActive')}</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -730,14 +734,14 @@ Key Mantra: ${currentPrediction.luckyElements.mantraOrAffirmation}`;
               className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 cursor-pointer"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              Open In New Tab Window
+              {t('openInNewTab')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold cursor-pointer transition"
             >
-              Close
+              {t('closeBtn')}
             </button>
           </div>
         </div>
