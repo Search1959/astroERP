@@ -89,14 +89,14 @@ export const CloudDatabaseModal: React.FC<CloudDatabaseModalProps> = ({
       const moon = chartData.planets.find(p => p.name === 'Moon');
       const res = await saveChartToCloud({
         subjectName: chartData.subjectName,
-        birthDate: chartData.inputData?.birthDate || '1992-07-24',
-        birthTime: chartData.inputData?.birthTime || '14:30',
-        placeName: chartData.inputData?.placeName || 'Global Coordinates',
-        latitude: chartData.inputData?.latitude || 0,
-        longitude: chartData.inputData?.longitude || 0,
-        timezoneOffset: chartData.inputData?.timezoneOffset || 0,
-        houseSystem: chartData.inputData?.houseSystem || 'placidus',
-        zodiacSystem: chartData.inputData?.zodiacSystem || 'tropical',
+        birthDate: chartData.birthDate || '1992-07-24',
+        birthTime: chartData.birthTime || '14:30',
+        placeName: chartData.birthPlace || 'Global Coordinates',
+        latitude: chartData.latitude || 0,
+        longitude: chartData.longitude || 0,
+        timezoneOffset: chartData.timezoneOffset || 0,
+        houseSystem: chartData.houseSystem || 'placidus',
+        zodiacSystem: chartData.zodiacSystem || 'tropical',
         chartData,
       });
 
@@ -304,7 +304,7 @@ export const CloudDatabaseModal: React.FC<CloudDatabaseModalProps> = ({
                       <div>
                         <span className="font-bold text-slate-900">{chartData.subjectName}</span>
                         <span className="text-slate-500 text-[11px] block">
-                          {chartData.inputData?.birthDate} at {chartData.inputData?.birthTime} ({chartData.inputData?.placeName})
+                          {chartData.birthDate} at {chartData.birthTime} ({chartData.birthPlace})
                         </span>
                       </div>
                       <button

@@ -1,11 +1,11 @@
 /**
  * Client Profile Drawer / Modal
  * Displays personal details, attached natal charts (with one-click full interactive chart inspection),
- * notes editor, and consultation/gemstone purchase timeline.
+ * notes editor, and consultation/gemstone purchase timeline with 1-Click Auto-Dispensing.
  */
 
 import React, { useState } from 'react';
-import { Client, AttachedNatalChart } from '../../types';
+import { Client, AttachedNatalChart, GemstoneRecommendation } from '../../types';
 import { NatalWheelChart } from '../PublicAstrology/NatalWheelChart';
 import { InterpretationView } from '../PublicAstrology/InterpretationView';
 import { PredictionsView } from '../PublicAstrology/PredictionsView';
@@ -19,6 +19,7 @@ interface ClientDetailModalProps {
   onClose: () => void;
   onUpdateNotes: (clientId: string, notes: string) => void;
   onBookAppointment: (client: Client) => void;
+  onAutoDispenseGemstone?: (recommendation: GemstoneRecommendation, client: Client) => void;
   currencySymbol?: string;
 }
 
@@ -28,6 +29,7 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
   onClose,
   onUpdateNotes,
   onBookAppointment,
+  onAutoDispenseGemstone,
   currencySymbol = '$',
 }) => {
   if (!isOpen || !client) return null;
@@ -99,93 +101,97 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('chart')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
+            className={`py-3 px-4 border-b-2 transition cursor-pointer ${
               activeTab === 'chart' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Attached Natal Chart ({client.attachedCharts?.length || 0})
+            Attached Kundli Charts ({client.attachedCharts ? client.attachedCharts.length : 0})
           </button>
           <button
             onClick={() => setActiveTab('prescriptions')}
-            className={`py-3 px-4 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
+            className={`py-3 px-4 border-b-2 transition cursor-pointer ${
               activeTab === 'prescriptions' ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Gem className="w-3.5 h-3.5 text-emerald-400" />
-            Gemstone Remedies
+            Gemstone Prescriptions & Dispensing
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* TAB 1: Profile & Notes */}
+        {/* Tab Content */}
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+          {/* TAB 1: Profile */}
           {activeTab === 'profile' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Contact Info Card */}
-              <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 space-y-4">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <User className="w-4 h-4 text-indigo-400" />
-                  Personal Information
-                </h4>
-                <div className="space-y-2.5 text-xs text-slate-300">
-                  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email:</span>
-                    <span className="font-semibold text-white">{client.email}</span>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase">Email</span>
+                    <div className="text-white font-medium">{client.email || 'None'}</div>
                   </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone:</span>
-                    <span className="font-semibold text-white">{client.phone || 'N/A'}</span>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase">Phone</span>
+                    <div className="text-white font-medium">{client.phone || 'None'}</div>
                   </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Birth Location:</span>
-                    <span className="font-semibold text-white">{client.placeOfBirth}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Gender & Occupation:</span>
-                    <span className="font-semibold text-white">{client.gender} • {client.occupation || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-                    <span className="text-slate-400">Lifetime Spend:</span>
-                    <span className="font-bold text-emerald-400 text-sm">{currencySymbol}{(client.totalSpent ?? 0).toLocaleString()}</span>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase">Birthplace</span>
+                    <div className="text-white font-medium">{client.placeOfBirth || 'None'}</div>
                   </div>
                 </div>
               </div>
 
-              {/* Astrologer Consultation Notes */}
-              <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-3">
-                <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
-                    <FileText className="w-4 h-4 text-amber-400" />
-                    Astrologer Consultation & Remedial Notes
-                  </h4>
-                  <textarea
-                    rows={6}
-                    value={notes}
-                    onChange={e => setNotes(e.target.value)}
-                    placeholder="Record notes on transit observations, recommended gemstones, muhurta dates..."
-                    className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                  />
+              {/* Astrological Quick Summary */}
+              {client.ascendant && (
+                <div className="bg-indigo-950/40 p-4 rounded-2xl border border-indigo-800/60 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Primary Astrological Markers</span>
+                    <div className="text-sm font-bold text-white mt-0.5">
+                      Lagna: <span className="text-amber-400">{client.ascendant}</span> • Rashi: <span className="text-amber-400">{client.moonSign}</span> • Nakshatra: <span className="text-indigo-300">{client.nakshatra}</span>
+                    </div>
+                  </div>
+                  <Sparkles className="w-6 h-6 text-amber-400" />
                 </div>
+              )}
+
+              {/* Astrologer Private Clinical Notes */}
+              <div className="space-y-2">
+                <label className="font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Astrologer Consultation & Remedial Notes:</span>
+                  <span className="text-[10px] text-slate-500">Private clinical records</span>
+                </label>
+                <textarea
+                  rows={6}
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Record natal transits discussed, gemstone wearing instructions, mantra diksha details..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none font-sans"
+                />
                 <div className="flex justify-end">
                   <button
                     onClick={handleSaveNotes}
                     disabled={isSavingNotes}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold flex items-center gap-1.5 transition cursor-pointer"
                   >
-                    {isSavingNotes ? 'Saved!' : 'Save Notes'}
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {isSavingNotes ? 'Saving Notes...' : 'Save Private Notes'}
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 2: Attached Natal Chart */}
+          {/* TAB 2: Attached Kundli Charts */}
           {activeTab === 'chart' && (
             <div className="space-y-6">
               {currentChart ? (
                 <>
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                     <div>
                       <h4 className="font-bold text-white text-sm">{currentChart.name}</h4>
                       <p className="text-xs text-slate-400">
@@ -227,6 +233,11 @@ export const ClientDetailModal: React.FC<ClientDetailModalProps> = ({
                 <GemstonePrescription
                   recommendations={currentChart.chartData.interpretations.gemstoneRecommendations}
                   subjectName={client.name}
+                  onAutoDispense={rec => {
+                    if (onAutoDispenseGemstone) {
+                      onAutoDispenseGemstone(rec, client);
+                    }
+                  }}
                 />
               ) : (
                 <div className="text-center py-12 text-slate-400 text-xs">

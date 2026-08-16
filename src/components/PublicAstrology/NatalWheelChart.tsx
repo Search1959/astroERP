@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { AstrologyChartData, PlanetPosition } from '../../types';
-import { ZODIAC_SIGNS } from '../../../server/astronomy/ephemeris';
+import { ZODIAC_SIGNS } from '../../utils/ephemerisEngine';
 
 interface NatalWheelChartProps {
   chartData: AstrologyChartData;

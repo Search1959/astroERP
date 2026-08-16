@@ -1,6 +1,6 @@
 {
   "name": "AstroERP - Astrology Engine & Gemstone Office ERP",
   "description": "Comprehensive hybrid platform featuring a public Swiss Ephemeris-powered natal chart calculator, astrological interpretation engine, and full back-office CRM, appointment calendar, gemstone inventory management, purchases, sales invoicing, and administrative controls.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

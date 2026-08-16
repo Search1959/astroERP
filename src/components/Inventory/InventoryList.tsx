@@ -1,11 +1,29 @@
 /**
  * Astrological Gemstone & Stone Inventory Roster
  * Filter by Planet, Category, Origin, Certification, Low-Stock Alerts
+ * Enhanced with Camera Barcode Scanner & 1-Click Auto-Procure Reordering.
  */
 
 import React, { useState } from 'react';
 import { InventoryItem } from '../../types';
-import { Gem, Search, AlertTriangle, Plus, ShieldCheck, Download, Upload, Filter, Tag, ArrowUpRight, Edit3, Trash2 } from 'lucide-react';
+import {
+  Gem,
+  Search,
+  AlertTriangle,
+  Plus,
+  ShieldCheck,
+  Download,
+  Upload,
+  Filter,
+  Tag,
+  ArrowUpRight,
+  Edit3,
+  Trash2,
+  Camera,
+  Sparkles,
+  RefreshCw,
+  Zap
+} from 'lucide-react';
 
 interface InventoryListProps {
   inventory: InventoryItem[];
@@ -13,6 +31,8 @@ interface InventoryListProps {
   onEditStone: (item: InventoryItem) => void;
   onDeleteStone: (itemId: string) => void;
   onOpenCsvImportModal: () => void;
+  onOpenScanner?: () => void;
+  onAutoRestockAll?: () => void;
   onIssueSaleForStone?: (item: InventoryItem) => void;
   currencySymbol?: string;
 }
@@ -23,6 +43,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({
   onEditStone,
   onDeleteStone,
   onOpenCsvImportModal,
+  onOpenScanner,
+  onAutoRestockAll,
   onIssueSaleForStone,
   currencySymbol = '$',
 }) => {
@@ -59,6 +81,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({
     return matchesSearch && matchesCategory && matchesPlanet && matchesLowStock;
   });
 
+  const lowStockCount = inventory.filter(i => (i.stockQuantity || 0) <= (i.minStockThreshold || 1)).length;
+
   const totalVaultValue = filteredItems.reduce((sum, item) => {
     const price = item.sellingPrice ?? item.salePrice ?? 0;
     const qty = item.stockQuantity || 0;
@@ -93,38 +117,54 @@ export const InventoryList: React.FC<InventoryListProps> = ({
   return (
     <div className="space-y-6">
       {/* Header and Controls */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <Gem className="w-5 h-5 text-indigo-600" />
             <h2 className="text-lg font-bold text-slate-900">
               Jyotish Gemstone & Vault Inventory
             </h2>
+            <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-emerald-600" />
+              Auto-Purchases Active
+            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Certified natural gemstones, planetary talismans, rudraksha beads, and remedial inventory.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {onOpenScanner && (
+            <button
+              onClick={onOpenScanner}
+              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-indigo-200 transition cursor-pointer shadow-xs"
+            >
+              <Camera className="w-4 h-4 text-indigo-600" />
+              Camera / Barcode Scan
+            </button>
+          )}
+
           <button
             onClick={onOpenCsvImportModal}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
-            Import CSV
+            Import Excel (.xlsx) / CSV
           </button>
+
           <button
             onClick={exportInventoryCSV}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             Export CSV
           </button>
+
           <button
             id="btn-add-stone-inventory"
             onClick={onOpenAddStoneModal}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Add Gemstone / Lot
@@ -132,19 +172,46 @@ export const InventoryList: React.FC<InventoryListProps> = ({
         </div>
       </div>
 
-      {/* Summary Bar */}
+      {/* Low Stock Auto-Procure Callout Banner */}
+      {lowStockCount > 0 && onAutoRestockAll && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-indigo-500/10 border border-amber-300/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                {lowStockCount} Gemstone Lots Below Min Stock Threshold
+              </h4>
+              <p className="text-[11px] text-slate-600">
+                Replenish all depleted items with 1 click. Zero manual data entry needed for supplier orders.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onAutoRestockAll}
+            className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            ⚡ Auto-Procure & Restock All ({lowStockCount} Lots)
+          </button>
+        </div>
+      )}
+
+      {/* Summary Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs text-slate-500 font-medium">Total Filtered Items</span>
             <div className="text-2xl font-bold text-slate-900 mt-1">{filteredItems.length} Lots</div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
             <Gem className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs text-slate-500 font-medium">Vault Retail Valuation</span>
             <div className="text-2xl font-bold text-emerald-700 mt-1">
@@ -152,19 +219,19 @@ export const InventoryList: React.FC<InventoryListProps> = ({
             </div>
             <span className="text-xs text-slate-400">Cost: {currencySymbol}{totalCostValue.toLocaleString()}</span>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
             <Tag className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center justify-between">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Low Stock Reorders</span>
+            <span className="text-xs text-slate-500 font-medium">Depleted / Reorder Alerts</span>
             <div className="text-2xl font-bold text-rose-600 mt-1">
-              {inventory.filter(i => i.stockQuantity <= i.minStockThreshold).length} Items
+              {lowStockCount} Items
             </div>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
             <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
@@ -180,7 +247,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search by SKU, Stone name, Planet, Lab Cert..."
-            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
 
@@ -189,7 +256,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             <option value="all">All Categories</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -199,7 +266,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           <select
             value={planetFilter}
             onChange={e => setPlanetFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             <option value="all">All Astrological Planets</option>
             {planets.map(p => <option key={p} value={p}>{p}</option>)}
@@ -208,7 +275,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           {/* Low Stock Toggle */}
           <button
             onClick={() => setShowLowStockOnly(!showLowStockOnly)}
-            className={`px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition cursor-pointer border ${
+            className={`px-3 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition cursor-pointer border ${
               showLowStockOnly
                 ? 'bg-rose-50 text-rose-700 border-rose-200'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
@@ -221,7 +288,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -238,18 +305,20 @@ export const InventoryList: React.FC<InventoryListProps> = ({
             <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-500">
-                    No gemstone items found matching criteria.
+                  <td colSpan={7} className="py-12 text-center text-slate-500 space-y-2">
+                    <Gem className="w-8 h-8 mx-auto text-slate-400" />
+                    <p className="font-semibold text-slate-700">No gemstone lots found.</p>
+                    <p className="text-xs text-slate-400">Add manually, import from Excel (.xlsx), or scan with camera.</p>
                   </td>
                 </tr>
               ) : (
                 filteredItems.map(item => {
-                  const isLow = item.stockQuantity <= item.minStockThreshold;
+                  const isLow = (item.stockQuantity || 0) <= (item.minStockThreshold || 1);
 
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80 transition">
                       {/* Name & SKU */}
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
                           <span>{item.name}</span>
                           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-indigo-700 border border-slate-200">
@@ -264,7 +333,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                       </td>
 
                       {/* Planet & Jyotish association */}
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         {(item.associatedPlanet || item.rulingPlanet) ? (
                           <div className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-indigo-600" />
@@ -277,13 +346,13 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                       </td>
 
                       {/* Weight & Origin */}
-                      <td className="py-3 px-4 text-slate-700">
+                      <td className="py-3.5 px-4 text-slate-700">
                         <div>{item.weightCarats ? `${item.weightCarats} Carat` : ''} {item.weightRatti ? `(${item.weightRatti} Ratti)` : ''}</div>
                         <div className="text-[11px] text-slate-500 mt-0.5">{item.origin || 'Natural / Mine'}</div>
                       </td>
 
                       {/* Certification */}
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         {item.isCertified || item.certificationLab ? (
                           <div className="space-y-0.5">
                             <span className="text-emerald-700 font-bold flex items-center gap-1">
@@ -302,21 +371,21 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                       </td>
 
                       {/* Stock Quantity */}
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
                           <span className={`font-bold text-sm ${isLow ? 'text-rose-600' : 'text-emerald-700'}`}>
                             {item.stockQuantity ?? 0} in stock
                           </span>
                           {isLow && (
                             <span className="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded border border-rose-200 font-bold">
-                              Low (Min: {item.minStockThreshold ?? 0})
+                              Low (Min: {item.minStockThreshold ?? 1})
                             </span>
                           )}
                         </div>
                       </td>
 
                       {/* Price */}
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="font-bold text-emerald-700 text-sm">
                           {currencySymbol}{(item.sellingPrice ?? item.salePrice ?? 0).toLocaleString()}
                         </div>
@@ -326,7 +395,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {onIssueSaleForStone && (
                             <button

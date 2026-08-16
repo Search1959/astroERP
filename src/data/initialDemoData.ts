@@ -672,35 +672,46 @@ export const DEFAULT_SETTINGS: StoreSettings = {
 };
 
 export const calculateDashboardStats = (
-  clients: Client[],
-  appointments: Appointment[],
-  inventory: GemstoneItem[],
-  sales: SalesInvoice[],
-  logs: SystemLog[]
+  clients: Client[] = [],
+  appointments: Appointment[] = [],
+  inventory: GemstoneItem[] = [],
+  sales: SalesInvoice[] = [],
+  logs: SystemLog[] = []
 ): DashboardStats => {
-  const totalClients = clients.length;
-  const totalAppointments = appointments.length;
-  const weeklyAppointments = appointments.filter(a => a.status === 'scheduled').length;
-  const lowStockItems = inventory.filter(item => item.stockQuantity <= item.minStockThreshold);
+  const safeClients = Array.isArray(clients) ? clients : [];
+  const safeAppointments = Array.isArray(appointments) ? appointments : [];
+  const safeInventory = Array.isArray(inventory) ? inventory : [];
+  const safeSales = Array.isArray(sales) ? sales : [];
+  const safeLogs = Array.isArray(logs) ? logs : [];
+
+  const totalClients = safeClients.length;
+  const totalAppointments = safeAppointments.length;
+  const weeklyAppointments = safeAppointments.filter(a => a && a.status === 'scheduled').length;
+  const lowStockItems = safeInventory.filter(
+    item => item && (item.stockQuantity ?? 0) <= (item.minStockThreshold ?? 5)
+  );
   const lowStockCount = lowStockItems.length;
 
-  const totalRevenue = sales.reduce((acc, sale) => acc + sale.grandTotal, 0);
-  const totalStonesInStock = inventory.reduce((acc, item) => acc + item.stockQuantity, 0);
-  const totalInventoryValuation = inventory.reduce((acc, item) => acc + item.stockQuantity * item.salePrice, 0);
+  const totalRevenue = safeSales.reduce((acc, sale) => acc + (sale?.grandTotal ?? 0), 0);
+  const totalStonesInStock = safeInventory.reduce((acc, item) => acc + (item?.stockQuantity ?? 0), 0);
+  const totalInventoryValuation = safeInventory.reduce(
+    (acc, item) => acc + (item?.stockQuantity ?? 0) * (item?.salePrice ?? item?.sellingPrice ?? 0),
+    0
+  );
 
   return {
     totalClients,
     weeklyAppointments,
     totalAppointments,
     lowStockCount,
-    totalRevenue: Math.round(totalRevenue * 100) / 100,
+    totalRevenue: Math.round((Number.isFinite(totalRevenue) ? totalRevenue : 0) * 100) / 100,
     totalStonesInStock,
-    totalInventoryValuation: Math.round(totalInventoryValuation * 100) / 100,
-    monthlyRevenue: Math.round(totalRevenue * 0.75 * 100) / 100,
-    recentSales: sales.slice(0, 5),
-    upcomingAppointments: appointments.filter(a => a.status === 'scheduled').slice(0, 5),
+    totalInventoryValuation: Math.round((Number.isFinite(totalInventoryValuation) ? totalInventoryValuation : 0) * 100) / 100,
+    monthlyRevenue: Math.round(((Number.isFinite(totalRevenue) ? totalRevenue : 0) * 0.75) * 100) / 100,
+    recentSales: safeSales.slice(0, 5),
+    upcomingAppointments: safeAppointments.filter(a => a && a.status === 'scheduled').slice(0, 5),
     lowStockItems,
-    recentLogs: logs.slice(0, 8),
+    recentLogs: safeLogs.slice(0, 8),
   };
 };
 

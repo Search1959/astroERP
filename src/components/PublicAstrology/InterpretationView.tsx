@@ -118,8 +118,8 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
                 {coreSun.soulPurpose}
               </p>
               <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
-                <div><span className="text-slate-800 font-semibold">Leadership Style:</span> {coreSun.leadershipStyle}</div>
-                <div><span className="text-slate-800 font-semibold">Ego Shadow:</span> {coreSun.egoShadow}</div>
+                <div><span className="text-slate-800 font-semibold">Challenges:</span> {coreSun.challenges || 'Balancing personal will with collective harmony.'}</div>
+                <div><span className="text-slate-800 font-semibold">Soul Purpose:</span> {coreSun.description}</div>
               </div>
             </div>
 
@@ -127,7 +127,7 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-4.5 space-y-3">
               <div className="flex items-center gap-2 text-cyan-600 font-bold text-sm">
                 <Moon className="w-4 h-4" />
-                <span>{getPlanetName('Moon', selectedLanguage)} in {getSignName(coreMoon.sign, selectedLanguage)}</span>
+                <span>{getPlanetName(coreMoon.sign, selectedLanguage)} in {getSignName(coreMoon.sign, selectedLanguage)}</span>
               </div>
               <div className="text-base font-bold text-slate-900">
                 House {coreMoon.house} • {coreMoon.title}
@@ -139,8 +139,8 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
                 {coreMoon.emotionalNeeds}
               </p>
               <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
-                <div><span className="text-slate-800 font-semibold">Subconscious:</span> {coreMoon.subconsciousPatterns}</div>
-                <div><span className="text-slate-800 font-semibold">Nurturance:</span> {coreMoon.nurturanceStyle}</div>
+                <div><span className="text-slate-800 font-semibold">Instincts:</span> {coreMoon.instincts || 'Deep intuitive reflexes and protective emotional sanctuary.'}</div>
+                <div><span className="text-slate-800 font-semibold">Subconscious:</span> {coreMoon.description}</div>
               </div>
             </div>
           </div>
@@ -161,15 +161,8 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
                   {t('house')} {placement.house}
                 </span>
               </div>
-              <p className="text-slate-700 font-medium">{placement.headline}</p>
+              <p className="text-slate-700 font-medium">Dignity: {placement.dignity}</p>
               <p className="text-slate-600 leading-relaxed">{placement.text}</p>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {placement.keywords.map((kw, ki) => (
-                  <span key={ki} className="px-2 py-0.5 bg-white border border-slate-200 rounded-full text-[10px] text-slate-600 font-medium">
-                    {kw}
-                  </span>
-                ))}
-              </div>
             </div>
           ))}
         </div>
@@ -190,7 +183,7 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-slate-900 text-sm">
-                    {getPlanetName(asp.planet1, selectedLanguage)} {asp.aspectType} {getPlanetName(asp.planet2, selectedLanguage)}
+                    {getPlanetName(asp.planet1, selectedLanguage)} {asp.aspect} {getPlanetName(asp.planet2, selectedLanguage)}
                   </span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     asp.nature === 'Harmonious' ? 'bg-emerald-100 text-emerald-800' :
@@ -200,7 +193,7 @@ export const InterpretationView: React.FC<InterpretationViewProps> = ({
                     {asp.nature}
                   </span>
                 </div>
-                <p className="text-slate-600 leading-relaxed">{asp.synthesis}</p>
+                <p className="text-slate-600 leading-relaxed">{asp.text}</p>
               </div>
             </div>
           ))}

@@ -34,6 +34,9 @@ export interface Client {
   occupation?: string;
   notes?: string;
   tags?: string[];
+  ascendant?: string;
+  moonSign?: string;
+  nakshatra?: string;
   attachedCharts?: AttachedNatalChart[];
   totalConsultations?: number;
   totalSpent?: number;
@@ -70,13 +73,17 @@ export interface Appointment {
   astrologerId?: string;
   astrologerName: string;
   date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-  durationMinutes: number;
-  type: AppointmentType;
+  time?: string; // HH:mm
+  startTime?: string;
+  endTime?: string;
+  durationMinutes?: number;
+  type?: AppointmentType | string;
+  serviceType?: string;
   status: AppointmentStatus;
   notes?: string;
   fee: number;
   isPaid?: boolean;
+  meetingLink?: string;
   meetingMode?: 'In-Person' | 'Video Call (Zoom/GMeet)' | 'Phone Consultation' | string;
   createdAt?: string;
 }
@@ -95,6 +102,7 @@ export interface GemstoneItem {
   id: string;
   sku: string;
   name: string;
+  sanskritName?: string;
   categoryId?: string;
   categoryName?: string;
   category?: string;
@@ -108,6 +116,9 @@ export interface GemstoneItem {
   minStockThreshold: number;
   supplier?: string;
   origin?: string;
+  color?: string;
+  cut?: string;
+  description?: string;
   isCertified?: boolean;
   certificationLab?: string;
   certificateNumber?: string;
@@ -438,4 +449,15 @@ export interface AstrologyChartData {
   houses: HouseCusp[];
   aspects: Aspect[];
   interpretations: AstrologyInterpretation;
+  inputData?: {
+    name?: string;
+    birthDate?: string;
+    birthTime?: string;
+    placeName?: string;
+    latitude?: number;
+    longitude?: number;
+    timezoneOffset?: number;
+    houseSystem?: string;
+    zodiacSystem?: string;
+  };
 }

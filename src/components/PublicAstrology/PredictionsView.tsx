@@ -22,7 +22,9 @@ import {
   ChevronUp,
   Lightbulb,
   Gem,
-  Award
+  Award,
+  ExternalLink,
+  Maximize2
 } from 'lucide-react';
 import { LanguageCode, getTranslation, getGemstoneName } from '../../utils/indianLanguages';
 import { generateAstrologicalPredictions } from '../../utils/predictionEngine';
@@ -30,11 +32,13 @@ import { generateAstrologicalPredictions } from '../../utils/predictionEngine';
 interface PredictionsViewProps {
   chartData: AstrologyChartData;
   selectedLanguage?: LanguageCode;
+  onOpenDedicatedWindow?: () => void;
 }
 
 export const PredictionsView: React.FC<PredictionsViewProps> = ({
   chartData,
   selectedLanguage = 'en',
+  onOpenDedicatedWindow,
 }) => {
   const [activePeriod, setActivePeriod] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
   const [showTransits, setShowTransits] = useState<boolean>(false);
@@ -93,49 +97,64 @@ export const PredictionsView: React.FC<PredictionsViewProps> = ({
           </div>
         </div>
 
-        {/* Timeframe Selector Tabs */}
-        <div className="flex items-center bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 text-xs font-semibold self-start md:self-auto shadow-inner">
-          <button
-            type="button"
-            id="tab-prediction-weekly"
-            onClick={() => setActivePeriod('weekly')}
-            className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-              activePeriod === 'weekly'
-                ? 'bg-white text-indigo-700 shadow-sm font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{t('weeklyForecast')}</span>
-          </button>
+        {/* Timeframe Selector Tabs & Dedicated Window Launcher */}
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <div className="flex items-center bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 text-xs font-semibold shadow-inner">
+            <button
+              type="button"
+              id="tab-prediction-weekly"
+              onClick={() => setActivePeriod('weekly')}
+              className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                activePeriod === 'weekly'
+                  ? 'bg-white text-indigo-700 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{t('weeklyForecast')}</span>
+            </button>
 
-          <button
-            type="button"
-            id="tab-prediction-monthly"
-            onClick={() => setActivePeriod('monthly')}
-            className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-              activePeriod === 'monthly'
-                ? 'bg-white text-indigo-700 shadow-sm font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{t('monthlyForecast')}</span>
-          </button>
+            <button
+              type="button"
+              id="tab-prediction-monthly"
+              onClick={() => setActivePeriod('monthly')}
+              className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                activePeriod === 'monthly'
+                  ? 'bg-white text-indigo-700 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{t('monthlyForecast')}</span>
+            </button>
 
-          <button
-            type="button"
-            id="tab-prediction-yearly"
-            onClick={() => setActivePeriod('yearly')}
-            className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-              activePeriod === 'yearly'
-                ? 'bg-white text-indigo-700 shadow-sm font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Award className="w-3.5 h-3.5" />
-            <span>{t('yearlyForecast')}</span>
-          </button>
+            <button
+              type="button"
+              id="tab-prediction-yearly"
+              onClick={() => setActivePeriod('yearly')}
+              className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                activePeriod === 'yearly'
+                  ? 'bg-white text-indigo-700 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>{t('yearlyForecast')}</span>
+            </button>
+          </div>
+
+          {onOpenDedicatedWindow && (
+            <button
+              type="button"
+              id="btn-open-dedicated-window"
+              onClick={onOpenDedicatedWindow}
+              className="px-3.5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+              title="Open Weekly, Monthly & Yearly Predictions with Full Birth Details in Dedicated Window"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-amber-300" />
+              <span>Dedicated Window</span>
+            </button>
+          )}
         </div>
       </div>
 

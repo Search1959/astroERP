@@ -1,6 +1,11 @@
 /**
  * AstroERP - Hybrid Astrology Ephemeris & Back-Office ERP Platform
- * Main React Application Entry Point
+ * Main React Application Entry Point with Zero-Human-Overhead Automation:
+ * - Single-Point Manual Entry at Add Stock / Inventory
+ * - Automatic Purchase Order Logging for Inbound Stock & Restocking
+ * - Automatic Sales Dispensing from Astrological Gemstone Prescriptions
+ * - Excel / CSV Import with Auto-Purchase Generation
+ * - Camera / Barcode Scanning for Live Stock & Procurement Intake
  */
 
 import React, { useState, useEffect } from 'react';
@@ -15,6 +20,7 @@ import {
   DashboardStats,
   AuditLog,
   StoreSettings,
+  GemstoneRecommendation,
 } from './types';
 
 // Public Astrology Components
@@ -26,6 +32,7 @@ import { InterpretationView } from './components/PublicAstrology/InterpretationV
 import { PredictionsView } from './components/PublicAstrology/PredictionsView';
 import { GemstonePrescription } from './components/PublicAstrology/GemstonePrescription';
 import { PrintableReportModal } from './components/PublicAstrology/PrintableReportModal';
+import { ComprehensivePredictionsWindow } from './components/PublicAstrology/ComprehensivePredictionsWindow';
 import { LanguageSelector } from './components/Common/LanguageSelector';
 import { LanguageCode } from './utils/indianLanguages';
 
@@ -39,6 +46,7 @@ import { AppointmentFormModal } from './components/Calendar/AppointmentFormModal
 import { InventoryList } from './components/Inventory/InventoryList';
 import { StoneFormModal } from './components/Inventory/StoneFormModal';
 import { CsvImportModal } from './components/Inventory/CsvImportModal';
+import { GemstoneScannerModal } from './components/Inventory/GemstoneScannerModal';
 import { PurchaseList } from './components/Purchases/PurchaseList';
 import { PurchaseEntryModal } from './components/Purchases/PurchaseEntryModal';
 import { SalesList } from './components/Sales/SalesList';
@@ -64,11 +72,32 @@ import {
   saveSaleToCloud,
   savePurchaseToCloud,
   saveSettingsToCloud,
-  seedCloudDatabaseIfEmpty,
-  SavedCloudChart,
 } from './services/firestoreSync';
 
-import { Sparkles, Download, ArrowRight, ShieldCheck, Globe, Calendar, Gem, Users, AlertCircle, Cloud, Database } from 'lucide-react';
+import {
+  createAutoPurchaseForInventory,
+  autoDispensePrescribedGemstone,
+  autoProcureLowStockItems,
+} from './utils/automationEngine';
+
+import {
+  Sparkles,
+  Download,
+  ArrowRight,
+  ShieldCheck,
+  Globe,
+  Calendar,
+  Gem,
+  Users,
+  AlertCircle,
+  Cloud,
+  Database,
+  Camera,
+  FileSpreadsheet,
+  Zap,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 import { calculateFullAstrologyChart } from './utils/ephemerisEngine';
 import {
   getLocalOrSeedData,
@@ -108,6 +137,8 @@ export function App() {
   const [isStoneModalOpen, setIsStoneModalOpen] = useState(false);
   const [stoneToEdit, setStoneToEdit] = useState<InventoryItem | null>(null);
   const [isCsvImportModalOpen, setIsCsvImportModalOpen] = useState(false);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+  const [scannerPurpose, setScannerPurpose] = useState<'stock_add' | 'purchase_scan' | 'sale_scan'>('stock_add');
 
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
@@ -116,11 +147,39 @@ export function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
+  const [isPredictionsWindowOpen, setIsPredictionsWindowOpen] = useState(false);
+
+  // Live Toast Notification for Automation Feedbacks
+  const [autoToast, setAutoToast] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    actionLabel?: string;
+    onAction?: () => void;
+  } | null>(null);
 
   // Fetch initial data & handle deep links / SEO routes
   useEffect(() => {
     fetchInitialData();
   }, []);
+
+  const showAutomationNotice = (
+    title: string,
+    description: string,
+    actionLabel?: string,
+    onAction?: () => void
+  ) => {
+    setAutoToast({
+      id: 'toast_' + Date.now(),
+      title,
+      description,
+      actionLabel,
+      onAction,
+    });
+    setTimeout(() => {
+      setAutoToast(current => (current?.title === title ? null : current));
+    }, 6000);
+  };
 
   const fetchInitialData = async () => {
     try {
@@ -327,6 +386,11 @@ export function App() {
       refreshStats(updated);
       setActiveTab('clients');
 
+      showAutomationNotice(
+        'Client Profile Created from Natal Chart',
+        `Saved ${newClient.name} with planetary placements and gemstone remedies.`
+      );
+
       // Sync with Cloud & Backend silently
       saveClientToCloud(newClient).catch(() => {});
       fetch('/api/clients', {
@@ -448,17 +512,16 @@ export function App() {
         clientName: client?.name || aptData.clientName || 'Client',
         clientEmail: client?.email || aptData.clientEmail || '',
         clientPhone: client?.phone || aptData.clientPhone || '',
-        astrologerId: aptData.astrologerId || (users[0]?.id || ''),
+        astrologerId: aptData.astrologerId || (users[0]?.id || 'usr_1'),
         astrologerName: astrologer?.name || aptData.astrologerName || 'Astrologer',
+        serviceType: aptData.serviceType || 'Kundli Reading & Gemstone Consultation',
         date: aptData.date || new Date().toISOString().split('T')[0],
-        time: aptData.time || '11:00',
-        durationMinutes: aptData.durationMinutes || 45,
-        type: aptData.type || 'natal_reading',
+        startTime: aptData.startTime || '10:00',
+        endTime: aptData.endTime || '11:00',
         status: aptData.status || 'scheduled',
-        notes: aptData.notes || '',
         fee: aptData.fee || 150,
-        isPaid: aptData.isPaid || false,
-        meetingMode: aptData.meetingMode || 'Video Call (Zoom/GMeet)',
+        notes: aptData.notes || '',
+        meetingLink: aptData.meetingLink || 'https://meet.google.com/xyz-jyotish',
         createdAt: new Date().toISOString(),
       };
 
@@ -467,6 +530,7 @@ export function App() {
       saveLocalRecord('APPOINTMENTS', updated);
       refreshStats(clients, updated);
       setIsAppointmentModalOpen(false);
+      setAppointmentPrefillClient(null);
 
       saveAppointmentToCloud(newApt).catch(() => {});
       fetch('/api/appointments', {
@@ -485,7 +549,6 @@ export function App() {
       setAppointments(updated);
       saveLocalRecord('APPOINTMENTS', updated);
       refreshStats(clients, updated);
-
       const target = updated.find(a => a.id === id);
       if (target) {
         saveAppointmentToCloud(target).catch(() => {});
@@ -513,8 +576,19 @@ export function App() {
     }
   };
 
-  // Inventory Handlers
-  const handleCreateOrUpdateStone = async (stoneData: Partial<InventoryItem>) => {
+  // =========================================================================
+  // ZERO-HUMAN-OVERHEAD INVENTORY & AUTOMATION HANDLERS
+  // =========================================================================
+
+  /**
+   * Add or update stone in inventory.
+   * If adding a new stone and autoCreatePurchase is true, automatically
+   * creates and records the corresponding purchase order without manual human entry.
+   */
+  const handleCreateOrUpdateStone = async (
+    stoneData: Partial<InventoryItem>,
+    autoCreatePurchase: boolean = true
+  ) => {
     try {
       let updatedList: InventoryItem[] = [];
       let savedStone: InventoryItem;
@@ -560,6 +634,28 @@ export function App() {
       setIsStoneModalOpen(false);
       setStoneToEdit(null);
 
+      // AUTO-PURCHASE WORKFLOW: No human contribution required for dealer purchases
+      if (!stoneToEdit && autoCreatePurchase) {
+        const autoPurchase = createAutoPurchaseForInventory([savedStone]);
+        const updatedPurchases = [autoPurchase, ...purchases];
+        setPurchases(updatedPurchases);
+        saveLocalRecord('PURCHASES', updatedPurchases);
+
+        savePurchaseToCloud(autoPurchase).catch(() => {});
+        fetch('/api/purchases', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(autoPurchase),
+        }).catch(() => {});
+
+        showAutomationNotice(
+          '⚡ Auto-Purchase Logged',
+          `Stock '${savedStone.name}' added & Purchase PO #${autoPurchase.purchaseOrderNumber || autoPurchase.invoiceNumber} auto-generated for ${savedStone.supplier}.`,
+          'View Purchases',
+          () => setActiveTab('purchases')
+        );
+      }
+
       saveInventoryItemToCloud(savedStone).catch(() => {});
       if (stoneToEdit) {
         fetch(`/api/inventory/${stoneToEdit.id}`, {
@@ -593,7 +689,13 @@ export function App() {
     }
   };
 
-  const handleBulkImportStones = async (importedItems: Partial<InventoryItem>[]) => {
+  /**
+   * Excel / CSV Bulk Stock Import with Auto-Purchase Generation
+   */
+  const handleBulkImportStones = async (
+    importedItems: Partial<InventoryItem>[],
+    autoGeneratePurchases: boolean = true
+  ) => {
     try {
       const newItems: InventoryItem[] = importedItems.map((item, idx) => ({
         id: 'gem_' + (Date.now() + idx),
@@ -634,9 +736,121 @@ export function App() {
           body: JSON.stringify(item),
         }).catch(() => {});
       });
+
+      // AUTO PURCHASE CREATION FOR EXCEL IMPORT
+      if (autoGeneratePurchases && newItems.length > 0) {
+        const autoPurchase = createAutoPurchaseForInventory(newItems);
+        const updatedPurchases = [autoPurchase, ...purchases];
+        setPurchases(updatedPurchases);
+        saveLocalRecord('PURCHASES', updatedPurchases);
+
+        savePurchaseToCloud(autoPurchase).catch(() => {});
+        fetch('/api/purchases', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(autoPurchase),
+        }).catch(() => {});
+
+        showAutomationNotice(
+          '⚡ Bulk Stock & Purchases Synchronized',
+          `Imported ${newItems.length} gemstone lots & created purchase PO #${autoPurchase.purchaseOrderNumber || autoPurchase.invoiceNumber} automatically.`,
+          'View Purchases',
+          () => setActiveTab('purchases')
+        );
+      }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  /**
+   * Camera / Barcode Scanned Lot Processing
+   */
+  const handleScannedItem = (
+    scannedItem: Partial<InventoryItem>,
+    autoCreatePurchase: boolean = true
+  ) => {
+    setIsScannerModalOpen(false);
+    handleCreateOrUpdateStone(scannedItem, autoCreatePurchase);
+  };
+
+  /**
+   * Automatic Astrological Gemstone Dispensing
+   * Decrements vault stock, automatically logs the sales invoice, and notifies astrologer.
+   */
+  const handleAutoDispenseGemstone = (
+    recommendation: GemstoneRecommendation,
+    targetClient?: Client
+  ) => {
+    const activeClient = targetClient || clients[0];
+    if (!activeClient) {
+      alert('Please select or register a client to dispense this gemstone.');
+      return;
+    }
+
+    const result = autoDispensePrescribedGemstone(
+      recommendation,
+      activeClient,
+      inventory,
+      sales,
+      users[0]?.name || 'Acharya Rajesh Sharma'
+    );
+
+    setInventory(result.updatedInventory);
+    saveLocalRecord('INVENTORY', result.updatedInventory);
+
+    if (result.newSale) {
+      const updatedSales = [result.newSale, ...sales];
+      setSales(updatedSales);
+      saveLocalRecord('SALES', updatedSales);
+      refreshStats(clients, appointments, result.updatedInventory, updatedSales);
+
+      saveSaleToCloud(result.newSale).catch(() => {});
+      fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result.newSale),
+      }).catch(() => {});
+
+      showAutomationNotice(
+        '⚡ Auto-Sale Invoice Issued',
+        `${result.matchedItem?.name || recommendation.stone} auto-dispensed for ${activeClient.name}. Invoice #${result.newSale.invoiceNumber} generated!`,
+        'View Invoices',
+        () => setActiveTab('sales')
+      );
+    }
+  };
+
+  /**
+   * 1-Click Auto-Procure All Low Stock Items
+   */
+  const handleAutoRestockAll = () => {
+    const result = autoProcureLowStockItems(inventory, purchases);
+    if (!result.createdPurchase) {
+      showAutomationNotice('Stock Levels Healthy', 'All gemstone lots meet minimum threshold.');
+      return;
+    }
+
+    setInventory(result.updatedInventory);
+    const updatedPurchases = [result.createdPurchase, ...purchases];
+    setPurchases(updatedPurchases);
+    saveLocalRecord('INVENTORY', result.updatedInventory);
+    saveLocalRecord('PURCHASES', updatedPurchases);
+    refreshStats(clients, appointments, result.updatedInventory, sales);
+
+    savePurchaseToCloud(result.createdPurchase).catch(() => {});
+    fetch('/api/purchases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result.createdPurchase),
+    }).catch(() => {});
+
+    showAutomationNotice(
+      '⚡ Auto-Procurement Complete',
+      `Restocked ${result.replenishedCount} lots with Purchase PO #${result.createdPurchase.purchaseOrderNumber || result.createdPurchase.invoiceNumber}.`,
+      'View Purchases',
+      () => setActiveTab('purchases')
+    );
   };
 
   // Purchases Handlers
@@ -645,6 +859,7 @@ export function App() {
       const newPurchase: Purchase = {
         id: 'pur_' + Date.now(),
         invoiceNumber: purchaseData.invoiceNumber || `PUR-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+        purchaseOrderNumber: purchaseData.purchaseOrderNumber || `PO-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
         supplierName: purchaseData.supplierName || 'Gem Supplier',
         supplierContact: purchaseData.supplierContact || '',
         purchaseDate: purchaseData.purchaseDate || new Date().toISOString().split('T')[0],
@@ -748,431 +963,476 @@ export function App() {
   };
 
   // Admin & Settings Handlers
-  const handleAddUser = async (userData: Partial<User>) => {
-    try {
-      const newUser: User = {
-        id: 'usr_' + Date.now(),
-        name: userData.name || 'New Staff Member',
-        email: userData.email || 'staff@astroerp.com',
-        role: userData.role || 'staff',
-        status: userData.status || 'active',
-        title: userData.title || 'Staff Astrologer',
-        avatarUrl: userData.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        lastLogin: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      };
-
-      const updated = [newUser, ...users];
-      setUsers(updated);
-      saveLocalRecord('USERS', updated);
-
-      fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser),
-      }).catch(() => {});
-    } catch (err) {
-      console.error(err);
-    }
+  const handleAddUser = (user: User) => {
+    const updated = [...users, user];
+    setUsers(updated);
+    saveLocalRecord('USERS', updated);
   };
 
-  const handleDeleteUser = async (id: string) => {
-    try {
-      const updated = users.filter(u => u.id !== id);
-      setUsers(updated);
-      saveLocalRecord('USERS', updated);
-      fetch(`/api/users/${id}`, { method: 'DELETE' }).catch(() => {});
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteUser = (id: string) => {
+    const updated = users.filter(u => u.id !== id);
+    setUsers(updated);
+    saveLocalRecord('USERS', updated);
   };
 
-  const handleSaveSettings = async (newSettings: StoreSettings) => {
-    try {
-      setSettings(newSettings);
-      saveLocalRecord('SETTINGS', newSettings);
-      saveSettingsToCloud(newSettings).catch(() => {});
-      fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSettings),
-      }).catch(() => {});
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSaveSettings = (newSettings: StoreSettings) => {
+    setSettings(newSettings);
+    saveLocalRecord('SETTINGS', newSettings);
+    saveSettingsToCloud(newSettings).catch(() => {});
+    fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings),
+    }).catch(() => {});
   };
 
   const currencySymbol = settings?.currencySymbol || '$';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Dynamic SEO Meta & Schema.org JSON-LD Manager */}
-      <SEOHead activeTab={activeTab} chartData={chartData} />
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans antialiased selection:bg-indigo-600 selection:text-white relative">
+      {/* Comprehensive SEO Meta Tags */}
+      <SEOHead
+        activeTab={activeTab}
+        chartData={chartData}
+        pageTitle={
+          activeTab === 'astrology'
+            ? 'Free Kundli & Ephemeris Calculator | AstroERP'
+            : activeTab === 'inventory'
+            ? 'Certified Gemstone Vault & Automation | AstroERP'
+            : 'Astrology ERP & Jyotish Practice Management'
+        }
+        pageDescription="AstroERP is an automated astrological ERP platform with zero-human-overhead inventory, auto-purchases, auto-dispensing, and ephemeris calculations."
+      />
 
-      {/* Sidebar Navigation */}
+      {/* Top Main Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         currentUser={currentUser}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
-        settings={settings}
         onOpenCloudModal={() => setIsCloudModalOpen(true)}
+        settings={settings}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        {/* Desktop Top Header Bar with Context & Quick Navigation */}
-        <header className="hidden lg:flex items-center justify-between bg-white border-b border-slate-200 px-8 py-3.5 sticky top-0 z-20 shadow-xs">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100 font-mono">
-              {activeTab === 'astrology' ? 'Public Engine' : 'Back-Office ERP'}
-            </span>
-            <span className="text-slate-300">/</span>
-            <h1 className="text-base font-bold text-slate-800 capitalize">
-              {activeTab === 'dashboard' && 'Command Center & KPI Metrics'}
-              {activeTab === 'astrology' && 'Swiss Ephemeris Natal Chart Calculator'}
-              {activeTab === 'clients' && 'Client Relationship Management (CRM)'}
-              {activeTab === 'appointments' && 'Consultation Scheduler & Calendar'}
-              {activeTab === 'inventory' && 'Gemstone Vault & Inventory Roster'}
-              {activeTab === 'purchases' && 'Dealer Purchases & Restocking'}
-              {activeTab === 'sales' && 'Sales Ledger & Invoicing'}
-              {activeTab === 'admin' && 'Staff Accounts & Security Audit'}
-              {activeTab === 'settings' && 'Store & Ephemeris Configuration'}
-            </h1>
-          </div>
+      {/* Zero Overhead Automation Quick Status Banner */}
+      <div className="bg-slate-950/80 border-b border-slate-800 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
+        <div className="flex items-center gap-2">
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
+          <span>Manual Entry restricted to Add Stock. Dealer Purchases & Sales Invoicing auto-synchronized.</span>
+        </div>
 
-          <div className="flex items-center gap-3">
-            {/* Cloud Database & SEO Manager Trigger */}
-            <button
-              type="button"
-              id="topbar-btn-cloud-seo"
-              onClick={() => setIsCloudModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <Cloud className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Cloud DB & SEO</span>
-            </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => {
+              setScannerPurpose('stock_add');
+              setIsScannerModalOpen(true);
+            }}
+            className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            Camera Scan
+          </button>
+          <button
+            onClick={() => setIsCsvImportModalOpen(true)}
+            className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            Excel Import
+          </button>
+        </div>
+      </div>
 
-            <button
-              type="button"
-              id="header-btn-quick-chart"
-              onClick={() => setActiveTab('astrology')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                activeTab === 'astrology'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              Chart Calculator
-            </button>
-            <button
-              type="button"
-              id="header-btn-quick-crm"
-              onClick={() => setActiveTab('clients')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                activeTab === 'clients'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5 text-indigo-600" />
-              Clients
-            </button>
-            <button
-              type="button"
-              id="header-btn-quick-vault"
-              onClick={() => setActiveTab('inventory')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                activeTab === 'inventory'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-              }`}
-            >
-              <Gem className="w-3.5 h-3.5 text-emerald-600" />
-              Gem Vault
-            </button>
-
-            <div className="h-4 w-px bg-slate-200 mx-1" />
-
-            {/* Indian Language Selector Dropdown */}
-            <LanguageSelector
-              selectedLanguage={selectedLanguage}
-              onSelectLanguage={setSelectedLanguage}
-              variant="compact"
-            />
-
-            <div className="h-4 w-px bg-slate-200 mx-1" />
-
-            <button
-              type="button"
-              id="header-btn-login-modal"
-              onClick={() => setIsLoginModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-xs text-slate-700 font-medium transition cursor-pointer"
-            >
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-semibold">{currentUser?.name.split(' ')[0] || 'User'}</span>
-              <span className="text-[10px] text-slate-400 capitalize">({currentUser?.role || 'admin'})</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Main Content Body */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Main Container View Area */}
+      <div className="flex-1 bg-slate-900 overflow-y-auto">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-20">
           {/* ========================================================================= */}
-          {/* VIEW 1: Public Astrology Natal Chart Calculator (Astro.com Style)       */}
+          {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
           {/* ========================================================================= */}
           {activeTab === 'astrology' && (
-            <div className="space-y-8 animate-in fade-in duration-300">
-              {/* Calculator Input Form */}
+            <div className="space-y-8">
+              {/* Top Banner & Language Selector */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950/90 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                <div>
+                  <h1 className="text-xl font-extrabold text-white flex items-center gap-2.5">
+                    <Sparkles className="w-6 h-6 text-amber-400" />
+                    Ephemeris Calculation & Kundli Engine
+                  </h1>
+                  <p className="text-xs text-slate-400 mt-1">
+                    High-precision Swiss Ephemeris astronomical positions, Vedic Vimshottari Dasha, and Ratna Jyotish.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <LanguageSelector
+                    selectedLanguage={selectedLanguage}
+                    onSelectLanguage={setSelectedLanguage}
+                  />
+                  {chartData && (
+                    <>
+                      <button
+                        id="btn-open-predictions-window-top"
+                        onClick={() => setIsPredictionsWindowOpen(true)}
+                        className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        Predictions Window
+                      </button>
+                      <button
+                        onClick={() => setIsPdfModalOpen(true)}
+                        className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                      >
+                        <Download className="w-4 h-4" />
+                        Export PDF
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Calculator Form */}
               <ChartCalculatorForm
                 onCalculate={calculateAstrologyChart}
                 isLoading={isCalculatingChart}
-                selectedLanguage={selectedLanguage}
-                onSelectLanguage={setSelectedLanguage}
               />
 
-              {/* Results Section */}
+              {/* Computed Chart & Analysis Components */}
               {chartData && (
-                <div className="space-y-8">
-                  {/* Result Action Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-slate-800">
+                <div className="space-y-8 animate-in fade-in duration-300">
+                  {/* Subject Header & Quick Client Save */}
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-indigo-600" />
-                        Natal Chart & Cosmic Blueprint for {chartData.subjectName}
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Born {chartData.birthDate} at {chartData.birthTime} • {chartData.birthPlace}
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-800">
+                        Natal Ephemeris Generated
+                      </span>
+                      <h2 className="text-xl font-bold text-white mt-2">
+                        {chartData.subjectName}
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Born {chartData.birthDate} at {chartData.birthTime} • {chartData.birthPlace} (Lat: {chartData.latitude.toFixed(2)}, Lon: {chartData.longitude.toFixed(2)})
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
-                        type="button"
-                        id="btn-cloud-share-chart"
-                        onClick={() => setIsCloudModalOpen(true)}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        id="btn-open-predictions-window-banner"
+                        onClick={() => setIsPredictionsWindowOpen(true)}
+                        className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                       >
-                        <Globe className="w-3.5 h-3.5" />
-                        Save to Cloud & Share Link
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        View Weekly / Monthly / Yearly Predictions
                       </button>
                       <button
-                        type="button"
-                        id="btn-save-to-crm"
+                        id="btn-save-as-client"
                         onClick={handleSaveChartAsClient}
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                       >
-                        <Users className="w-3.5 h-3.5" />
-                        Save Chart to Back-Office CRM
-                      </button>
-                      <button
-                        type="button"
-                        id="btn-open-pdf-modal"
-                        onClick={() => setIsPdfModalOpen(true)}
-                        className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition shadow-xs cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        Generate & Print PDF Report
+                        <Users className="w-4 h-4 text-indigo-400" />
+                        Save to CRM
                       </button>
                     </div>
                   </div>
 
-                {/* Primary Chart View: Interactive Wheel + Interpretation Summary */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  <div className="lg:col-span-6 flex justify-center">
-                    <NatalWheelChart chartData={chartData} size={540} />
+                  {/* Natal Wheel and Interpretations */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div className="lg:col-span-6 flex flex-col items-center bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm">
+                      <h3 className="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2 self-start">
+                        <Sparkles className="w-4 h-4 text-indigo-400" />
+                        Planetary Natal Wheel Chart
+                      </h3>
+                      <NatalWheelChart chartData={chartData} size={480} />
+                    </div>
+
+                    <div className="lg:col-span-6">
+                      <InterpretationView
+                        interpretations={chartData.interpretations}
+                        subjectName={chartData.subjectName}
+                        selectedLanguage={selectedLanguage}
+                      />
+                    </div>
                   </div>
-                  <div className="lg:col-span-6">
-                    <InterpretationView
-                      interpretations={chartData.interpretations}
-                      subjectName={chartData.subjectName}
-                      selectedLanguage={selectedLanguage}
-                    />
-                  </div>
+
+                  {/* Gemstone Prescriptions with 1-Click Auto-Dispensing */}
+                  <GemstonePrescription
+                    recommendations={chartData.interpretations.gemstoneRecommendations}
+                    subjectName={chartData.subjectName}
+                    selectedLanguage={selectedLanguage}
+                    onNavigateToVault={() => setActiveTab('inventory')}
+                    onAutoDispense={rec => handleAutoDispenseGemstone(rec, clients[0])}
+                  />
+
+                  {/* Planetary Positions & Vedic Dashas */}
+                  <PlanetaryTable
+                    chartData={chartData}
+                    selectedLanguage={selectedLanguage}
+                  />
+
+                  {/* Planetary Aspects Matrix */}
+                  <AspectsMatrix
+                    aspects={chartData.aspects || []}
+                  />
+
+                  {/* AI & Predictive Timelines */}
+                  <PredictionsView
+                    chartData={chartData}
+                    selectedLanguage={selectedLanguage}
+                    onOpenDedicatedWindow={() => setIsPredictionsWindowOpen(true)}
+                  />
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Weekly, Monthly, and Yearly Astrological Predictions for Everyday Understanding */}
-                <PredictionsView
-                  chartData={chartData}
-                  selectedLanguage={selectedLanguage}
-                />
-
-                {/* Planetary Positions & Elemental Table */}
-                <PlanetaryTable
-                  chartData={chartData}
-                  selectedLanguage={selectedLanguage}
-                />
-
-                {/* Major Planetary Aspects Matrix */}
-                <AspectsMatrix aspects={chartData.aspects} />
-
-                {/* Jyotish Gemstone Remedial Prescription */}
-                <GemstonePrescription
-                  recommendations={chartData.interpretations.gemstoneRecommendations}
-                  subjectName={chartData.subjectName}
-                  selectedLanguage={selectedLanguage}
-                  onNavigateToVault={() => setActiveTab('inventory')}
-                  onBookConsultation={() => {
-                    setActiveTab('appointments');
-                    setIsAppointmentModalOpen(true);
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 2: Back-Office Overview Dashboard                                   */}
-        {/* ========================================================================= */}
-        {activeTab === 'dashboard' && (
-          <OverviewDashboard
-            stats={dashboardStats}
-            currentUser={currentUser}
-            onNavigateTab={setActiveTab}
-            onOpenNewClientModal={() => {
-              setClientToEdit(null);
-              setIsClientFormModalOpen(true);
-            }}
-            onOpenNewAppointmentModal={() => {
-              setAppointmentPrefillClient(null);
-              setIsAppointmentModalOpen(true);
-            }}
-            onOpenNewSaleModal={() => {
-              setSalePrefillStone(null);
-              setIsSaleModalOpen(true);
-            }}
-            onOpenNewStoneModal={() => {
-              setStoneToEdit(null);
-              setIsStoneModalOpen(true);
-            }}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 3: CRM & Client Records                                              */}
-        {/* ========================================================================= */}
-        {activeTab === 'clients' && (
-          <ClientList
-            clients={clients}
-            onSelectClient={c => setSelectedClientForView(c)}
-            onOpenNewClientModal={() => {
-              setClientToEdit(null);
-              setIsClientFormModalOpen(true);
-            }}
-            onEditClient={c => {
-              setClientToEdit(c);
-              setIsClientFormModalOpen(true);
-            }}
-            onDeleteClient={handleDeleteClient}
-            onBookAppointmentForClient={c => {
-              setAppointmentPrefillClient(c);
-              setIsAppointmentModalOpen(true);
-            }}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 4: Consultations & Calendar Scheduler                               */}
-        {/* ========================================================================= */}
-        {activeTab === 'appointments' && (
-          <AppointmentCalendar
-            appointments={appointments}
-            clients={clients}
-            astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'admin')}
-            onOpenBookingModal={c => {
-              setAppointmentPrefillClient(c || null);
-              setIsAppointmentModalOpen(true);
-            }}
-            onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
-            onDeleteAppointment={handleDeleteAppointment}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 5: Gemstone & Stone Inventory Roster                                */}
-        {/* ========================================================================= */}
-        {activeTab === 'inventory' && (
-          <InventoryList
-            inventory={inventory}
-            onOpenAddStoneModal={() => {
-              setStoneToEdit(null);
-              setIsStoneModalOpen(true);
-            }}
-            onEditStone={item => {
-              setStoneToEdit(item);
-              setIsStoneModalOpen(true);
-            }}
-            onDeleteStone={handleDeleteStone}
-            onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
-            onIssueSaleForStone={item => {
-              setSalePrefillStone(item);
-              setIsSaleModalOpen(true);
-            }}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 6: Supplier Purchases & Restocking                                  */}
-        {/* ========================================================================= */}
-        {activeTab === 'purchases' && (
-          <PurchaseList
-            purchases={purchases}
-            inventory={inventory}
-            onOpenNewPurchaseModal={() => setIsPurchaseModalOpen(true)}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 7: Sales & Invoicing                                                */}
-        {/* ========================================================================= */}
-        {activeTab === 'sales' && (
-          <SalesList
-            sales={sales}
-            clients={clients}
-            inventory={inventory}
-            onOpenNewSaleModal={() => {
-              setSalePrefillStone(null);
-              setIsSaleModalOpen(true);
-            }}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {/* ========================================================================= */}
-        {/* VIEW 8: User Accounts & Audit Logs                                       */}
-        {/* ========================================================================= */}
-        {activeTab === 'admin' && (
-          <div className="space-y-8">
-            <UserManagement
-              users={users}
-              onAddUser={handleAddUser}
-              onDeleteUser={handleDeleteUser}
+          {/* ========================================================================= */}
+          {/* VIEW 2: Back-Office Executive Dashboard                                   */}
+          {/* ========================================================================= */}
+          {activeTab === 'dashboard' && (
+            <OverviewDashboard
+              stats={dashboardStats}
+              currentUser={currentUser}
+              inventory={inventory}
+              clients={clients}
+              appointments={appointments}
+              sales={sales}
+              chartData={chartData}
+              onNavigateTab={setActiveTab}
+              onOpenNewClientModal={() => {
+                setClientToEdit(null);
+                setIsClientFormModalOpen(true);
+              }}
+              onOpenNewAppointmentModal={() => {
+                setAppointmentPrefillClient(null);
+                setIsAppointmentModalOpen(true);
+              }}
+              onOpenNewSaleModal={() => {
+                setSalePrefillStone(null);
+                setIsSaleModalOpen(true);
+              }}
+              onOpenNewStoneModal={() => {
+                setStoneToEdit(null);
+                setIsStoneModalOpen(true);
+              }}
+              onOpenScannerModal={() => {
+                setScannerPurpose('stock_add');
+                setIsScannerModalOpen(true);
+              }}
+              onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
+              onOpenPredictionsWindow={() => {
+                if (chartData) {
+                  setIsPredictionsWindowOpen(true);
+                } else {
+                  calculateAstrologyChart({
+                    name: 'Ananya Sharma',
+                    birthDate: '1995-11-18',
+                    birthTime: '09:15',
+                    placeName: 'New Delhi, India',
+                    latitude: 28.6139,
+                    longitude: 77.2090,
+                    timezoneOffset: 5.5,
+                    houseSystem: 'placidus',
+                    zodiacSystem: 'tropical',
+                  });
+                  setIsPredictionsWindowOpen(true);
+                }
+              }}
+              onQuickCalculate={(name, date, time) => {
+                calculateAstrologyChart({
+                  name: name,
+                  birthDate: date,
+                  birthTime: time,
+                  placeName: 'New Delhi, India',
+                  latitude: 28.6139,
+                  longitude: 77.2090,
+                  timezoneOffset: 5.5,
+                  houseSystem: 'placidus',
+                  zodiacSystem: 'tropical',
+                });
+                setActiveTab('astrology');
+              }}
+              currencySymbol={currencySymbol}
             />
-            <SystemAuditLogs logs={auditLogs} />
-          </div>
-        )}
+          )}
 
-        {/* ========================================================================= */}
-        {/* VIEW 9: System Settings                                                  */}
-        {/* ========================================================================= */}
-        {activeTab === 'settings' && (
-          <StoreSettingsView
-            settings={settings}
-            onSaveSettings={handleSaveSettings}
-          />
-        )}
-      </main>
+          {/* ========================================================================= */}
+          {/* VIEW 3: Client CRM & Consultations                                       */}
+          {/* ========================================================================= */}
+          {activeTab === 'clients' && (
+            <ClientList
+              clients={clients}
+              onSelectClient={c => setSelectedClientForView(c)}
+              onEditClient={c => {
+                setClientToEdit(c);
+                setIsClientFormModalOpen(true);
+              }}
+              onDeleteClient={handleDeleteClient}
+              onOpenNewClientModal={() => {
+                setClientToEdit(null);
+                setIsClientFormModalOpen(true);
+              }}
+              onBookAppointmentForClient={c => {
+                setAppointmentPrefillClient(c);
+                setIsAppointmentModalOpen(true);
+              }}
+              currencySymbol={currencySymbol}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 4: Appointment Calendar                                             */}
+          {/* ========================================================================= */}
+          {activeTab === 'calendar' && (
+            <AppointmentCalendar
+              appointments={appointments}
+              clients={clients}
+              astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'super_admin' || u.role === 'admin')}
+              onOpenBookingModal={prefillClient => {
+                setAppointmentPrefillClient(prefillClient || null);
+                setIsAppointmentModalOpen(true);
+              }}
+              onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
+              onDeleteAppointment={handleDeleteAppointment}
+              currencySymbol={currencySymbol}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 5: Gemstone Inventory Vault (Zero-Overhead Hub)                      */}
+          {/* ========================================================================= */}
+          {activeTab === 'inventory' && (
+            <InventoryList
+              inventory={inventory}
+              onOpenAddStoneModal={() => {
+                setStoneToEdit(null);
+                setIsStoneModalOpen(true);
+              }}
+              onEditStone={item => {
+                setStoneToEdit(item);
+                setIsStoneModalOpen(true);
+              }}
+              onDeleteStone={handleDeleteStone}
+              onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
+              onOpenScanner={() => {
+                setScannerPurpose('stock_add');
+                setIsScannerModalOpen(true);
+              }}
+              onAutoRestockAll={handleAutoRestockAll}
+              onIssueSaleForStone={item => {
+                setSalePrefillStone(item);
+                setIsSaleModalOpen(true);
+              }}
+              currencySymbol={currencySymbol}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 6: Supplier Purchases & Auto-Procurement                              */}
+          {/* ========================================================================= */}
+          {activeTab === 'purchases' && (
+            <PurchaseList
+              purchases={purchases}
+              inventory={inventory}
+              onOpenNewPurchaseModal={() => setIsPurchaseModalOpen(true)}
+              onOpenScanner={() => {
+                setScannerPurpose('purchase_scan');
+                setIsScannerModalOpen(true);
+              }}
+              onAutoRestockAll={handleAutoRestockAll}
+              currencySymbol={currencySymbol}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 7: Sales & Auto-Dispensed Invoicing                                  */}
+          {/* ========================================================================= */}
+          {activeTab === 'sales' && (
+            <SalesList
+              sales={sales}
+              clients={clients}
+              inventory={inventory}
+              onOpenNewSaleModal={() => {
+                setSalePrefillStone(null);
+                setIsSaleModalOpen(true);
+              }}
+              onOpenScanner={() => {
+                setScannerPurpose('sale_scan');
+                setIsScannerModalOpen(true);
+              }}
+              currencySymbol={currencySymbol}
+            />
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 8: User Accounts & Audit Logs                                       */}
+          {/* ========================================================================= */}
+          {activeTab === 'admin' && (
+            <div className="space-y-8">
+              <UserManagement
+                users={users}
+                onAddUser={handleAddUser}
+                onDeleteUser={handleDeleteUser}
+              />
+              <SystemAuditLogs logs={auditLogs} />
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* VIEW 9: System Settings                                                  */}
+          {/* ========================================================================= */}
+          {activeTab === 'settings' && (
+            <StoreSettingsView
+              settings={settings}
+              onSaveSettings={handleSaveSettings}
+            />
+          )}
+        </main>
       </div>
 
+      {/* Floating Auto-Notification Toast */}
+      {autoToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-slate-900/95 border border-emerald-500/50 text-white p-4 rounded-2xl shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-5 duration-300">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-emerald-300">{autoToast.title}</h4>
+                <button
+                  onClick={() => setAutoToast(null)}
+                  className="text-slate-400 hover:text-white p-0.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-1 leading-snug">{autoToast.description}</p>
+              {autoToast.actionLabel && autoToast.onAction && (
+                <button
+                  onClick={() => {
+                    autoToast.onAction?.();
+                    setAutoToast(null);
+                  }}
+                  className="mt-2 text-[11px] font-bold text-indigo-400 hover:text-indigo-300 underline"
+                >
+                  {autoToast.actionLabel} &rarr;
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Global Modals */}
+
+      {/* Camera / Barcode Scanning Modal */}
+      <GemstoneScannerModal
+        isOpen={isScannerModalOpen}
+        onClose={() => setIsScannerModalOpen(false)}
+        onStoneScanned={handleScannedItem}
+        mode={scannerPurpose}
+      />
 
       {/* Client Detail Drawer / Modal */}
       <ClientDetailModal
@@ -1185,6 +1445,7 @@ export function App() {
           setAppointmentPrefillClient(c);
           setIsAppointmentModalOpen(true);
         }}
+        onAutoDispenseGemstone={(rec, cl) => handleAutoDispenseGemstone(rec, cl)}
         currencySymbol={currencySymbol}
       />
 
@@ -1206,19 +1467,19 @@ export function App() {
         prefillClient={appointmentPrefillClient}
       />
 
-      {/* Gemstone Lot Modal */}
+      {/* Gemstone Lot Modal (Single-Point Manual Entry) */}
       <StoneFormModal
         isOpen={isStoneModalOpen}
         onClose={() => setIsStoneModalOpen(false)}
-        onSubmit={handleCreateOrUpdateStone}
+        onSubmit={(stoneData, autoCreatePurchase) => handleCreateOrUpdateStone(stoneData, autoCreatePurchase)}
         editingStone={stoneToEdit}
       />
 
-      {/* CSV Bulk Import Modal */}
+      {/* CSV / Excel Bulk Import Modal */}
       <CsvImportModal
         isOpen={isCsvImportModalOpen}
         onClose={() => setIsCsvImportModalOpen(false)}
-        onImport={handleBulkImportStones}
+        onImport={(items, autoPurchases) => handleBulkImportStones(items, autoPurchases)}
       />
 
       {/* Purchase Entry Modal */}
@@ -1260,7 +1521,7 @@ export function App() {
         sales={sales}
         users={users}
         settings={settings}
-        onLoadSavedChart={(cloudChart) => {
+        onLoadSavedChart={cloudChart => {
           setChartData(cloudChart.chartData);
           setActiveTab('astrology');
         }}
@@ -1275,6 +1536,19 @@ export function App() {
           currencySymbol={currencySymbol}
           selectedLanguage={selectedLanguage}
           onSelectLanguage={setSelectedLanguage}
+        />
+      )}
+
+      {/* Comprehensive Dedicated Predictions Window (Weekly, Monthly, Yearly + Birth Details) */}
+      {chartData && (
+        <ComprehensivePredictionsWindow
+          chartData={chartData}
+          isOpen={isPredictionsWindowOpen}
+          onClose={() => setIsPredictionsWindowOpen(false)}
+          selectedLanguage={selectedLanguage}
+          onSelectLanguage={setSelectedLanguage}
+          currencySymbol={currencySymbol}
+          onAutoDispenseGemstone={rec => handleAutoDispenseGemstone(rec, clients[0])}
         />
       )}
     </div>
