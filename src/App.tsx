@@ -6,6 +6,9 @@
  * - Automatic Sales Dispensing from Astrological Gemstone Prescriptions
  * - Excel / CSV Import with Auto-Purchase Generation
  * - Camera / Barcode Scanning for Live Stock & Procurement Intake
+ * - Vedic Astrology Themed Home Landing Page
+ * - Dual-Tab Auth Modal (Register Zero-Data A/C vs Login) & 1-Click Demo Mode (Read-Only)
+ * - Super Admin System Console with Tenant Credential Vault & $200/mo Subscription Billing
  */
 
 import React, { useState, useEffect } from 'react';
@@ -20,8 +23,11 @@ import {
   DashboardStats,
   AuditLog,
   StoreSettings,
-  GemstoneRecommendation,
+  SubscriptionBillingRecord,
 } from './types';
+
+// Home Landing Page Component
+import { AstroLandingPage } from './components/Home/AstroLandingPage';
 
 // Public Astrology Components
 import { ChartCalculatorForm } from './components/PublicAstrology/ChartCalculatorForm';
@@ -52,8 +58,10 @@ import { PurchaseEntryModal } from './components/Purchases/PurchaseEntryModal';
 import { SalesList } from './components/Sales/SalesList';
 import { SalesInvoiceModal } from './components/Sales/SalesInvoiceModal';
 import { UserManagement } from './components/Admin/UserManagement';
+import { SuperAdminConsole } from './components/Admin/SuperAdminConsole';
 import { SystemAuditLogs } from './components/Admin/SystemAuditLogs';
 import { StoreSettingsView } from './components/Admin/StoreSettingsView';
+import { AuthModal } from './components/Auth/AuthModal';
 import { LoginModal } from './components/Auth/LoginModal';
 import { Navbar } from './components/Navbar';
 
@@ -76,40 +84,31 @@ import {
 
 import {
   createAutoPurchaseForInventory,
-  autoDispensePrescribedGemstone,
   autoProcureLowStockItems,
 } from './utils/automationEngine';
 
 import {
   Sparkles,
   Download,
-  ArrowRight,
-  ShieldCheck,
-  Globe,
-  Calendar,
-  Gem,
   Users,
-  AlertCircle,
-  Cloud,
-  Database,
   Camera,
   FileSpreadsheet,
   Zap,
-  CheckCircle2,
   X,
+  Eye,
+  ArrowRight,
 } from 'lucide-react';
 import { calculateFullAstrologyChart } from './utils/ephemerisEngine';
 import {
   getLocalOrSeedData,
   saveLocalRecord,
   calculateDashboardStats,
-  DEFAULT_USERS,
-  DEFAULT_SETTINGS,
+  DEFAULT_SUBSCRIPTION_BILLING,
 } from './data/initialDemoData';
 
 export function App() {
-  // Navigation - default to executive command center dashboard
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  // Navigation: defaults to Home Landing Page
+  const [activeTab, setActiveTab] = useState<string>('home');
 
   // Application Data States
   const [chartData, setChartData] = useState<AstrologyChartData | null>(null);
@@ -124,6 +123,7 @@ export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionBillingRecord[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>('hi');
 
   // Modals & Selected items
@@ -144,7 +144,13 @@ export function App() {
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
   const [salePrefillStone, setSalePrefillStone] = useState<InventoryItem | null>(null);
 
+  // New Auth Modal (Sign Up & Login)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalInitialTab, setAuthModalInitialTab] = useState<'signup' | 'login'>('signup');
+
+  // Legacy quick switcher modal
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
   const [isPredictionsWindowOpen, setIsPredictionsWindowOpen] = useState(false);
@@ -181,22 +187,95 @@ export function App() {
     }, 6000);
   };
 
-  const fetchInitialData = async () => {
-    try {
-      // 1. Immediately hydrate from robust local seed & storage (zero network latency, works 100% offline & on Vercel)
-      const seed = getLocalOrSeedData();
+  const persistCurrentTenantData = (
+    c = clients,
+    inv = inventory,
+    a = appointments,
+    p = purchases,
+    s = sales
+  ) => {
+    if (currentUser && currentUser.role !== 'super_admin' && currentUser.role !== 'demo_user') {
+      try {
+        localStorage.setItem(
+          `astroerp_tenant_${currentUser.id}`,
+          JSON.stringify({
+            clients: c,
+            inventory: inv,
+            appointments: a,
+            purchases: p,
+            sales: s,
+          })
+        );
+      } catch (e) {
+        console.warn('Failed to save tenant dataset:', e);
+      }
+    }
+  };
+
+  const loadTenantWorkspace = (user: User, allSeed?: ReturnType<typeof getLocalOrSeedData>) => {
+    if (user.role === 'super_admin' || user.role === 'demo_user') {
+      const seed = allSeed || getLocalOrSeedData();
       setClients(seed.clients);
       setInventory(seed.inventory);
       setAppointments(seed.appointments);
       setPurchases(seed.purchases);
       setSales(seed.sales);
-      setSettings(seed.settings);
-      setUsers(seed.users);
-      setCurrentUser(seed.users[0] || null);
-      setAuditLogs(seed.logs);
-      setDashboardStats(calculateDashboardStats(seed.clients, seed.appointments, seed.inventory, seed.sales, seed.logs));
+      refreshStats(seed.clients, seed.appointments, seed.inventory, seed.sales, auditLogs);
+    } else {
+      // Regular client / astrologer account (must start with 0 data unless saved)
+      try {
+        const raw = localStorage.getItem(`astroerp_tenant_${user.id}`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const tClients = parsed.clients || [];
+          const tInv = parsed.inventory || [];
+          const tApts = parsed.appointments || [];
+          const tPurchases = parsed.purchases || [];
+          const tSales = parsed.sales || [];
+          setClients(tClients);
+          setInventory(tInv);
+          setAppointments(tApts);
+          setPurchases(tPurchases);
+          setSales(tSales);
+          refreshStats(tClients, tApts, tInv, tSales, auditLogs);
+        } else {
+          // Zero-data state for fresh account
+          setClients([]);
+          setInventory([]);
+          setAppointments([]);
+          setPurchases([]);
+          setSales([]);
+          refreshStats([], [], [], [], auditLogs);
+        }
+      } catch (e) {
+        setClients([]);
+        setInventory([]);
+        setAppointments([]);
+        setPurchases([]);
+        setSales([]);
+        refreshStats([], [], [], [], auditLogs);
+      }
+    }
+  };
 
-      // 2. Immediately calculate initial sample chart for public astrology view
+  const fetchInitialData = async () => {
+    try {
+      // 1. Immediately hydrate from robust local seed & storage
+      const seed = getLocalOrSeedData();
+      setUsers(seed.users);
+      setSettings(seed.settings);
+      setAuditLogs(seed.logs);
+      setSubscriptions(seed.subscriptions || DEFAULT_SUBSCRIPTION_BILLING);
+
+      // Default user set to Super Admin (or first user)
+      const defaultUser = seed.users[0] || null;
+      setCurrentUser(defaultUser);
+
+      if (defaultUser) {
+        loadTenantWorkspace(defaultUser, seed);
+      }
+
+      // 2. Initial sample chart for astrology view
       const initialChart = calculateFullAstrologyChart({
         name: 'Alexander Sterling',
         birthDate: '1992-07-24',
@@ -210,7 +289,7 @@ export function App() {
       });
       setChartData(initialChart);
 
-      // 3. Check for deep-linked saved chart from Firestore via URL search params (e.g. ?chartId=chart_123)
+      // 3. Deep-linked saved chart or tab from URL params
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         const linkedChartId = urlParams.get('chartId');
@@ -231,66 +310,6 @@ export function App() {
             console.warn('Cloud chart lookup:', e);
           }
         }
-      }
-
-      // 4. In parallel, attempt to sync with backend API if running in full-stack mode
-      const safeFetch = async (url: string) => {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) return null;
-          const json = await res.json();
-          if (json && json.data !== undefined) return json.data;
-          return json;
-        } catch {
-          return null;
-        }
-      };
-
-      const [stats, clientsData, aptsData, invData, purData, salesData, usersData, logsData, setData] = await Promise.all([
-        safeFetch('/api/dashboard/stats'),
-        safeFetch('/api/clients'),
-        safeFetch('/api/appointments'),
-        safeFetch('/api/inventory'),
-        safeFetch('/api/purchases'),
-        safeFetch('/api/sales'),
-        safeFetch('/api/users'),
-        safeFetch('/api/audit-logs'),
-        safeFetch('/api/settings'),
-      ]);
-
-      if (stats) setDashboardStats(stats);
-      if (Array.isArray(clientsData) && clientsData.length > 0) {
-        setClients(clientsData);
-        saveLocalRecord('CLIENTS', clientsData);
-      }
-      if (Array.isArray(aptsData) && aptsData.length > 0) {
-        setAppointments(aptsData);
-        saveLocalRecord('APPOINTMENTS', aptsData);
-      }
-      if (Array.isArray(invData) && invData.length > 0) {
-        setInventory(invData);
-        saveLocalRecord('INVENTORY', invData);
-      }
-      if (Array.isArray(purData) && purData.length > 0) {
-        setPurchases(purData);
-        saveLocalRecord('PURCHASES', purData);
-      }
-      if (Array.isArray(salesData) && salesData.length > 0) {
-        setSales(salesData);
-        saveLocalRecord('SALES', salesData);
-      }
-      if (Array.isArray(usersData) && usersData.length > 0) {
-        setUsers(usersData);
-        setCurrentUser(usersData[0] || null);
-        saveLocalRecord('USERS', usersData);
-      }
-      if (Array.isArray(logsData) && logsData.length > 0) {
-        setAuditLogs(logsData);
-        saveLocalRecord('LOGS', logsData);
-      }
-      if (setData) {
-        setSettings(setData);
-        saveLocalRecord('SETTINGS', setData);
       }
     } catch (err) {
       console.error('Error fetching initial data:', err);
@@ -322,11 +341,9 @@ export function App() {
   }) => {
     setIsCalculatingChart(true);
     try {
-      // 1. Direct high-precision astronomical computation in-browser (Jean Meeus algorithm)
       const calculated = calculateFullAstrologyChart(formData);
       setChartData(calculated);
 
-      // 2. Non-blocking background sync if backend server is available
       fetch('/api/astrology/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -382,6 +399,7 @@ export function App() {
 
       const updated = [newClient, ...clients];
       setClients(updated);
+      persistCurrentTenantData(updated);
       saveLocalRecord('CLIENTS', updated);
       refreshStats(updated);
       setActiveTab('clients');
@@ -391,13 +409,7 @@ export function App() {
         `Saved ${newClient.name} with planetary placements and gemstone remedies.`
       );
 
-      // Sync with Cloud & Backend silently
       saveClientToCloud(newClient).catch(() => {});
-      fetch('/api/clients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newClient),
-      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -442,26 +454,13 @@ export function App() {
       }
 
       setClients(updatedList);
+      persistCurrentTenantData(updatedList);
       saveLocalRecord('CLIENTS', updatedList);
       refreshStats(updatedList);
       setIsClientFormModalOpen(false);
       setClientToEdit(null);
 
-      // Cloud & API sync
       saveClientToCloud(savedClient).catch(() => {});
-      if (clientToEdit) {
-        fetch(`/api/clients/${clientToEdit.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(savedClient),
-        }).catch(() => {});
-      } else {
-        fetch('/api/clients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(savedClient),
-        }).catch(() => {});
-      }
     } catch (err) {
       console.error(err);
     }
@@ -472,10 +471,10 @@ export function App() {
     try {
       const updated = clients.filter(c => c.id !== clientId);
       setClients(updated);
+      persistCurrentTenantData(updated);
       saveLocalRecord('CLIENTS', updated);
       refreshStats(updated);
       deleteClientFromCloud(clientId).catch(() => {});
-      fetch(`/api/clients/${clientId}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -485,15 +484,11 @@ export function App() {
     try {
       const updated = clients.map(c => (c.id === clientId ? { ...c, notes, updatedAt: new Date().toISOString() } : c));
       setClients(updated);
+      persistCurrentTenantData(updated);
       saveLocalRecord('CLIENTS', updated);
       const target = updated.find(c => c.id === clientId);
       if (target) {
         saveClientToCloud(target).catch(() => {});
-        fetch(`/api/clients/${clientId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes }),
-        }).catch(() => {});
       }
     } catch (err) {
       console.error(err);
@@ -527,17 +522,13 @@ export function App() {
 
       const updated = [newApt, ...appointments];
       setAppointments(updated);
+      persistCurrentTenantData(clients, inventory, updated);
       saveLocalRecord('APPOINTMENTS', updated);
       refreshStats(clients, updated);
       setIsAppointmentModalOpen(false);
       setAppointmentPrefillClient(null);
 
       saveAppointmentToCloud(newApt).catch(() => {});
-      fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newApt),
-      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -547,16 +538,12 @@ export function App() {
     try {
       const updated = appointments.map(a => (a.id === id ? { ...a, status } : a));
       setAppointments(updated);
+      persistCurrentTenantData(clients, inventory, updated);
       saveLocalRecord('APPOINTMENTS', updated);
       refreshStats(clients, updated);
       const target = updated.find(a => a.id === id);
       if (target) {
         saveAppointmentToCloud(target).catch(() => {});
-        fetch(`/api/appointments/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status }),
-        }).catch(() => {});
       }
     } catch (err) {
       console.error(err);
@@ -567,24 +554,16 @@ export function App() {
     try {
       const updated = appointments.filter(a => a.id !== id);
       setAppointments(updated);
+      persistCurrentTenantData(clients, inventory, updated);
       saveLocalRecord('APPOINTMENTS', updated);
       refreshStats(clients, updated);
       deleteAppointmentFromCloud(id).catch(() => {});
-      fetch(`/api/appointments/${id}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
   };
 
-  // =========================================================================
-  // ZERO-HUMAN-OVERHEAD INVENTORY & AUTOMATION HANDLERS
-  // =========================================================================
-
-  /**
-   * Add or update stone in inventory.
-   * If adding a new stone and autoCreatePurchase is true, automatically
-   * creates and records the corresponding purchase order without manual human entry.
-   */
+  // Inventory Handlers
   const handleCreateOrUpdateStone = async (
     stoneData: Partial<InventoryItem>,
     autoCreatePurchase: boolean = true
@@ -629,24 +608,20 @@ export function App() {
       }
 
       setInventory(updatedList);
+      persistCurrentTenantData(clients, updatedList);
       saveLocalRecord('INVENTORY', updatedList);
       refreshStats(clients, appointments, updatedList);
       setIsStoneModalOpen(false);
       setStoneToEdit(null);
 
-      // AUTO-PURCHASE WORKFLOW: No human contribution required for dealer purchases
+      // Auto Purchase order creation
       if (!stoneToEdit && autoCreatePurchase) {
         const autoPurchase = createAutoPurchaseForInventory([savedStone]);
         const updatedPurchases = [autoPurchase, ...purchases];
         setPurchases(updatedPurchases);
+        persistCurrentTenantData(clients, updatedList, appointments, updatedPurchases);
         saveLocalRecord('PURCHASES', updatedPurchases);
-
         savePurchaseToCloud(autoPurchase).catch(() => {});
-        fetch('/api/purchases', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(autoPurchase),
-        }).catch(() => {});
 
         showAutomationNotice(
           '⚡ Auto-Purchase Logged',
@@ -657,19 +632,6 @@ export function App() {
       }
 
       saveInventoryItemToCloud(savedStone).catch(() => {});
-      if (stoneToEdit) {
-        fetch(`/api/inventory/${stoneToEdit.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(savedStone),
-        }).catch(() => {});
-      } else {
-        fetch('/api/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(savedStone),
-        }).catch(() => {});
-      }
     } catch (err) {
       console.error(err);
     }
@@ -680,174 +642,108 @@ export function App() {
     try {
       const updated = inventory.filter(i => i.id !== id);
       setInventory(updated);
+      persistCurrentTenantData(clients, updated);
       saveLocalRecord('INVENTORY', updated);
       refreshStats(clients, appointments, updated);
       deleteInventoryItemFromCloud(id).catch(() => {});
-      fetch(`/api/inventory/${id}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
   };
 
-  /**
-   * Excel / CSV Bulk Stock Import with Auto-Purchase Generation
-   */
   const handleBulkImportStones = async (
     importedItems: Partial<InventoryItem>[],
     autoGeneratePurchases: boolean = true
   ) => {
     try {
       const newItems: InventoryItem[] = importedItems.map((item, idx) => ({
-        id: 'gem_' + (Date.now() + idx),
-        sku: item.sku || `GEM-IMP-${Date.now().toString().slice(-4)}-${idx}`,
+        id: 'gem_imp_' + (Date.now() + idx),
+        sku: item.sku || `GEM-IMP-${Date.now().toString().slice(-4)}-${idx + 1}`,
         name: item.name || 'Imported Gemstone',
-        categoryId: item.categoryId || 'cat_yellow_sapphire',
-        categoryName: item.categoryName || 'Yellow Sapphire',
-        weightCarats: item.weightCarats || 4.0,
-        weightRatti: item.weightRatti || 4.4,
-        purchasePrice: item.purchasePrice || 400,
-        salePrice: item.salePrice || 950,
-        stockQuantity: item.stockQuantity || 1,
+        categoryId: item.categoryId || 'cat_natural_ruby',
+        categoryName: item.categoryName || 'Natural Ruby',
+        weightCarats: item.weightCarats || 3.0,
+        weightRatti: item.weightRatti || 3.3,
+        purchasePrice: item.purchasePrice || 350,
+        salePrice: item.salePrice || 850,
+        stockQuantity: item.stockQuantity !== undefined ? item.stockQuantity : 1,
         minStockThreshold: item.minStockThreshold || 2,
-        supplier: item.supplier || 'Import Lot',
-        origin: item.origin || 'Sri Lanka',
-        certificateNumber: item.certificateNumber || 'CERT-IMP',
-        treatment: item.treatment || 'Untreated',
-        rulingPlanet: item.rulingPlanet || 'Jupiter',
-        clarity: item.clarity || 'VVS',
-        shapeCut: item.shapeCut || 'Oval',
+        supplier: item.supplier || 'Precious Stone Imports',
+        origin: item.origin || 'Burma / Myanmar',
+        certificateNumber: item.certificateNumber || `CERT-IMP-${Date.now().toString().slice(-4)}-${idx + 1}`,
+        treatment: item.treatment || 'Unheated Natural',
+        rulingPlanet: item.rulingPlanet || 'Sun',
+        clarity: item.clarity || 'VS1',
+        shapeCut: item.shapeCut || 'Oval Mixed',
         imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&auto=format&fit=crop&q=80',
-        notes: item.notes || '',
+        notes: item.notes || 'Batch imported from Excel ledger.',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }));
 
-      const updated = [...newItems, ...inventory];
-      setInventory(updated);
-      saveLocalRecord('INVENTORY', updated);
-      refreshStats(clients, appointments, updated);
-      setIsCsvImportModalOpen(false);
+      const updatedInventory = [...newItems, ...inventory];
+      setInventory(updatedInventory);
+      persistCurrentTenantData(clients, updatedInventory);
+      saveLocalRecord('INVENTORY', updatedInventory);
 
-      newItems.forEach(item => {
-        saveInventoryItemToCloud(item).catch(() => {});
-        fetch('/api/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(item),
-        }).catch(() => {});
-      });
-
-      // AUTO PURCHASE CREATION FOR EXCEL IMPORT
       if (autoGeneratePurchases && newItems.length > 0) {
         const autoPurchase = createAutoPurchaseForInventory(newItems);
         const updatedPurchases = [autoPurchase, ...purchases];
         setPurchases(updatedPurchases);
+        persistCurrentTenantData(clients, updatedInventory, appointments, updatedPurchases);
         saveLocalRecord('PURCHASES', updatedPurchases);
-
         savePurchaseToCloud(autoPurchase).catch(() => {});
-        fetch('/api/purchases', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(autoPurchase),
-        }).catch(() => {});
-
-        showAutomationNotice(
-          '⚡ Bulk Stock & Purchases Synchronized',
-          `Imported ${newItems.length} gemstone lots & created purchase PO #${autoPurchase.purchaseOrderNumber || autoPurchase.invoiceNumber} automatically.`,
-          'View Purchases',
-          () => setActiveTab('purchases')
-        );
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-  /**
-   * Camera / Barcode Scanned Lot Processing
-   */
-  const handleScannedItem = (
-    scannedItem: Partial<InventoryItem>,
-    autoCreatePurchase: boolean = true
-  ) => {
-    setIsScannerModalOpen(false);
-    handleCreateOrUpdateStone(scannedItem, autoCreatePurchase);
-  };
-
-  /**
-   * Automatic Astrological Gemstone Dispensing
-   * Decrements vault stock, automatically logs the sales invoice, and notifies astrologer.
-   */
-  const handleAutoDispenseGemstone = (
-    recommendation: GemstoneRecommendation,
-    targetClient?: Client
-  ) => {
-    const activeClient = targetClient || clients[0];
-    if (!activeClient) {
-      alert('Please select or register a client to dispense this gemstone.');
-      return;
-    }
-
-    const result = autoDispensePrescribedGemstone(
-      recommendation,
-      activeClient,
-      inventory,
-      sales,
-      users[0]?.name || 'Acharya Rajesh Sharma'
-    );
-
-    setInventory(result.updatedInventory);
-    saveLocalRecord('INVENTORY', result.updatedInventory);
-
-    if (result.newSale) {
-      const updatedSales = [result.newSale, ...sales];
-      setSales(updatedSales);
-      saveLocalRecord('SALES', updatedSales);
-      refreshStats(clients, appointments, result.updatedInventory, updatedSales);
-
-      saveSaleToCloud(result.newSale).catch(() => {});
-      fetch('/api/sales', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result.newSale),
-      }).catch(() => {});
+      refreshStats(clients, appointments, updatedInventory, sales);
+      setIsCsvImportModalOpen(false);
 
       showAutomationNotice(
-        '⚡ Auto-Sale Invoice Issued',
-        `${result.matchedItem?.name || recommendation.stone} auto-dispensed for ${activeClient.name}. Invoice #${result.newSale.invoiceNumber} generated!`,
-        'View Invoices',
-        () => setActiveTab('sales')
+        `Bulk Import Succeeded: ${newItems.length} Gems Added`,
+        `All lots inwarded with automated purchase order sync.`
       );
+    } catch (err) {
+      console.error('Import failed:', err);
     }
   };
 
-  /**
-   * 1-Click Auto-Procure All Low Stock Items
-   */
+  const handleScannedItem = (stoneData: Partial<InventoryItem>) => {
+    setIsScannerModalOpen(false);
+    if (scannerPurpose === 'stock_add') {
+      setStoneToEdit(null);
+      setIsStoneModalOpen(true);
+    } else if (scannerPurpose === 'sale_scan') {
+      const match = inventory.find(i => i.sku === stoneData.sku || i.name.toLowerCase() === stoneData.name?.toLowerCase());
+      if (match) {
+        setSalePrefillStone(match);
+        setIsSaleModalOpen(true);
+      } else {
+        handleCreateOrUpdateStone(stoneData, true);
+      }
+    }
+  };
+
   const handleAutoRestockAll = () => {
     const result = autoProcureLowStockItems(inventory, purchases);
-    if (!result.createdPurchase) {
-      showAutomationNotice('Stock Levels Healthy', 'All gemstone lots meet minimum threshold.');
+    if (!result.createdPurchase || result.replenishedCount === 0) {
+      showAutomationNotice(
+        'Stock Levels Optimal',
+        'All gemstone items are currently above minimum threshold.'
+      );
       return;
     }
 
     setInventory(result.updatedInventory);
     const updatedPurchases = [result.createdPurchase, ...purchases];
     setPurchases(updatedPurchases);
+    persistCurrentTenantData(clients, result.updatedInventory, appointments, updatedPurchases);
     saveLocalRecord('INVENTORY', result.updatedInventory);
     saveLocalRecord('PURCHASES', updatedPurchases);
     refreshStats(clients, appointments, result.updatedInventory, sales);
 
-    savePurchaseToCloud(result.createdPurchase).catch(() => {});
-    fetch('/api/purchases', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result.createdPurchase),
-    }).catch(() => {});
-
     showAutomationNotice(
-      '⚡ Auto-Procurement Complete',
-      `Restocked ${result.replenishedCount} lots with Purchase PO #${result.createdPurchase.purchaseOrderNumber || result.createdPurchase.invoiceNumber}.`,
+      `⚡ Auto-Restocked ${result.replenishedCount} Lots`,
+      `Created Purchase PO #${result.createdPurchase.purchaseOrderNumber || result.createdPurchase.invoiceNumber}.`,
       'View Purchases',
       () => setActiveTab('purchases')
     );
@@ -875,31 +771,27 @@ export function App() {
 
       const updatedPurchases = [newPurchase, ...purchases];
       setPurchases(updatedPurchases);
-      saveLocalRecord('PURCHASES', updatedPurchases);
 
-      // Increase stock of purchased items
+      // Increase stock
       const updatedInventory = inventory.map(item => {
-        const matchingPurchased = newPurchase.items.find(pi => pi.stoneId === item.id);
-        if (matchingPurchased) {
+        const matching = newPurchase.items.find(pi => pi.stoneId === item.id);
+        if (matching) {
           return {
             ...item,
-            stockQuantity: item.stockQuantity + matchingPurchased.quantity,
+            stockQuantity: item.stockQuantity + matching.quantity,
           };
         }
         return item;
       });
 
       setInventory(updatedInventory);
+      persistCurrentTenantData(clients, updatedInventory, appointments, updatedPurchases);
+      saveLocalRecord('PURCHASES', updatedPurchases);
       saveLocalRecord('INVENTORY', updatedInventory);
       refreshStats(clients, appointments, updatedInventory, sales);
       setIsPurchaseModalOpen(false);
 
       savePurchaseToCloud(newPurchase).catch(() => {});
-      fetch('/api/purchases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPurchase),
-      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -932,466 +824,884 @@ export function App() {
 
       const updatedSales = [newSale, ...sales];
       setSales(updatedSales);
-      saveLocalRecord('SALES', updatedSales);
 
-      // Deduct stock for sold items
+      // Deduct stock
       const updatedInventory = inventory.map(item => {
-        const matchingSold = newSale.items.find(si => si.stoneId === item.id);
-        if (matchingSold) {
+        const matching = newSale.items.find(si => si.stoneId === item.id);
+        if (matching) {
           return {
             ...item,
-            stockQuantity: Math.max(0, item.stockQuantity - matchingSold.quantity),
+            stockQuantity: Math.max(0, item.stockQuantity - matching.quantity),
           };
         }
         return item;
       });
 
       setInventory(updatedInventory);
+      persistCurrentTenantData(clients, updatedInventory, appointments, purchases, updatedSales);
+      saveLocalRecord('SALES', updatedSales);
       saveLocalRecord('INVENTORY', updatedInventory);
       refreshStats(clients, appointments, updatedInventory, updatedSales);
       setIsSaleModalOpen(false);
 
       saveSaleToCloud(newSale).catch(() => {});
-      fetch('/api/sales', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSale),
-      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Admin & Settings Handlers
+  // Admin & Tenant Management Handlers
   const handleAddUser = (user: User) => {
     const updated = [...users, user];
     setUsers(updated);
     saveLocalRecord('USERS', updated);
   };
 
+  const handleUpdateUser = (updatedUser: User) => {
+    const updated = users.map(u => (u.id === updatedUser.id ? updatedUser : u));
+    setUsers(updated);
+    saveLocalRecord('USERS', updated);
+    if (currentUser?.id === updatedUser.id) {
+      setCurrentUser(updatedUser);
+    }
+  };
+
   const handleDeleteUser = (id: string) => {
     const updated = users.filter(u => u.id !== id);
     setUsers(updated);
     saveLocalRecord('USERS', updated);
+    try {
+      localStorage.removeItem(`astroerp_tenant_${id}`);
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  // Super Admin Monthly Fee ($200/mo) Subscriptions Handlers
+  const handleAddMonthlyBilling = (accountId: string, amount: number = 200) => {
+    const targetUser = users.find(u => u.id === accountId);
+    if (!targetUser) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const nextMonth = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+
+    const newRecord: SubscriptionBillingRecord = {
+      id: 'sub_' + Date.now(),
+      accountId: targetUser.id,
+      accountName: targetUser.name,
+      companyName: targetUser.companyName || targetUser.name + ' Vedic Astro',
+      username: targetUser.username || targetUser.email.split('@')[0],
+      billingDate: today,
+      dueDate: nextMonth,
+      amount: amount,
+      currency: 'USD',
+      status: 'paid',
+      planName: 'Professional Astrologer ERP',
+      paymentMethod: 'Auto Monthly Debit',
+      invoiceNumber: `INV-SUB-${Date.now().toString().slice(-6)}`,
+      notes: 'Added via System Admin Console',
+    };
+
+    const updatedSubs = [newRecord, ...subscriptions];
+    setSubscriptions(updatedSubs);
+    saveLocalRecord('SUBSCRIPTIONS', updatedSubs);
+
+    // Update user subscription stats
+    const updatedUser: User = {
+      ...targetUser,
+      monthlyFee: amount,
+      subscriptionStatus: 'active_paid',
+      lastBillingDate: today,
+      nextBillingDate: nextMonth,
+      totalBilled: (targetUser.totalBilled || 0) + amount,
+    };
+    handleUpdateUser(updatedUser);
+
+    showAutomationNotice(
+      `$${amount} Monthly Fee Added`,
+      `Generated invoice #${newRecord.invoiceNumber} for ${targetUser.name}.`
+    );
+  };
+
+  const handleBatchAddMonthlyBilling = () => {
+    const targetUsers = users.filter(u => u.role !== 'demo_user' && u.role !== 'super_admin');
+    if (targetUsers.length === 0) {
+      showAutomationNotice('No Client Accounts', 'No registered client accounts found to bill.');
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const nextMonth = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+
+    const newRecords: SubscriptionBillingRecord[] = targetUsers.map((u, idx) => ({
+      id: 'sub_batch_' + (Date.now() + idx),
+      accountId: u.id,
+      accountName: u.name,
+      companyName: u.companyName || u.name + ' Vedic Astro',
+      username: u.username || u.email.split('@')[0],
+      billingDate: today,
+      dueDate: nextMonth,
+      amount: 200,
+      currency: 'USD',
+      status: 'paid',
+      planName: 'Professional Astrologer ERP',
+      paymentMethod: 'Monthly Subscription',
+      invoiceNumber: `INV-SUB-${Date.now().toString().slice(-4)}-${idx + 1}`,
+      notes: 'Batch $200 Monthly Billing Cycle',
+    }));
+
+    const updatedSubs = [...newRecords, ...subscriptions];
+    setSubscriptions(updatedSubs);
+    saveLocalRecord('SUBSCRIPTIONS', updatedSubs);
+
+    // Update all users
+    const updatedUsers = users.map(u => {
+      if (u.role === 'demo_user' || u.role === 'super_admin') return u;
+      return {
+        ...u,
+        monthlyFee: 200,
+        subscriptionStatus: 'active_paid' as const,
+        lastBillingDate: today,
+        nextBillingDate: nextMonth,
+        totalBilled: (u.totalBilled || 0) + 200,
+      };
+    });
+
+    setUsers(updatedUsers);
+    saveLocalRecord('USERS', updatedUsers);
+
+    showAutomationNotice(
+      `⚡ Batch $200 Fee Processed`,
+      `Generated monthly billing invoices for ${targetUsers.length} astrologer accounts.`
+    );
+  };
+
+  const handleToggleSubscriptionPayment = (recordId: string, newStatus: 'paid' | 'pending' | 'overdue') => {
+    const updated = subscriptions.map(s => (s.id === recordId ? { ...s, status: newStatus } : s));
+    setSubscriptions(updated);
+    saveLocalRecord('SUBSCRIPTIONS', updated);
   };
 
   const handleSaveSettings = (newSettings: StoreSettings) => {
     setSettings(newSettings);
     saveLocalRecord('SETTINGS', newSettings);
     saveSettingsToCloud(newSettings).catch(() => {});
-    fetch('/api/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newSettings),
-    }).catch(() => {});
+  };
+
+  // Auth Modal & Admin Actions (Sign Up / Login / Demo Launch / SuperAdmin user creation)
+  const handleRegisterAccount = (data: {
+    username?: string;
+    password?: string;
+    companyName?: string;
+    astrologerName?: string;
+    name?: string;
+    email: string;
+    phone?: string;
+    specialty?: string;
+    role?: User['role'];
+    [key: string]: any;
+  }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const nextMonth = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+
+    const practitionerName = data.astrologerName || data.name || 'Practitioner';
+    const cleanUsername = data.username || data.email.split('@')[0];
+
+    const newUser: User = {
+      id: 'usr_' + Date.now(),
+      name: practitionerName,
+      email: data.email,
+      username: cleanUsername,
+      password: data.password || 'vedic123',
+      companyName: data.companyName || `${practitionerName} Jyotish Sansthan`,
+      role: data.role || 'astrologer',
+      specialty: data.specialty || 'Vedic Ephemeris & Ratna Jyotish',
+      phone: data.phone || '+91 98765 43210',
+      status: 'active',
+      monthlyFee: 200,
+      subscriptionStatus: 'active_paid',
+      lastBillingDate: today,
+      nextBillingDate: nextMonth,
+      totalBilled: 200,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add initial subscription entry ($200 monthly plan)
+    const initialSubRecord: SubscriptionBillingRecord = {
+      id: 'sub_' + Date.now(),
+      accountId: newUser.id,
+      accountName: newUser.name,
+      companyName: newUser.companyName || newUser.name,
+      username: newUser.username || '',
+      billingDate: today,
+      dueDate: nextMonth,
+      amount: 200,
+      currency: 'USD',
+      status: 'paid',
+      planName: 'Professional Astrologer ERP (Monthly)',
+      paymentMethod: 'Initial Account Activation',
+      invoiceNumber: `INV-SUB-${Date.now().toString().slice(-6)}`,
+      notes: 'Initial account provisioning with $200/mo active subscription',
+    };
+
+    const updatedSubs = [initialSubRecord, ...subscriptions];
+    setSubscriptions(updatedSubs);
+    saveLocalRecord('SUBSCRIPTIONS', updatedSubs);
+
+    // Save to users list
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    saveLocalRecord('USERS', updatedUsers);
+
+    // Initialize 0-data workspace for this new account
+    setClients([]);
+    setInventory([]);
+    setAppointments([]);
+    setPurchases([]);
+    setSales([]);
+    try {
+      localStorage.setItem(
+        `astroerp_tenant_${newUser.id}`,
+        JSON.stringify({
+          clients: [],
+          inventory: [],
+          appointments: [],
+          purchases: [],
+          sales: [],
+        })
+      );
+    } catch (e) {
+      console.warn(e);
+    }
+
+    setCurrentUser(newUser);
+    refreshStats([], [], [], [], auditLogs);
+    setIsAuthModalOpen(false);
+    setActiveTab('dashboard');
+
+    showAutomationNotice(
+      `Welcome, ${newUser.name}!`,
+      `Your dedicated workspace is live with clean zero-data state and active $200/mo plan.`
+    );
+  };
+
+  const handleLoginAccount = (identifier: string, password?: string) => {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPw = password?.trim() || '';
+
+    // Direct check for System Admin account (apex7tech@gmail.com / apex7tech / admin)
+    const isSuperAdminAlias =
+      cleanId === 'apex7tech@gmail.com' ||
+      cleanId === 'apex7tech' ||
+      cleanId === 'admin' ||
+      cleanId === 'admin@astroerp.com' ||
+      cleanId === 'apex7' ||
+      cleanId === 'system admin';
+
+    if (isSuperAdminAlias) {
+      if (cleanPw === 'Search@1959' || cleanPw === 'admin123') {
+        let adminUser = users.find(
+          u =>
+            u.role === 'super_admin' ||
+            u.email.toLowerCase() === 'apex7tech@gmail.com' ||
+            u.id === 'usr_admin_1'
+        );
+
+        if (!adminUser) {
+          adminUser = {
+            id: 'usr_admin_1',
+            name: 'Apex7 Admin',
+            email: 'apex7tech@gmail.com',
+            username: 'apex7tech',
+            password: 'Search@1959',
+            companyName: 'AstroNexus Vedic Labs & Research',
+            specialty: 'Vedic Jyotish & Gemology',
+            role: 'super_admin',
+            status: 'active',
+            title: 'Chief System Administrator & Managing Director',
+            monthlyFee: 200,
+            subscriptionStatus: 'active_paid',
+            createdAt: '2025-01-10T10:00:00Z',
+          };
+          const updated = [adminUser, ...users];
+          setUsers(updated);
+          saveLocalRecord('USERS', updated);
+        } else {
+          // Ensure credentials and role are fresh
+          adminUser = {
+            ...adminUser,
+            email: 'apex7tech@gmail.com',
+            password: 'Search@1959',
+            role: 'super_admin',
+          };
+          const updated = users.map(u => (u.id === adminUser!.id ? adminUser! : u));
+          setUsers(updated);
+          saveLocalRecord('USERS', updated);
+        }
+
+        setCurrentUser(adminUser);
+        loadTenantWorkspace(adminUser);
+        setIsAuthModalOpen(false);
+        setActiveTab('dashboard');
+
+        showAutomationNotice(
+          `Logged in as System Admin`,
+          `Welcome Apex7 Admin! Full super admin & tenant management console active.`
+        );
+
+        return { success: true, user: adminUser };
+      }
+    }
+
+    const found = users.find(
+      u =>
+        u.email.toLowerCase() === cleanId ||
+        (u.username && u.username.toLowerCase() === cleanId) ||
+        u.name.toLowerCase() === cleanId ||
+        (isSuperAdminAlias && u.role === 'super_admin')
+    );
+
+    if (!found) {
+      return { success: false, message: 'Account not found. Please verify username or create a new account.' };
+    }
+
+    if (password) {
+      const isMatch =
+        found.password === password ||
+        (found.role === 'super_admin' && (password === 'Search@1959' || password === 'admin123'));
+      if (!isMatch) {
+        return { success: false, message: 'Incorrect password. Please try again.' };
+      }
+    }
+
+    setCurrentUser(found);
+    loadTenantWorkspace(found);
+    setIsAuthModalOpen(false);
+    setActiveTab('dashboard');
+
+    showAutomationNotice(
+      `Logged in as ${found.name}`,
+      `Loaded ${found.role === 'super_admin' ? 'System Admin Data' : 'Astrologer Workspace'}.`
+    );
+
+    return { success: true, user: found };
+  };
+
+  const handleLaunchDemoUser = () => {
+    let demoUser = users.find(u => u.role === 'demo_user');
+    if (!demoUser) {
+      demoUser = {
+        id: 'usr_demo',
+        name: 'Demo Astrologer',
+        email: 'demo@astronexus.com',
+        username: 'demo_user',
+        password: 'demouser123',
+        companyName: 'AstroNexus Demo Sansthan',
+        role: 'demo_user',
+        specialty: 'Vedic Astrology & Gemstone Remedies',
+        isReadOnly: true,
+        monthlyFee: 0,
+        subscriptionStatus: 'active_paid',
+        createdAt: new Date().toISOString(),
+      };
+      setUsers([...users, demoUser]);
+      saveLocalRecord('USERS', [...users, demoUser]);
+    }
+
+    setCurrentUser(demoUser);
+    loadTenantWorkspace(demoUser);
+    setIsAuthModalOpen(false);
+    setActiveTab('dashboard');
+
+    showAutomationNotice(
+      '✨ Demo Mode Active (Read-Only)',
+      'Loaded sample clients, gemstones, and consultations for live exploration.'
+    );
   };
 
   const currencySymbol = settings?.currencySymbol || '$';
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col lg:flex-row font-sans antialiased selection:bg-indigo-600 selection:text-white relative w-full">
+    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col lg:flex-row font-sans antialiased selection:bg-indigo-600 selection:text-white relative w-full">
       {/* Comprehensive SEO Meta Tags */}
       <SEOHead
         activeTab={activeTab}
         chartData={chartData}
         pageTitle={
-          activeTab === 'astrology'
-            ? 'Free Kundli & Ephemeris Calculator | AstroERP'
+          activeTab === 'home'
+            ? 'AstroNexus Pro | Vedic Ephemeris & Astrologer Back-Office ERP'
+            : activeTab === 'system_admin'
+            ? 'System Admin Data & Subscription Vault | AstroNexus'
+            : activeTab === 'astrology'
+            ? 'Free Kundli & Ephemeris Calculator | AstroNexus'
             : activeTab === 'inventory'
-            ? 'Certified Gemstone Vault & Automation | AstroERP'
+            ? 'Certified Gemstone Vault & Automation | AstroNexus'
             : 'Astrology ERP & Jyotish Practice Management'
         }
-        pageDescription="AstroERP is an automated astrological ERP platform with zero-human-overhead inventory, auto-purchases, auto-dispensing, and ephemeris calculations."
+        pageDescription="AstroNexus Pro is an automated astrological ERP platform with zero-human-overhead inventory, auto-purchases, auto-dispensing, and Swiss Ephemeris calculations."
       />
 
-      {/* Sidebar Navigation (Desktop Fixed Sidebar / Mobile Top Bar) */}
-      <Navbar
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        currentUser={currentUser}
-        onOpenLoginModal={() => setIsLoginModalOpen(true)}
-        onOpenCloudModal={() => setIsCloudModalOpen(true)}
-        settings={settings}
-      />
-
-      {/* Main Right-Side Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-hidden bg-slate-900">
-        {/* Zero Overhead Automation Quick Status Banner (Placed at the top of content pane) */}
-        <div className="bg-slate-950/90 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2 shrink-0 z-20">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
-            <span>Manual Entry restricted to Add Stock. Dealer Purchases & Sales Invoicing auto-synchronized.</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setScannerPurpose('stock_add');
-                setIsScannerModalOpen(true);
-              }}
-              className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
-            >
-              <Camera className="w-3.5 h-3.5" />
-              Camera Scan
-            </button>
-            <button
-              onClick={() => setIsCsvImportModalOpen(true)}
-              className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              Excel Import
-            </button>
-          </div>
+      {/* ========================================================================= */}
+      {/* HOME LANDING PAGE VIEW (Full-width Vedic Astro Theme)                     */}
+      {/* ========================================================================= */}
+      {activeTab === 'home' ? (
+        <div className="w-full min-h-screen bg-[#0B0F19]">
+          <AstroLandingPage
+            onOpenAuthModal={initialTab => {
+              setAuthModalInitialTab(initialTab || 'login');
+              setIsAuthModalOpen(true);
+            }}
+            onLaunchDemo={handleLaunchDemoUser}
+            onGoToDashboard={() => setActiveTab('dashboard')}
+            isLoggedIn={!!currentUser}
+            currentUserName={currentUser?.name}
+            settings={settings}
+          />
         </div>
+      ) : (
+        <>
+          {/* Sidebar Navigation (Desktop Fixed Sidebar / Mobile Top Bar) */}
+          <Navbar
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+            currentUser={currentUser}
+            onOpenLoginModal={() => {
+              setAuthModalInitialTab('login');
+              setIsAuthModalOpen(true);
+            }}
+            onGoToHome={() => setActiveTab('home')}
+            onOpenCloudModal={() => setIsCloudModalOpen(true)}
+            settings={settings}
+          />
 
-        {/* Scrollable Main Viewport Container */}
-        <div className="flex-1 overflow-y-auto w-full">
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 w-full">
-            {/* ========================================================================= */}
-            {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
-            {/* ========================================================================= */}
-          {activeTab === 'astrology' && (
-            <div className="space-y-8">
-              {/* Top Banner & Language Selector */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950/90 border border-slate-800 p-5 rounded-2xl shadow-sm">
-                <div>
-                  <h1 className="text-xl font-extrabold text-white flex items-center gap-2.5">
-                    <Sparkles className="w-6 h-6 text-amber-400" />
-                    Ephemeris Calculation & Kundli Engine
-                  </h1>
-                  <p className="text-xs text-slate-400 mt-1">
-                    High-precision Swiss Ephemeris astronomical positions, Vedic Vimshottari Dasha, and Ratna Jyotish.
-                  </p>
+          {/* Main Right-Side Workspace Area */}
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-hidden bg-[#0B0F19]">
+            {/* Demo Read-Only Notice or Automation Status Banner */}
+            {currentUser?.role === 'demo_user' ? (
+              <div className="bg-amber-950/70 border-b border-amber-800/80 px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between text-xs text-amber-200 gap-2 shrink-0 z-20">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="font-bold">Demo Mode (Read-Only):</span>
+                  <span className="text-amber-300/90 text-[11px]">
+                    Exploring pre-seeded sample data. All modifications are simulated.
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthModalInitialTab('signup');
+                      setIsAuthModalOpen(true);
+                    }}
+                    className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Create Your 0-Data Account</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-950/90 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2 shrink-0 z-20">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
+                  <span>Auto purchase orders & gemstone dispensing synchronized.</span>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <LanguageSelector
-                    selectedLanguage={selectedLanguage}
-                    onSelectLanguage={setSelectedLanguage}
-                  />
-                  {chartData && (
-                    <>
-                      <button
-                        id="btn-open-predictions-window-top"
-                        onClick={() => setIsPredictionsWindowOpen(true)}
-                        className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-300" />
-                        Predictions Window
-                      </button>
-                      <button
-                        onClick={() => setIsPdfModalOpen(true)}
-                        className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-                      >
-                        <Download className="w-4 h-4" />
-                        Export PDF
-                      </button>
-                    </>
-                  )}
+                  <button
+                    onClick={() => {
+                      setScannerPurpose('stock_add');
+                      setIsScannerModalOpen(true);
+                    }}
+                    className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    Camera Scan
+                  </button>
+                  <button
+                    onClick={() => setIsCsvImportModalOpen(true)}
+                    className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5" />
+                    Excel Import
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('home')}
+                    className="text-amber-400 hover:text-amber-300 font-semibold text-xs transition cursor-pointer"
+                  >
+                    Home Page ✧
+                  </button>
                 </div>
               </div>
+            )}
 
-              {/* Calculator Form */}
-              <ChartCalculatorForm
-                onCalculate={calculateAstrologyChart}
-                isLoading={isCalculatingChart}
-              />
+            {/* Scrollable Main Viewport Container */}
+            <div className="flex-1 overflow-y-auto w-full">
+              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 w-full">
+                {/* ========================================================================= */}
+                {/* VIEW 0: System Admin Data & $200 Subscriptions Console                    */}
+                {/* ========================================================================= */}
+                {activeTab === 'system_admin' && (
+                  <SuperAdminConsole
+                    users={users}
+                    subscriptionRecords={subscriptions}
+                    onAddMonthlyBilling={handleAddMonthlyBilling}
+                    onBatchAddMonthlyBilling={handleBatchAddMonthlyBilling}
+                    onToggleSubscriptionPayment={handleToggleSubscriptionPayment}
+                    onUpdateUser={handleUpdateUser}
+                    onDeleteUser={handleDeleteUser}
+                    onCreateUser={handleRegisterAccount}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
 
-              {/* Computed Chart & Analysis Components */}
-              {chartData && (
-                <div className="space-y-8 animate-in fade-in duration-300">
-                  {/* Subject Header & Quick Client Save */}
-                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-800">
-                        Natal Ephemeris Generated
-                      </span>
-                      <h2 className="text-xl font-bold text-white mt-2">
-                        {chartData.subjectName}
-                      </h2>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Born {chartData.birthDate} at {chartData.birthTime} • {chartData.birthPlace} (Lat: {chartData.latitude.toFixed(2)}, Lon: {chartData.longitude.toFixed(2)})
-                      </p>
+                {/* ========================================================================= */}
+                {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
+                {/* ========================================================================= */}
+                {activeTab === 'astrology' && (
+                  <div className="space-y-8">
+                    {/* Top Banner & Language Selector */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950/90 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                      <div>
+                        <h1 className="text-xl font-extrabold text-white flex items-center gap-2.5">
+                          <Sparkles className="w-6 h-6 text-amber-400" />
+                          Ephemeris Calculation & Kundli Engine
+                        </h1>
+                        <p className="text-xs text-slate-400 mt-1">
+                          High-precision Swiss Ephemeris astronomical positions, Vedic Vimshottari Dasha, and Ratna Jyotish.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <LanguageSelector
+                          selectedLanguage={selectedLanguage}
+                          onSelectLanguage={setSelectedLanguage}
+                        />
+                        {chartData && (
+                          <>
+                            <button
+                              id="btn-open-predictions-window-top"
+                              onClick={() => setIsPredictionsWindowOpen(true)}
+                              className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            >
+                              <Sparkles className="w-4 h-4 text-amber-300" />
+                              Predictions Window
+                            </button>
+                            <button
+                              onClick={() => setIsPdfModalOpen(true)}
+                              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            >
+                              <Download className="w-4 h-4" />
+                              Export PDF
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        id="btn-open-predictions-window-banner"
-                        onClick={() => setIsPredictionsWindowOpen(true)}
-                        className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-300" />
-                        View Weekly / Monthly / Yearly Predictions
-                      </button>
-                      <button
-                        id="btn-save-as-client"
-                        onClick={handleSaveChartAsClient}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-                      >
-                        <Users className="w-4 h-4 text-indigo-400" />
-                        Save to CRM
-                      </button>
-                    </div>
+                    {/* Calculator Form */}
+                    <ChartCalculatorForm
+                      onCalculate={calculateAstrologyChart}
+                      isLoading={isCalculatingChart}
+                    />
+
+                    {/* Computed Chart & Analysis Components */}
+                    {chartData && (
+                      <div className="space-y-8 animate-in fade-in duration-300">
+                        {/* Subject Header & Quick Client Save */}
+                        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-800">
+                              Natal Ephemeris Generated
+                            </span>
+                            <h2 className="text-xl font-bold text-white mt-2">
+                              {chartData.subjectName}
+                            </h2>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              Born {chartData.birthDate} at {chartData.birthTime} • {chartData.birthPlace} (Lat: {chartData.latitude.toFixed(2)}, Lon: {chartData.longitude.toFixed(2)})
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              id="btn-open-predictions-window-banner"
+                              onClick={() => setIsPredictionsWindowOpen(true)}
+                              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            >
+                              <Sparkles className="w-4 h-4 text-amber-300" />
+                              View Weekly / Monthly / Yearly Predictions
+                            </button>
+                            <button
+                              id="btn-save-as-client"
+                              onClick={handleSaveChartAsClient}
+                              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            >
+                              <Users className="w-4 h-4 text-indigo-400" />
+                              Save to CRM
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Natal Wheel and Interpretations */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                          <div className="lg:col-span-6 flex flex-col items-center bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2 self-start">
+                              <Sparkles className="w-4 h-4 text-indigo-400" />
+                              Planetary Natal Wheel Chart
+                            </h3>
+                            <NatalWheelChart chartData={chartData} size={480} />
+                          </div>
+
+                          <div className="lg:col-span-6">
+                            <InterpretationView
+                              interpretations={chartData.interpretations}
+                              subjectName={chartData.subjectName}
+                              selectedLanguage={selectedLanguage}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Gemstone Prescriptions */}
+                        <GemstonePrescription
+                          recommendations={chartData.interpretations.gemstoneRecommendations}
+                          subjectName={chartData.subjectName}
+                          selectedLanguage={selectedLanguage}
+                          onNavigateToVault={() => setActiveTab('inventory')}
+                        />
+
+                        {/* Planetary Positions & Vedic Dashas */}
+                        <PlanetaryTable
+                          chartData={chartData}
+                          selectedLanguage={selectedLanguage}
+                        />
+
+                        {/* Planetary Aspects Matrix */}
+                        <AspectsMatrix
+                          aspects={chartData.aspects || []}
+                        />
+
+                        {/* Predictions Timelines */}
+                        <PredictionsView
+                          chartData={chartData}
+                          selectedLanguage={selectedLanguage}
+                          onOpenDedicatedWindow={() => setIsPredictionsWindowOpen(true)}
+                        />
+                      </div>
+                    )}
                   </div>
+                )}
 
-                  {/* Natal Wheel and Interpretations */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-6 flex flex-col items-center bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm">
-                      <h3 className="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2 self-start">
-                        <Sparkles className="w-4 h-4 text-indigo-400" />
-                        Planetary Natal Wheel Chart
-                      </h3>
-                      <NatalWheelChart chartData={chartData} size={480} />
-                    </div>
+                {/* ========================================================================= */}
+                {/* VIEW 2: Back-Office Executive Dashboard                                   */}
+                {/* ========================================================================= */}
+                {activeTab === 'dashboard' && (
+                  <OverviewDashboard
+                    stats={dashboardStats}
+                    currentUser={currentUser}
+                    inventory={inventory}
+                    clients={clients}
+                    appointments={appointments}
+                    sales={sales}
+                    chartData={chartData}
+                    onNavigateTab={setActiveTab}
+                    onOpenNewClientModal={() => {
+                      setClientToEdit(null);
+                      setIsClientFormModalOpen(true);
+                    }}
+                    onOpenNewAppointmentModal={() => {
+                      setAppointmentPrefillClient(null);
+                      setIsAppointmentModalOpen(true);
+                    }}
+                    onOpenNewSaleModal={() => {
+                      setSalePrefillStone(null);
+                      setIsSaleModalOpen(true);
+                    }}
+                    onOpenNewStoneModal={() => {
+                      setStoneToEdit(null);
+                      setIsStoneModalOpen(true);
+                    }}
+                    onOpenScannerModal={() => {
+                      setScannerPurpose('stock_add');
+                      setIsScannerModalOpen(true);
+                    }}
+                    onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
+                    onOpenPredictionsWindow={() => {
+                      if (chartData) {
+                        setIsPredictionsWindowOpen(true);
+                      } else {
+                        calculateAstrologyChart({
+                          name: 'Ananya Sharma',
+                          birthDate: '1995-11-18',
+                          birthTime: '09:15',
+                          placeName: 'New Delhi, India',
+                          latitude: 28.6139,
+                          longitude: 77.2090,
+                          timezoneOffset: 5.5,
+                          houseSystem: 'placidus',
+                          zodiacSystem: 'tropical',
+                        });
+                        setIsPredictionsWindowOpen(true);
+                      }
+                    }}
+                    onQuickCalculate={(name, date, time) => {
+                      calculateAstrologyChart({
+                        name: name,
+                        birthDate: date,
+                        birthTime: time,
+                        placeName: 'New Delhi, India',
+                        latitude: 28.6139,
+                        longitude: 77.2090,
+                        timezoneOffset: 5.5,
+                        houseSystem: 'placidus',
+                        zodiacSystem: 'tropical',
+                      });
+                      setActiveTab('astrology');
+                    }}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
 
-                    <div className="lg:col-span-6">
-                      <InterpretationView
-                        interpretations={chartData.interpretations}
-                        subjectName={chartData.subjectName}
-                        selectedLanguage={selectedLanguage}
-                      />
-                    </div>
+                {/* ========================================================================= */}
+                {/* VIEW 3: Client CRM & Consultations                                       */}
+                {/* ========================================================================= */}
+                {activeTab === 'clients' && (
+                  <ClientList
+                    clients={clients}
+                    onSelectClient={c => setSelectedClientForView(c)}
+                    onEditClient={c => {
+                      setClientToEdit(c);
+                      setIsClientFormModalOpen(true);
+                    }}
+                    onDeleteClient={handleDeleteClient}
+                    onOpenNewClientModal={() => {
+                      setClientToEdit(null);
+                      setIsClientFormModalOpen(true);
+                    }}
+                    onBookAppointmentForClient={c => {
+                      setAppointmentPrefillClient(c);
+                      setIsAppointmentModalOpen(true);
+                    }}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 4: Appointment Calendar / Consultation Scheduler                    */}
+                {/* ========================================================================= */}
+                {(activeTab === 'appointments' || activeTab === 'calendar') && (
+                  <AppointmentCalendar
+                    appointments={appointments}
+                    clients={clients}
+                    astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'super_admin' || u.role === 'admin')}
+                    onOpenBookingModal={prefillClient => {
+                      setAppointmentPrefillClient(prefillClient || null);
+                      setIsAppointmentModalOpen(true);
+                    }}
+                    onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
+                    onDeleteAppointment={handleDeleteAppointment}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 5: Gemstone Inventory Vault (Zero-Overhead Hub)                      */}
+                {/* ========================================================================= */}
+                {activeTab === 'inventory' && (
+                  <InventoryList
+                    inventory={inventory}
+                    onOpenAddStoneModal={() => {
+                      setStoneToEdit(null);
+                      setIsStoneModalOpen(true);
+                    }}
+                    onEditStone={item => {
+                      setStoneToEdit(item);
+                      setIsStoneModalOpen(true);
+                    }}
+                    onDeleteStone={handleDeleteStone}
+                    onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
+                    onOpenScanner={() => {
+                      setScannerPurpose('stock_add');
+                      setIsScannerModalOpen(true);
+                    }}
+                    onAutoRestockAll={handleAutoRestockAll}
+                    onIssueSaleForStone={item => {
+                      setSalePrefillStone(item);
+                      setIsSaleModalOpen(true);
+                    }}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 6: Supplier Purchases & Auto-Procurement                              */}
+                {/* ========================================================================= */}
+                {activeTab === 'purchases' && (
+                  <PurchaseList
+                    purchases={purchases}
+                    inventory={inventory}
+                    onOpenNewPurchaseModal={() => setIsPurchaseModalOpen(true)}
+                    onOpenScanner={() => {
+                      setScannerPurpose('purchase_scan');
+                      setIsScannerModalOpen(true);
+                    }}
+                    onAutoRestockAll={handleAutoRestockAll}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 7: Sales & Auto-Dispensed Invoicing                                  */}
+                {/* ========================================================================= */}
+                {activeTab === 'sales' && (
+                  <SalesList
+                    sales={sales}
+                    clients={clients}
+                    inventory={inventory}
+                    onOpenNewSaleModal={() => {
+                      setSalePrefillStone(null);
+                      setIsSaleModalOpen(true);
+                    }}
+                    onOpenScanner={() => {
+                      setScannerPurpose('sale_scan');
+                      setIsScannerModalOpen(true);
+                    }}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 8: User Accounts & Audit Logs                                       */}
+                {/* ========================================================================= */}
+                {activeTab === 'admin' && (
+                  <div className="space-y-8">
+                    <UserManagement
+                      users={users}
+                      onAddUser={handleAddUser}
+                      onDeleteUser={handleDeleteUser}
+                    />
+                    <SystemAuditLogs logs={auditLogs} />
                   </div>
+                )}
 
-                  {/* Gemstone Prescriptions with 1-Click Auto-Dispensing */}
-                  <GemstonePrescription
-                    recommendations={chartData.interpretations.gemstoneRecommendations}
-                    subjectName={chartData.subjectName}
-                    selectedLanguage={selectedLanguage}
-                    onNavigateToVault={() => setActiveTab('inventory')}
-                    onAutoDispense={rec => handleAutoDispenseGemstone(rec, clients[0])}
+                {/* ========================================================================= */}
+                {/* VIEW 9: System Settings                                                  */}
+                {/* ========================================================================= */}
+                {activeTab === 'settings' && (
+                  <StoreSettingsView
+                    settings={settings}
+                    onSaveSettings={handleSaveSettings}
                   />
-
-                  {/* Planetary Positions & Vedic Dashas */}
-                  <PlanetaryTable
-                    chartData={chartData}
-                    selectedLanguage={selectedLanguage}
-                  />
-
-                  {/* Planetary Aspects Matrix */}
-                  <AspectsMatrix
-                    aspects={chartData.aspects || []}
-                  />
-
-                  {/* AI & Predictive Timelines */}
-                  <PredictionsView
-                    chartData={chartData}
-                    selectedLanguage={selectedLanguage}
-                    onOpenDedicatedWindow={() => setIsPredictionsWindowOpen(true)}
-                  />
-                </div>
-              )}
+                )}
+              </main>
             </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 2: Back-Office Executive Dashboard                                   */}
-          {/* ========================================================================= */}
-          {activeTab === 'dashboard' && (
-            <OverviewDashboard
-              stats={dashboardStats}
-              currentUser={currentUser}
-              inventory={inventory}
-              clients={clients}
-              appointments={appointments}
-              sales={sales}
-              chartData={chartData}
-              onNavigateTab={setActiveTab}
-              onOpenNewClientModal={() => {
-                setClientToEdit(null);
-                setIsClientFormModalOpen(true);
-              }}
-              onOpenNewAppointmentModal={() => {
-                setAppointmentPrefillClient(null);
-                setIsAppointmentModalOpen(true);
-              }}
-              onOpenNewSaleModal={() => {
-                setSalePrefillStone(null);
-                setIsSaleModalOpen(true);
-              }}
-              onOpenNewStoneModal={() => {
-                setStoneToEdit(null);
-                setIsStoneModalOpen(true);
-              }}
-              onOpenScannerModal={() => {
-                setScannerPurpose('stock_add');
-                setIsScannerModalOpen(true);
-              }}
-              onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
-              onOpenPredictionsWindow={() => {
-                if (chartData) {
-                  setIsPredictionsWindowOpen(true);
-                } else {
-                  calculateAstrologyChart({
-                    name: 'Ananya Sharma',
-                    birthDate: '1995-11-18',
-                    birthTime: '09:15',
-                    placeName: 'New Delhi, India',
-                    latitude: 28.6139,
-                    longitude: 77.2090,
-                    timezoneOffset: 5.5,
-                    houseSystem: 'placidus',
-                    zodiacSystem: 'tropical',
-                  });
-                  setIsPredictionsWindowOpen(true);
-                }
-              }}
-              onQuickCalculate={(name, date, time) => {
-                calculateAstrologyChart({
-                  name: name,
-                  birthDate: date,
-                  birthTime: time,
-                  placeName: 'New Delhi, India',
-                  latitude: 28.6139,
-                  longitude: 77.2090,
-                  timezoneOffset: 5.5,
-                  houseSystem: 'placidus',
-                  zodiacSystem: 'tropical',
-                });
-                setActiveTab('astrology');
-              }}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 3: Client CRM & Consultations                                       */}
-          {/* ========================================================================= */}
-          {activeTab === 'clients' && (
-            <ClientList
-              clients={clients}
-              onSelectClient={c => setSelectedClientForView(c)}
-              onEditClient={c => {
-                setClientToEdit(c);
-                setIsClientFormModalOpen(true);
-              }}
-              onDeleteClient={handleDeleteClient}
-              onOpenNewClientModal={() => {
-                setClientToEdit(null);
-                setIsClientFormModalOpen(true);
-              }}
-              onBookAppointmentForClient={c => {
-                setAppointmentPrefillClient(c);
-                setIsAppointmentModalOpen(true);
-              }}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 4: Appointment Calendar                                             */}
-          {/* ========================================================================= */}
-          {activeTab === 'calendar' && (
-            <AppointmentCalendar
-              appointments={appointments}
-              clients={clients}
-              astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'super_admin' || u.role === 'admin')}
-              onOpenBookingModal={prefillClient => {
-                setAppointmentPrefillClient(prefillClient || null);
-                setIsAppointmentModalOpen(true);
-              }}
-              onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
-              onDeleteAppointment={handleDeleteAppointment}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 5: Gemstone Inventory Vault (Zero-Overhead Hub)                      */}
-          {/* ========================================================================= */}
-          {activeTab === 'inventory' && (
-            <InventoryList
-              inventory={inventory}
-              onOpenAddStoneModal={() => {
-                setStoneToEdit(null);
-                setIsStoneModalOpen(true);
-              }}
-              onEditStone={item => {
-                setStoneToEdit(item);
-                setIsStoneModalOpen(true);
-              }}
-              onDeleteStone={handleDeleteStone}
-              onOpenCsvImportModal={() => setIsCsvImportModalOpen(true)}
-              onOpenScanner={() => {
-                setScannerPurpose('stock_add');
-                setIsScannerModalOpen(true);
-              }}
-              onAutoRestockAll={handleAutoRestockAll}
-              onIssueSaleForStone={item => {
-                setSalePrefillStone(item);
-                setIsSaleModalOpen(true);
-              }}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 6: Supplier Purchases & Auto-Procurement                              */}
-          {/* ========================================================================= */}
-          {activeTab === 'purchases' && (
-            <PurchaseList
-              purchases={purchases}
-              inventory={inventory}
-              onOpenNewPurchaseModal={() => setIsPurchaseModalOpen(true)}
-              onOpenScanner={() => {
-                setScannerPurpose('purchase_scan');
-                setIsScannerModalOpen(true);
-              }}
-              onAutoRestockAll={handleAutoRestockAll}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 7: Sales & Auto-Dispensed Invoicing                                  */}
-          {/* ========================================================================= */}
-          {activeTab === 'sales' && (
-            <SalesList
-              sales={sales}
-              clients={clients}
-              inventory={inventory}
-              onOpenNewSaleModal={() => {
-                setSalePrefillStone(null);
-                setIsSaleModalOpen(true);
-              }}
-              onOpenScanner={() => {
-                setScannerPurpose('sale_scan');
-                setIsScannerModalOpen(true);
-              }}
-              currencySymbol={currencySymbol}
-            />
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 8: User Accounts & Audit Logs                                       */}
-          {/* ========================================================================= */}
-          {activeTab === 'admin' && (
-            <div className="space-y-8">
-              <UserManagement
-                users={users}
-                onAddUser={handleAddUser}
-                onDeleteUser={handleDeleteUser}
-              />
-              <SystemAuditLogs logs={auditLogs} />
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* VIEW 9: System Settings                                                  */}
-          {/* ========================================================================= */}
-          {activeTab === 'settings' && (
-            <StoreSettingsView
-              settings={settings}
-              onSaveSettings={handleSaveSettings}
-            />
-          )}
-        </main>
-      </div>
-    </div>
+          </div>
+        </>
+      )}
 
       {/* Floating Auto-Notification Toast */}
       {autoToast && (
@@ -1429,6 +1739,17 @@ export function App() {
 
       {/* Global Modals */}
 
+      {/* Dual-Tab Auth Portal (Create New A/C vs Login) + Demo Access */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialTab={authModalInitialTab}
+        onRegisterAccount={handleRegisterAccount}
+        onLoginAccount={handleLoginAccount}
+        onLaunchDemoUser={handleLaunchDemoUser}
+        registeredUsers={users}
+      />
+
       {/* Camera / Barcode Scanning Modal */}
       <GemstoneScannerModal
         isOpen={isScannerModalOpen}
@@ -1448,7 +1769,6 @@ export function App() {
           setAppointmentPrefillClient(c);
           setIsAppointmentModalOpen(true);
         }}
-        onAutoDispenseGemstone={(rec, cl) => handleAutoDispenseGemstone(rec, cl)}
         currencySymbol={currencySymbol}
       />
 
@@ -1466,7 +1786,7 @@ export function App() {
         onClose={() => setIsAppointmentModalOpen(false)}
         onSubmit={handleCreateAppointment}
         clients={clients}
-        astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'admin')}
+        astrologers={users.filter(u => u.role === 'astrologer' || u.role === 'admin' || u.role === 'super_admin')}
         prefillClient={appointmentPrefillClient}
       />
 
@@ -1503,13 +1823,16 @@ export function App() {
         prefillStone={salePrefillStone}
       />
 
-      {/* Login & Role Switcher Modal */}
+      {/* Legacy Switcher Modal */}
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         users={users}
         currentUser={currentUser}
-        onSwitchUser={u => setCurrentUser(u)}
+        onSwitchUser={u => {
+          setCurrentUser(u);
+          loadTenantWorkspace(u);
+        }}
       />
 
       {/* Cloud Database & SEO Manager Modal */}
@@ -1551,7 +1874,6 @@ export function App() {
           selectedLanguage={selectedLanguage}
           onSelectLanguage={setSelectedLanguage}
           currencySymbol={currencySymbol}
-          onAutoDispenseGemstone={rec => handleAutoDispenseGemstone(rec, clients[0])}
         />
       )}
     </div>

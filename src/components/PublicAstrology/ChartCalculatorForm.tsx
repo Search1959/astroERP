@@ -9,6 +9,7 @@ import { Calendar, Clock, MapPin, Sparkles, User, Compass, Languages } from 'luc
 import { WORLD_CITIES } from '../../data/initialDemoData';
 import { LanguageCode, getTranslation, INDIAN_LANGUAGES } from '../../utils/indianLanguages';
 import { LanguageSelector } from '../Common/LanguageSelector';
+import { FieldHelp } from '../Common/FieldHelp';
 
 interface ChartCalculatorFormProps {
   onCalculate: (formData: {
@@ -203,10 +204,16 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Full Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-indigo-600" />
-              {t('subjectName')}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-indigo-600" />
+                {t('subjectName')}
+              </label>
+              <FieldHelp
+                text="Full name of the native / client for Kundli identification and printed horoscope report."
+                example="Arun Kumar Jaiswal"
+              />
+            </div>
             <input
               type="text"
               id="input-subject-name"
@@ -220,10 +227,16 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
 
           {/* Date of Birth */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-              {t('dateOfBirth')}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                {t('dateOfBirth')}
+              </label>
+              <FieldHelp
+                text="Birth date in Gregorian calendar (YYYY-MM-DD) for Julian Day number calculations."
+                example="1959-04-16"
+              />
+            </div>
             <input
               type="date"
               id="input-birth-date"
@@ -236,10 +249,16 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
 
           {/* Time of Birth */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-indigo-600" />
-              {t('timeOfBirth')}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                {t('timeOfBirth')}
+              </label>
+              <FieldHelp
+                text="Local clock time of birth (HH:MM in 24-hour format). Used for Lagna / Ascendant degree calculation."
+                example="06:30 or 14:45"
+              />
+            </div>
             <input
               type="time"
               id="input-birth-time"
@@ -252,10 +271,16 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
 
           {/* Place of Birth (Autocomplete dropdown) */}
           <div className="space-y-1.5 relative">
-            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-indigo-600" />
-              {t('placeOfBirth')}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+                {t('placeOfBirth')}
+              </label>
+              <FieldHelp
+                text="City or town of birth. Automatically detects exact coordinates and timezone offset."
+                example="Kolkata, Mumbai, London"
+              />
+            </div>
             <input
               type="text"
               id="input-place-name"
@@ -301,7 +326,12 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
           {showAdvanced && (
             <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-700 font-semibold">House System / भाव पद्धति</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-700 font-semibold">House System / भाव पद्धति</label>
+                  <FieldHelp
+                    text="Calculation method for 12 house cusps (Whole Sign for Vedic Jyotish, Placidus for Western Astrology)."
+                  />
+                </div>
                 <select
                   value={houseSystem}
                   onChange={e => setHouseSystem(e.target.value as any)}
@@ -314,7 +344,12 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-semibold">Zodiac Coordinate System / अयनांश</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-700 font-semibold">Zodiac Coordinate System / अयनांश</label>
+                  <FieldHelp
+                    text="Sidereal Lahiri / Chitra Paksha for Vedic astrology; Tropical for Western seasonal wheel."
+                  />
+                </div>
                 <select
                   value={zodiacSystem}
                   onChange={e => setZodiacSystem(e.target.value as any)}
@@ -326,7 +361,13 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-semibold">Latitude (° अक्षांश)</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-700 font-semibold">Latitude (° अक्षांश)</label>
+                  <FieldHelp
+                    text="Decimal degrees of north (+) or south (-) latitude."
+                    example="22.5726"
+                  />
+                </div>
                 <input
                   type="number"
                   step="0.0001"
@@ -337,7 +378,13 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-700 font-semibold">Longitude (° रेखांश)</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-700 font-semibold">Longitude (° रेखांश)</label>
+                  <FieldHelp
+                    text="Decimal degrees of east (+) or west (-) longitude."
+                    example="88.3639"
+                  />
+                </div>
                 <input
                   type="number"
                   step="0.0001"

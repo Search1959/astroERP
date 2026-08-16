@@ -54,32 +54,32 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   return (
     <div className="space-y-6">
       {/* Header and Controls */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-400" />
             Appointment Scheduler & Consultations
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Manage upcoming astrological chart readings, gemstone consultations, and client bookings.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* View Mode Toggle */}
-          <div className="bg-slate-100 p-1 rounded-lg border border-slate-200 flex items-center text-xs">
+          <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex items-center text-xs">
             <button
               onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
-                viewMode === 'calendar' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                viewMode === 'calendar' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
             >
               Calendar View
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
-                viewMode === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
+                viewMode === 'list' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
             >
               List Roster ({filteredAppointments.length})
@@ -89,7 +89,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           <button
             id="btn-book-consultation"
             onClick={() => onOpenBookingModal()}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Book Consultation
@@ -100,49 +100,49 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       {/* Filter Row */}
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200">
-            <span className="text-slate-500 font-medium">Astrologer:</span>
+          <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
+            <span className="text-slate-400 font-medium">Astrologer:</span>
             <select
               value={selectedAstrologerId}
               onChange={e => setSelectedAstrologerId(e.target.value)}
-              className="bg-transparent text-slate-800 font-semibold focus:outline-none"
+              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="all">All Astrologers</option>
+              <option value="all" className="bg-slate-900 text-white">All Astrologers</option>
               {astrologers.map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
+                <option key={a.id} value={a.id} className="bg-slate-900 text-white">{a.name}</option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200">
-            <span className="text-slate-500 font-medium">Status:</span>
+          <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
+            <span className="text-slate-400 font-medium">Status:</span>
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="bg-transparent text-slate-800 font-semibold focus:outline-none"
+              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="all">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="all" className="bg-slate-900 text-white">All Statuses</option>
+              <option value="scheduled" className="bg-slate-900 text-white">Scheduled</option>
+              <option value="in_progress" className="bg-slate-900 text-white">In Progress</option>
+              <option value="completed" className="bg-slate-900 text-white">Completed</option>
+              <option value="cancelled" className="bg-slate-900 text-white">Cancelled</option>
             </select>
           </div>
         </div>
 
         {/* Month Navigation if in Calendar view */}
         {viewMode === 'calendar' && (
-          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-slate-800 font-bold">
+          <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-200 font-bold">
             <button
               onClick={() => setCurrentDateOffset(prev => prev - 1)}
-              className="p-1 hover:bg-slate-100 rounded transition cursor-pointer text-slate-600"
+              className="p-1 hover:bg-slate-800 rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="w-36 text-center text-slate-900">{monthName}</span>
+            <span className="w-36 text-center text-white">{monthName}</span>
             <button
               onClick={() => setCurrentDateOffset(prev => prev + 1)}
-              className="p-1 hover:bg-slate-100 rounded transition cursor-pointer text-slate-600"
+              className="p-1 hover:bg-slate-800 rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -152,9 +152,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       {/* View 1: Calendar Grid View */}
       {viewMode === 'calendar' && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm overflow-hidden">
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-sm overflow-hidden">
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
             <div>Sun</div>
             <div>Mon</div>
             <div>Tue</div>
@@ -168,7 +168,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           <div className="grid grid-cols-7 gap-2">
             {daysArray.map((dayNum, idx) => {
               if (dayNum === null) {
-                return <div key={`empty-${idx}`} className="h-28 bg-slate-50/50 rounded-lg border border-slate-100" />;
+                return <div key={`empty-${idx}`} className="h-28 bg-slate-900/30 rounded-xl border border-slate-900" />;
               }
 
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
@@ -178,20 +178,20 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               return (
                 <div
                   key={`day-${dayNum}`}
-                  className={`h-28 p-2 rounded-lg border flex flex-col justify-between transition ${
+                  className={`h-28 p-2.5 rounded-xl border flex flex-col justify-between transition ${
                     isCurrentDay
-                      ? 'bg-indigo-50/40 border-indigo-400 shadow-xs'
-                      : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                      ? 'bg-indigo-950/40 border-indigo-500/80 shadow-sm'
+                      : 'bg-slate-900/90 border-slate-800/90 hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                      isCurrentDay ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700'
+                      isCurrentDay ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300'
                     }`}>
                       {dayNum}
                     </span>
                     {dayAppointments.length > 0 && (
-                      <span className="text-[10px] text-indigo-600 font-bold">
+                      <span className="text-[10px] text-indigo-400 font-bold">
                         {dayAppointments.length} apt{dayAppointments.length > 1 ? 's' : ''}
                       </span>
                     )}
@@ -202,10 +202,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                     {dayAppointments.map(apt => (
                       <div
                         key={apt.id}
-                        className={`text-[10px] p-1 rounded font-semibold truncate flex items-center justify-between ${
-                          apt.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                          apt.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                          'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                        className={`text-[10px] p-1 rounded-md font-semibold truncate flex items-center justify-between ${
+                          apt.status === 'completed' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/80' :
+                          apt.status === 'cancelled' ? 'bg-rose-950/60 text-rose-300 border border-rose-800/80' :
+                          'bg-indigo-950/60 text-indigo-300 border border-indigo-800/80'
                         }`}
                         title={`${apt.time} - ${apt.clientName} (${apt.type})`}
                       >
@@ -216,7 +216,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
                   <button
                     onClick={() => onOpenBookingModal()}
-                    className="text-[10px] text-slate-400 hover:text-indigo-600 text-center py-0.5 opacity-0 hover:opacity-100 transition font-medium"
+                    className="text-[10px] text-slate-500 hover:text-indigo-400 text-center py-0.5 opacity-0 hover:opacity-100 transition font-medium cursor-pointer"
                   >
                     + Book
                   </button>
@@ -229,21 +229,21 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       {/* View 2: List Roster View */}
       {viewMode === 'list' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-slate-950 border border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 uppercase font-semibold tracking-wider border-b border-slate-200">
-                  <th className="py-3 px-4">Client & Contact</th>
-                  <th className="py-3 px-4">Date & Time</th>
-                  <th className="py-3 px-4">Consultation Type</th>
-                  <th className="py-3 px-4">Astrologer</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Fee</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                <tr className="bg-slate-900 text-slate-400 uppercase font-semibold tracking-wider border-b border-slate-800">
+                  <th className="py-3.5 px-4">Client & Contact</th>
+                  <th className="py-3.5 px-4">Date & Time</th>
+                  <th className="py-3.5 px-4">Consultation Type</th>
+                  <th className="py-3.5 px-4">Astrologer</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Fee</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+              <tbody className="divide-y divide-slate-800/80 font-medium text-slate-200">
                 {filteredAppointments.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-slate-500">
@@ -252,68 +252,68 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   </tr>
                 ) : (
                   filteredAppointments.map(apt => (
-                    <tr key={apt.id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 text-sm">{apt.clientName}</div>
-                        <div className="text-slate-500 text-[11px]">{apt.clientEmail || apt.clientPhone}</div>
+                    <tr key={apt.id} className="hover:bg-slate-900/60 transition">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-white text-sm">{apt.clientName}</div>
+                        <div className="text-slate-400 text-[11px]">{apt.clientEmail || apt.clientPhone}</div>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <div className="text-slate-900 font-semibold flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                      <td className="py-3.5 px-4">
+                        <div className="text-white font-semibold flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-indigo-400" />
                           {apt.date}
                         </div>
-                        <div className="text-indigo-600 text-[11px] flex items-center gap-1 mt-0.5 font-medium">
+                        <div className="text-indigo-400 text-[11px] flex items-center gap-1 mt-0.5 font-medium">
                           <Clock className="w-3 h-3" />
                           {apt.time} ({apt.durationMinutes} min)
                         </div>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <span className="capitalize text-slate-800 font-semibold block">
+                      <td className="py-3.5 px-4">
+                        <span className="capitalize text-slate-200 font-semibold block">
                           {(apt.type || 'consultation').replace(/_/g, ' ')}
                         </span>
-                        <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                          {(apt.meetingMode || '').includes('Video') ? <Video className="w-3 h-3 text-indigo-500" /> : <MapPin className="w-3 h-3 text-amber-500" />}
+                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                          {(apt.meetingMode || '').includes('Video') ? <Video className="w-3 h-3 text-indigo-400" /> : <MapPin className="w-3 h-3 text-amber-400" />}
                           {apt.meetingMode || 'In-Person / Online'}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-slate-700">
+                      <td className="py-3.5 px-4 text-slate-300">
                         {apt.astrologerName || 'Staff Astrologer'}
                       </td>
 
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         <select
                           value={apt.status}
                           onChange={e => onUpdateAppointmentStatus(apt.id, e.target.value as any)}
-                          className={`text-xs px-2.5 py-1 rounded-lg font-semibold border ${
-                            apt.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                            apt.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                            apt.status === 'in_progress' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                            'bg-indigo-50 text-indigo-700 border-indigo-200'
+                          className={`text-xs px-2.5 py-1 rounded-lg font-semibold border focus:outline-none cursor-pointer ${
+                            apt.status === 'completed' ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800' :
+                            apt.status === 'cancelled' ? 'bg-rose-950/80 text-rose-300 border-rose-800' :
+                            apt.status === 'in_progress' ? 'bg-amber-950/80 text-amber-300 border-amber-800' :
+                            'bg-indigo-950/80 text-indigo-300 border-indigo-800'
                           }`}
                         >
-                          <option value="scheduled">Scheduled</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
+                          <option value="scheduled" className="bg-slate-900 text-white">Scheduled</option>
+                          <option value="in_progress" className="bg-slate-900 text-white">In Progress</option>
+                          <option value="completed" className="bg-slate-900 text-white">Completed</option>
+                          <option value="cancelled" className="bg-slate-900 text-white">Cancelled</option>
                         </select>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-emerald-700">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-emerald-400 font-mono">
                           {currencySymbol}{apt.fee}
                         </div>
-                        <span className={`text-[10px] font-semibold ${apt.isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        <span className={`text-[10px] font-semibold ${apt.isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
                           {apt.isPaid ? 'Paid' : 'Unpaid'}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => onDeleteAppointment(apt.id)}
-                          className="px-2.5 py-1 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-lg text-xs font-semibold border border-slate-200 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 rounded-lg text-xs font-semibold border border-slate-800 hover:border-rose-800 transition cursor-pointer"
                         >
                           Cancel
                         </button>

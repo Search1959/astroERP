@@ -2,21 +2,50 @@
  * Core Data Models & Shared Types for AstroERP
  */
 
-export type UserRole = 'super_admin' | 'admin' | 'astrologer' | 'staff';
+export type UserRole = 'super_admin' | 'admin' | 'astrologer' | 'staff' | 'demo_user';
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  status?: 'active' | 'blocked';
+  username?: string;
+  password?: string;
+  companyName?: string;
+  specialty?: string;
+  status?: 'active' | 'blocked' | 'inactive';
   isActive?: boolean;
+  isReadOnly?: boolean;
   title?: string;
   phone?: string;
   avatarUrl?: string;
   permissions?: string[];
   lastLogin?: string;
   createdAt?: string;
+  monthlyFee?: number;
+  subscriptionStatus?: 'active_paid' | 'due' | 'overdue' | 'trial';
+  lastBillingDate?: string;
+  nextBillingDate?: string;
+  totalBilled?: number;
+}
+
+export interface SubscriptionBillingRecord {
+  id: string;
+  accountId: string;
+  accountName: string;
+  companyName: string;
+  username?: string;
+  planName?: string;
+  amount: number; // e.g. 200
+  currency: string;
+  billingDate: string;
+  dueDate: string;
+  status: 'paid' | 'pending' | 'overdue';
+  invoiceNumber: string;
+  description?: string;
+  notes?: string;
+  paymentMethod?: string;
+  paidAt?: string;
 }
 
 export interface Client {

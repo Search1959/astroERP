@@ -196,7 +196,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
 
         {/* KPI 2: Weekly Consultations */}
         <div
-          onClick={() => onNavigateTab('calendar')}
+          onClick={() => onNavigateTab('appointments')}
           className="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-indigo-500/60 shadow-sm transition cursor-pointer group space-y-2"
         >
           <div className="flex items-center justify-between">
@@ -332,7 +332,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                         </div>
                       </td>
                       <td className="px-4 py-3.5 text-xs text-slate-300 capitalize">
-                        {(item.categoryName || item.category || 'Gemstone').replace(/_/g, ' ')}
+                        {String(item.categoryName || item.category || 'Gemstone').replace(/_/g, ' ')}
                       </td>
                       <td className="px-4 py-3.5 text-xs font-mono text-slate-300">
                         {item.weightCarats} ct ({item.weightRatti || (item.weightCarats * 1.09).toFixed(2)} Ratti)
@@ -468,7 +468,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => onNavigateTab('calendar')}
+                  onClick={() => onNavigateTab('appointments')}
                   className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 cursor-pointer"
                 >
                   Full Calendar →
@@ -487,7 +487,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                         {apt.clientName}
                       </p>
                       <p className="text-[10px] text-slate-400 truncate">
-                        {(apt.type || apt.serviceType || 'Consultation').replace(/_/g, ' ')} • {apt.time || '10:00 AM'}
+                        {String(apt.type || apt.serviceType || 'Consultation').replace(/_/g, ' ')} • {apt.time || '10:00 AM'}
                       </p>
                     </div>
                     <span className="text-[10px] bg-slate-800 text-indigo-300 px-2 py-0.5 rounded-md font-mono">

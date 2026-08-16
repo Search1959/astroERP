@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { InventoryItem } from '../../types';
 import { X, Gem, ShieldCheck, DollarSign, Tag, Scale, Camera, Sparkles, Truck } from 'lucide-react';
+import { FieldHelp } from '../Common/FieldHelp';
 
 interface StoneFormModalProps {
   isOpen: boolean;
@@ -237,7 +238,13 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">SKU / Item Code *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">SKU / Item Code *</label>
+                <FieldHelp
+                  text="Unique barcoded inventory stock-keeping unit for track and trace."
+                  example="GEM-4029"
+                />
+              </div>
               <input
                 type="text"
                 required
@@ -248,7 +255,13 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1 sm:col-span-2">
-              <label className="font-semibold text-slate-300">Gemstone English Name *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Gemstone English Name *</label>
+                <FieldHelp
+                  text="Full commercial name of the mineral or gemstone."
+                  example="Natural Ceylon Yellow Sapphire (Pukhraj)"
+                />
+              </div>
               <input
                 type="text"
                 required
@@ -262,7 +275,13 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Sanskrit / Vedic Name</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Sanskrit / Vedic Name</label>
+                <FieldHelp
+                  text="Traditional Ayurvedic/Vedic Sanskrit term for prescription lookup."
+                  example="Pushparag, Manikya, Neelam"
+                />
+              </div>
               <input
                 type="text"
                 value={sanskritName}
@@ -273,7 +292,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Category</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Category</label>
+                <FieldHelp
+                  text="Inventory category (Maharatna precious, Uparatna semi-precious, beads, yantras)."
+                />
+              </div>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
@@ -288,7 +312,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Associated Ruling Planet (Graha)</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Associated Ruling Planet (Graha)</label>
+                <FieldHelp
+                  text="Vedic planetary lord for automatic Jyotish recommendation matching."
+                />
+              </div>
               <select
                 value={associatedPlanet}
                 onChange={e => setAssociatedPlanet(e.target.value)}
@@ -309,10 +338,16 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Scale className="w-3.5 h-3.5 text-amber-400" />
-                Weight in Carats (ct)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Scale className="w-3.5 h-3.5 text-amber-400" />
+                  Weight in Carats (ct)
+                </label>
+                <FieldHelp
+                  text="Metric weight in carats (1 carat = 200mg). Auto-synchronizes Vedic Ratti."
+                  example="4.5"
+                />
+              </div>
               <input
                 type="number"
                 step="0.01"
@@ -324,10 +359,16 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Scale className="w-3.5 h-3.5 text-indigo-400" />
-                Vedic Weight (Ratti)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Scale className="w-3.5 h-3.5 text-indigo-400" />
+                  Vedic Weight (Ratti)
+                </label>
+                <FieldHelp
+                  text="Traditional Indian Vedic weight measure (1 Carat ≈ 1.1 Ratti standard conversion)."
+                  example="4.95"
+                />
+              </div>
               <input
                 type="number"
                 step="0.01"
@@ -338,7 +379,13 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Geographic Origin</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Geographic Origin</label>
+                <FieldHelp
+                  text="Mining origin location (e.g. Ceylon, Burma, Colombia, Kashmir)."
+                  example="Ceylon (Sri Lanka)"
+                />
+              </div>
               <input
                 type="text"
                 value={origin}
@@ -351,7 +398,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Dealer Cost / Unit ({currencySymbol})</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Dealer Cost / Unit ({currencySymbol})</label>
+                <FieldHelp
+                  text="Procurement cost per unit from dealer/supplier."
+                />
+              </div>
               <input
                 type="number"
                 value={costPrice}
@@ -361,7 +413,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Selling Price / Unit ({currencySymbol}) *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Selling Price / Unit ({currencySymbol}) *</label>
+                <FieldHelp
+                  text="Retail selling price per unit shown on client estimates and invoices."
+                />
+              </div>
               <input
                 type="number"
                 required
@@ -372,7 +429,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Stock Quantity (Units) *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Stock Quantity (Units) *</label>
+                <FieldHelp
+                  text="Current available inventory quantity in your vault."
+                />
+              </div>
               <input
                 type="number"
                 required
@@ -383,7 +445,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Low Stock Threshold</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Low Stock Threshold</label>
+                <FieldHelp
+                  text="Minimum safety threshold before triggering a restock alert."
+                />
+              </div>
               <input
                 type="number"
                 value={minStockThreshold}

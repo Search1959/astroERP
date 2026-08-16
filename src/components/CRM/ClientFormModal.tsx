@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Client } from '../../types';
 import { WORLD_CITIES } from '../../data/initialDemoData';
 import { X, User, Calendar, Clock, MapPin, Tag, FileText } from 'lucide-react';
+import { FieldHelp } from '../Common/FieldHelp';
 
 interface ClientFormModalProps {
   isOpen: boolean;
@@ -137,7 +138,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Full Name *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Full Name *</label>
+                <FieldHelp
+                  text="Client's primary legal or preferred name for Kundli records, birth chart calculations, and official invoices."
+                  example="Maya Lin"
+                />
+              </div>
               <input
                 type="text"
                 required
@@ -149,7 +156,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Email Address *</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Email Address *</label>
+                <FieldHelp
+                  text="Email address for sending automated Kundli PDF reports, appointment confirmations, and invoices."
+                  example="maya@example.com"
+                />
+              </div>
               <input
                 type="email"
                 required
@@ -161,7 +174,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Phone / WhatsApp</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Phone / WhatsApp</label>
+                <FieldHelp
+                  text="Mobile phone number with country code for WhatsApp consultation reminders and dispatch notifications."
+                  example="+1 (555) 019-2834"
+                />
+              </div>
               <input
                 type="text"
                 value={phone}
@@ -172,7 +191,12 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Gender</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Gender</label>
+                <FieldHelp
+                  text="Used for traditional Vedic Dasha interpretations and marital/synastry compatibility matching."
+                />
+              </div>
               <select
                 value={gender}
                 onChange={e => setGender(e.target.value as any)}
@@ -186,9 +210,15 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-indigo-400" /> Date of Birth *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-indigo-400" /> Date of Birth *
+                </label>
+                <FieldHelp
+                  text="Exact Gregorian birth date (YYYY-MM-DD) required for high-precision Swiss Ephemeris astronomical positions."
+                  example="1990-01-01"
+                />
+              </div>
               <input
                 type="date"
                 required
@@ -199,9 +229,15 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" /> Time of Birth (Exact) *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" /> Time of Birth (Exact) *
+                </label>
+                <FieldHelp
+                  text="Exact local birth time (24-hour HH:MM). Crucial for calculating the Ascendant (Lagna) and 12 Bhavas accurately."
+                  example="12:00 or 14:30"
+                />
+              </div>
               <input
                 type="time"
                 required
@@ -214,9 +250,15 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
 
           {/* Place of Birth & Autocomplete */}
           <div className="space-y-1 relative">
-            <label className="font-semibold text-slate-300 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-indigo-400" /> Place of Birth (City & Coordinates)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-slate-300 flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-indigo-400" /> Place of Birth (City & Coordinates)
+              </label>
+              <FieldHelp
+                text="City/town of birth. Automatically loads precise geographical latitude and longitude for topocentric house calculations."
+                example="London, UK or Mumbai, India"
+              />
+            </div>
             <input
               type="text"
               required
@@ -245,7 +287,13 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Occupation</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Occupation</label>
+                <FieldHelp
+                  text="Client's current profession, career stream, or business domain to assist in 10th House career guidance."
+                  example="Software Engineer / Business Owner"
+                />
+              </div>
               <input
                 type="text"
                 value={occupation}
@@ -256,9 +304,15 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5 text-indigo-400" /> Tags (comma separated)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Tag className="w-3.5 h-3.5 text-indigo-400" /> Tags (comma separated)
+                </label>
+                <FieldHelp
+                  text="Labels separated by commas to organize and filter clients (e.g. VIP, Gemstone Buyer, Marriage Matching, Remedial)."
+                  example="VIP, Gemstone Buyer, Synastry"
+                />
+              </div>
               <input
                 type="text"
                 value={tagInput}
@@ -270,9 +324,15 @@ export const ClientFormModal: React.FC<ClientFormModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300 flex items-center gap-1">
-              <FileText className="w-3.5 h-3.5 text-indigo-400" /> Initial Notes & Astrological Context
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-slate-300 flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5 text-indigo-400" /> Initial Notes & Astrological Context
+              </label>
+              <FieldHelp
+                text="Record specific life questions, health/relationship concerns, gemstones previously recommended, or Mahadasha observations."
+                example="Inquiring about Sade Sati transition and career promotion in Q3."
+              />
+            </div>
             <textarea
               rows={3}
               value={notes}

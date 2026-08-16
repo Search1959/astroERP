@@ -16,6 +16,7 @@ import {
   SystemLog,
   StoreSettings,
   DashboardStats,
+  SubscriptionBillingRecord,
 } from '../types';
 import { calculateFullAstrologyChart } from '../utils/ephemerisEngine';
 
@@ -53,36 +54,141 @@ export const WORLD_CITIES = [
 export const DEFAULT_USERS: User[] = [
   {
     id: 'usr_admin_1',
-    name: 'Acharya Rajesh Sharma',
-    email: 'admin@astroerp.com',
+    name: 'Apex7 Admin',
+    email: 'apex7tech@gmail.com',
+    username: 'apex7tech',
+    password: 'Search@1959',
+    companyName: 'AstroNexus Vedic Labs & Research',
+    specialty: 'Vedic Jyotish & Gemology',
     role: 'super_admin',
     status: 'active',
-    title: 'Chief Astrologer & Managing Director',
+    title: 'Chief System Administrator & Managing Director',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     lastLogin: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     createdAt: '2025-01-10T10:00:00Z',
+    monthlyFee: 200,
+    subscriptionStatus: 'active_paid',
+    lastBillingDate: '2026-08-01',
+    nextBillingDate: '2026-09-01',
+    totalBilled: 1600,
+  },
+  {
+    id: 'usr_demo',
+    name: 'Demo Astrologer (Guest)',
+    email: 'demo@astroerp.com',
+    username: 'demo',
+    password: 'demo123',
+    companyName: 'AstroNexus Live Demo Studio',
+    specialty: 'Astrology & Gemstone Consultation',
+    role: 'demo_user',
+    isReadOnly: true,
+    status: 'active',
+    title: 'Guest Demo Evaluator',
+    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    lastLogin: new Date().toISOString(),
+    createdAt: '2025-01-01T00:00:00Z',
+    monthlyFee: 200,
+    subscriptionStatus: 'trial',
+    lastBillingDate: '2026-08-01',
+    nextBillingDate: '2026-09-01',
+    totalBilled: 0,
   },
   {
     id: 'usr_astro_1',
     name: 'Dr. Elena Rostova',
     email: 'elena@astroerp.com',
+    username: 'elena',
+    password: 'elena123',
+    companyName: 'Cosmic Light Jyotish Center',
+    specialty: 'KP Astrology & Transit Analysis',
     role: 'astrologer',
     status: 'active',
     title: 'Senior Western & Vedic Astrologer',
     avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
     lastLogin: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
     createdAt: '2025-02-01T10:00:00Z',
+    monthlyFee: 200,
+    subscriptionStatus: 'active_paid',
+    lastBillingDate: '2026-08-05',
+    nextBillingDate: '2026-09-05',
+    totalBilled: 1200,
   },
   {
     id: 'usr_staff_1',
     name: 'Priya Sundaram',
     email: 'priya@astroerp.com',
+    username: 'priya',
+    password: 'priya123',
+    companyName: 'Ratna Shastra Gemstone Emporium',
+    specialty: 'Certified Gemology & Vault Management',
     role: 'staff',
     status: 'active',
     title: 'Store Manager & Gemologist Coordinator',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     lastLogin: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
     createdAt: '2025-02-15T10:00:00Z',
+    monthlyFee: 200,
+    subscriptionStatus: 'active_paid',
+    lastBillingDate: '2026-08-10',
+    nextBillingDate: '2026-09-10',
+    totalBilled: 1200,
+  },
+];
+
+export const DEFAULT_SUBSCRIPTION_BILLING: SubscriptionBillingRecord[] = [
+  {
+    id: 'sub_rec_101',
+    accountId: 'usr_admin_1',
+    accountName: 'Apex7 Admin',
+    companyName: 'AstroNexus Vedic Labs & Research',
+    username: 'apex7tech',
+    planName: 'Enterprise Astrologer Tier',
+    amount: 200,
+    currency: 'USD',
+    billingDate: '2026-08-01',
+    dueDate: '2026-08-05',
+    status: 'paid',
+    invoiceNumber: 'SUB-2026-08-001',
+    description: 'Monthly ERP Platform License & Ephemeris API Access ($200/mo)',
+    notes: 'Paid via Visa Corporate Card (**** 4821)',
+    paymentMethod: 'Credit Card',
+    paidAt: '2026-08-01T14:30:00Z',
+  },
+  {
+    id: 'sub_rec_102',
+    accountId: 'usr_astro_1',
+    accountName: 'Dr. Elena Rostova',
+    companyName: 'Cosmic Light Jyotish Center',
+    username: 'elena',
+    planName: 'Professional Astrologer Tier',
+    amount: 200,
+    currency: 'USD',
+    billingDate: '2026-08-05',
+    dueDate: '2026-08-10',
+    status: 'paid',
+    invoiceNumber: 'SUB-2026-08-002',
+    description: 'Monthly ERP Platform License & Planetary Engines ($200/mo)',
+    notes: 'Automated Stripe Recurring Billing',
+    paymentMethod: 'Bank Transfer / ACH',
+    paidAt: '2026-08-05T09:15:00Z',
+  },
+  {
+    id: 'sub_rec_103',
+    accountId: 'usr_staff_1',
+    accountName: 'Priya Sundaram',
+    companyName: 'Ratna Shastra Gemstone Emporium',
+    username: 'priya',
+    planName: 'Gemology Vault Tier',
+    amount: 200,
+    currency: 'USD',
+    billingDate: '2026-08-10',
+    dueDate: '2026-08-15',
+    status: 'paid',
+    invoiceNumber: 'SUB-2026-08-003',
+    description: 'Monthly ERP Gemstone Vault & Sales POS License ($200/mo)',
+    notes: 'Paid via PayPal Business Gateway',
+    paymentMethod: 'PayPal',
+    paidAt: '2026-08-10T11:00:00Z',
   },
 ];
 
@@ -725,6 +831,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'astroerp_settings',
   USERS: 'astroerp_users',
   LOGS: 'astroerp_logs',
+  SUBSCRIPTIONS: 'astroerp_subscriptions',
 };
 
 export function getLocalOrSeedData() {
@@ -738,6 +845,7 @@ export function getLocalOrSeedData() {
       settings: DEFAULT_SETTINGS,
       users: DEFAULT_USERS,
       logs: DEFAULT_AUDIT_LOGS,
+      subscriptions: DEFAULT_SUBSCRIPTION_BILLING,
     };
   }
 
@@ -750,6 +858,7 @@ export function getLocalOrSeedData() {
     const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
     const rawLogs = localStorage.getItem(STORAGE_KEYS.LOGS);
+    const rawSubs = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTIONS);
 
     const clients: Client[] = rawClients ? JSON.parse(rawClients) : DEFAULT_CLIENTS;
     const inventory: GemstoneItem[] = rawInventory ? JSON.parse(rawInventory) : DEFAULT_INVENTORY;
@@ -757,10 +866,30 @@ export function getLocalOrSeedData() {
     const purchases: PurchaseEntry[] = rawPurchases ? JSON.parse(rawPurchases) : DEFAULT_PURCHASES;
     const sales: SalesInvoice[] = rawSales ? JSON.parse(rawSales) : DEFAULT_SALES;
     const settings: StoreSettings = rawSettings ? JSON.parse(rawSettings) : DEFAULT_SETTINGS;
-    const users: User[] = rawUsers ? JSON.parse(rawUsers) : DEFAULT_USERS;
-    const logs: SystemLog[] = rawLogs ? JSON.parse(rawLogs) : DEFAULT_AUDIT_LOGS;
+    let users: User[] = rawUsers ? JSON.parse(rawUsers) : DEFAULT_USERS;
+    
+    // Ensure Super Admin apex7tech account is present with valid password
+    const adminIdx = users.findIndex(
+      u => u.id === 'usr_admin_1' || u.role === 'super_admin' || u.email.toLowerCase() === 'apex7tech@gmail.com' || u.email.toLowerCase() === 'admin@astroerp.com'
+    );
+    if (adminIdx !== -1) {
+      users[adminIdx] = {
+        ...users[adminIdx],
+        name: users[adminIdx].name || 'Apex7 Admin',
+        email: 'apex7tech@gmail.com',
+        username: users[adminIdx].username || 'apex7tech',
+        password: 'Search@1959',
+        role: 'super_admin',
+        status: 'active',
+      };
+    } else {
+      users = [DEFAULT_USERS[0], ...users];
+    }
 
-    return { clients, inventory, appointments, purchases, sales, settings, users, logs };
+    const logs: SystemLog[] = rawLogs ? JSON.parse(rawLogs) : DEFAULT_AUDIT_LOGS;
+    const subscriptions: SubscriptionBillingRecord[] = rawSubs ? JSON.parse(rawSubs) : DEFAULT_SUBSCRIPTION_BILLING;
+
+    return { clients, inventory, appointments, purchases, sales, settings, users, logs, subscriptions };
   } catch (e) {
     console.warn('LocalStorage retrieval failed, falling back to defaults:', e);
     return {
@@ -772,6 +901,7 @@ export function getLocalOrSeedData() {
       settings: DEFAULT_SETTINGS,
       users: DEFAULT_USERS,
       logs: DEFAULT_AUDIT_LOGS,
+      subscriptions: DEFAULT_SUBSCRIPTION_BILLING,
     };
   }
 }

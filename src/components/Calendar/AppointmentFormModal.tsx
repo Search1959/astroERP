@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Appointment, Client, User } from '../../types';
 import { X, Calendar, Clock, User as UserIcon, DollarSign, Video, MapPin, FileText } from 'lucide-react';
+import { FieldHelp } from '../Common/FieldHelp';
 
 interface AppointmentFormModalProps {
   isOpen: boolean;
@@ -98,9 +99,14 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           {/* Client Selector */}
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300 flex items-center gap-1">
-              <UserIcon className="w-3.5 h-3.5 text-cyan-400" /> Select Client *
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-slate-300 flex items-center gap-1">
+                <UserIcon className="w-3.5 h-3.5 text-cyan-400" /> Select Client *
+              </label>
+              <FieldHelp
+                text="Choose an existing client from your CRM or add a new client profile first."
+              />
+            </div>
             <select
               required
               value={clientId}
@@ -117,7 +123,12 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
 
           {/* Astrologer Selector */}
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300">Assign Astrologer / Specialist *</label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-slate-300">Assign Astrologer / Specialist *</label>
+              <FieldHelp
+                text="Assign the consultation to a specific practitioner or Vedic Jyotish specialist in your team."
+              />
+            </div>
             <select
               required
               value={astrologerId}
@@ -134,9 +145,14 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-cyan-400" /> Date *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-cyan-400" /> Date *
+                </label>
+                <FieldHelp
+                  text="Scheduled date for this consultation session."
+                />
+              </div>
               <input
                 type="date"
                 required
@@ -147,9 +163,14 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-cyan-400" /> Time *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-cyan-400" /> Time *
+                </label>
+                <FieldHelp
+                  text="Start time for the live reading or appointment."
+                />
+              </div>
               <input
                 type="time"
                 required
@@ -162,7 +183,12 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Consultation Focus</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Consultation Focus</label>
+                <FieldHelp
+                  text="Primary astrological methodology or objective for this session."
+                />
+              </div>
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
@@ -177,7 +203,12 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Duration (Minutes)</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Duration (Minutes)</label>
+                <FieldHelp
+                  text="Allocated session duration for calendar booking."
+                />
+              </div>
               <select
                 value={durationMinutes}
                 onChange={e => setDurationMinutes(parseInt(e.target.value))}
@@ -193,7 +224,12 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300">Meeting Channel</label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300">Meeting Channel</label>
+                <FieldHelp
+                  text="Delivery channel: Video call link, in-office consultation, phone, or recorded audio/video dossier."
+                />
+              </div>
               <select
                 value={meetingMode}
                 onChange={e => setMeetingMode(e.target.value)}
@@ -207,9 +243,15 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-300 flex items-center gap-1">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Consultation Fee
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-slate-300 flex items-center gap-1">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Consultation Fee
+                </label>
+                <FieldHelp
+                  text="Consultation fee amount for revenue tracking and sales invoicing."
+                  example="150"
+                />
+              </div>
               <input
                 type="number"
                 value={fee}
@@ -233,9 +275,14 @@ export const AppointmentFormModal: React.FC<AppointmentFormModalProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300 flex items-center gap-1">
-              <FileText className="w-3.5 h-3.5 text-slate-400" /> Agenda / Client Notes
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-slate-300 flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5 text-slate-400" /> Agenda / Client Notes
+              </label>
+              <FieldHelp
+                text="Specific life questions or chart topics the client wants to cover during the consultation."
+              />
+            </div>
             <textarea
               rows={2}
               value={notes}

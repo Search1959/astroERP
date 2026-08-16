@@ -18,14 +18,14 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
   const [formData, setFormData] = useState<StoreSettings>({
     storeName: 'AstroERP Sanctuary & Vault',
     astrologerTitle: 'Chief Astrologer & Vedic Master',
-    currency: 'USD',
-    currencySymbol: '$',
-    taxRatePercent: 5,
-    defaultHouseSystem: 'placidus',
-    defaultAyanamsha: 'tropical',
-    officeAddress: 'Mayfair, London W1K, United Kingdom',
-    contactEmail: 'contact@astroerp.com',
-    contactPhone: '+44 20 7946 0912',
+    currency: 'INR',
+    currencySymbol: '₹',
+    taxRatePercent: 18,
+    defaultHouseSystem: 'whole_sign',
+    defaultAyanamsha: 'lahiri',
+    officeAddress: 'MG Road, Bangalore / Connaught Place, New Delhi, India',
+    contactEmail: 'contact@astroerp.in',
+    contactPhone: '+91 98450 12345',
     enablePublicCalculator: true,
   });
 
@@ -136,10 +136,10 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
                 }}
                 className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
+                <option value="INR">INR (₹ - Indian Rupee)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
-                <option value="INR">INR (₹)</option>
               </select>
             </div>
 
