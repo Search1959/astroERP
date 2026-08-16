@@ -794,6 +794,49 @@ async function startServer() {
     return res.json({ success: true, data: db.settings });
   });
 
+  // ---------------- SEO CRAWLERS & SITEMAP APIs ---------------- //
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`User-agent: *
+Allow: /
+Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml
+`);
+  });
+
+  app.get('/sitemap.xml', (req, res) => {
+    const host = `${req.protocol}://${req.get('host')}`;
+    const currentDate = new Date().toISOString().split('T')[0];
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${host}/</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${host}/?tab=astrology</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${host}/?tab=inventory</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${host}/?tab=appointments</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`;
+    res.type('application/xml');
+    res.send(sitemap);
+  });
+
   // API 404 handler - MUST be before frontend middleware so API calls never return index.html
   app.use('/api', (req, res) => {
     res.status(404).json({ success: false, error: `API endpoint ${req.method} ${req.originalUrl} not found` });

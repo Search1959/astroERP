@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Calendar, Clock, MapPin, Sparkles, User, Compass, Languages } from 'lucide-react';
-import { WORLD_CITIES } from '../../../server/storage';
+import { WORLD_CITIES } from '../../data/initialDemoData';
 import { LanguageCode, getTranslation, INDIAN_LANGUAGES } from '../../utils/indianLanguages';
 import { LanguageSelector } from '../Common/LanguageSelector';
 

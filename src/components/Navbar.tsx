@@ -29,6 +29,7 @@ interface NavbarProps {
   onQuickNewChart?: () => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  onOpenCloudModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -40,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onQuickNewChart,
   searchQuery = '',
   onSearchChange,
+  onOpenCloudModal,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -132,6 +134,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
+        {/* Cloud Database & SEO Status Button */}
+        {onOpenCloudModal && (
+          <div className="px-3 py-2">
+            <button
+              type="button"
+              id="btn-cloud-seo-status"
+              onClick={onOpenCloudModal}
+              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-indigo-950/80 hover:bg-indigo-900/90 border border-indigo-700/60 text-indigo-200 transition cursor-pointer group shadow-2xs"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <span className="text-xs font-bold text-white group-hover:text-amber-300 transition">Cloud DB & SEO</span>
+              </div>
+              <span className="text-[9px] font-mono bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/50">
+                Online
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* User Profile Card at Bottom of Sidebar */}
         <div className="p-4 mt-auto border-t border-slate-800/80">
           <div
@@ -213,6 +235,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <nav className="flex-1 space-y-1 overflow-y-auto">
+              {onOpenCloudModal && (
+                <button
+                  type="button"
+                  id="mobile-btn-cloud-seo"
+                  onClick={() => {
+                    onOpenCloudModal();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 rounded-lg bg-indigo-950/80 border border-indigo-700/60 text-indigo-200 mb-2 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs font-bold text-white">Cloud DB & SEO</span>
+                  </div>
+                  <span className="text-[9px] bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded">
+                    Online
+                  </span>
+                </button>
+              )}
+
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;

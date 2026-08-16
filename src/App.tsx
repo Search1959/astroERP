@@ -49,7 +49,34 @@ import { StoreSettingsView } from './components/Admin/StoreSettingsView';
 import { LoginModal } from './components/Auth/LoginModal';
 import { Navbar } from './components/Navbar';
 
-import { Sparkles, Download, ArrowRight, ShieldCheck, Globe, Calendar, Gem, Users, AlertCircle } from 'lucide-react';
+// SEO and Cloud Database (Firestore) Sync Components & Services
+import { SEOHead } from './components/SEO/SEOHead';
+import { CloudDatabaseModal } from './components/Common/CloudDatabaseModal';
+import {
+  saveChartToCloud,
+  getChartFromCloud,
+  saveClientToCloud,
+  deleteClientFromCloud,
+  saveInventoryItemToCloud,
+  deleteInventoryItemFromCloud,
+  saveAppointmentToCloud,
+  deleteAppointmentFromCloud,
+  saveSaleToCloud,
+  savePurchaseToCloud,
+  saveSettingsToCloud,
+  seedCloudDatabaseIfEmpty,
+  SavedCloudChart,
+} from './services/firestoreSync';
+
+import { Sparkles, Download, ArrowRight, ShieldCheck, Globe, Calendar, Gem, Users, AlertCircle, Cloud, Database } from 'lucide-react';
+import { calculateFullAstrologyChart } from './utils/ephemerisEngine';
+import {
+  getLocalOrSeedData,
+  saveLocalRecord,
+  calculateDashboardStats,
+  DEFAULT_USERS,
+  DEFAULT_SETTINGS,
+} from './data/initialDemoData';
 
 export function App() {
   // Navigation
@@ -88,16 +115,30 @@ export function App() {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
 
-  // Fetch initial data
+  // Fetch initial data & handle deep links / SEO routes
   useEffect(() => {
     fetchInitialData();
   }, []);
 
   const fetchInitialData = async () => {
     try {
-      // Calculate initial sample chart for public view
-      calculateAstrologyChart({
+      // 1. Immediately hydrate from robust local seed & storage (zero network latency, works 100% offline & on Vercel)
+      const seed = getLocalOrSeedData();
+      setClients(seed.clients);
+      setInventory(seed.inventory);
+      setAppointments(seed.appointments);
+      setPurchases(seed.purchases);
+      setSales(seed.sales);
+      setSettings(seed.settings);
+      setUsers(seed.users);
+      setCurrentUser(seed.users[0] || null);
+      setAuditLogs(seed.logs);
+      setDashboardStats(calculateDashboardStats(seed.clients, seed.appointments, seed.inventory, seed.sales, seed.logs));
+
+      // 2. Immediately calculate initial sample chart for public astrology view
+      const initialChart = calculateFullAstrologyChart({
         name: 'Alexander Sterling',
         birthDate: '1992-07-24',
         birthTime: '14:30',
@@ -108,20 +149,44 @@ export function App() {
         houseSystem: 'placidus',
         zodiacSystem: 'tropical',
       });
+      setChartData(initialChart);
 
+      // 3. Check for deep-linked saved chart from Firestore via URL search params (e.g. ?chartId=chart_123)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const linkedChartId = urlParams.get('chartId');
+        const linkedTab = urlParams.get('tab');
+
+        if (linkedTab) {
+          setActiveTab(linkedTab);
+        }
+
+        if (linkedChartId) {
+          try {
+            const cloudChart = await getChartFromCloud(linkedChartId);
+            if (cloudChart && cloudChart.chartData) {
+              setChartData(cloudChart.chartData);
+              setActiveTab('astrology');
+            }
+          } catch (e) {
+            console.warn('Cloud chart lookup:', e);
+          }
+        }
+      }
+
+      // 4. In parallel, attempt to sync with backend API if running in full-stack mode
       const safeFetch = async (url: string) => {
         try {
           const res = await fetch(url);
+          if (!res.ok) return null;
           const json = await res.json();
           if (json && json.data !== undefined) return json.data;
           return json;
-        } catch (e) {
-          console.warn(`Fetch error for ${url}:`, e);
+        } catch {
           return null;
         }
       };
 
-      // Load ERP backend data in parallel
       const [stats, clientsData, aptsData, invData, purData, salesData, usersData, logsData, setData] = await Promise.all([
         safeFetch('/api/dashboard/stats'),
         safeFetch('/api/clients'),
@@ -135,34 +200,56 @@ export function App() {
       ]);
 
       if (stats) setDashboardStats(stats);
-      if (Array.isArray(clientsData)) setClients(clientsData);
-      if (Array.isArray(aptsData)) setAppointments(aptsData);
-      if (Array.isArray(invData)) setInventory(invData);
-      if (Array.isArray(purData)) setPurchases(purData);
-      if (Array.isArray(salesData)) setSales(salesData);
-      if (Array.isArray(usersData)) {
+      if (Array.isArray(clientsData) && clientsData.length > 0) {
+        setClients(clientsData);
+        saveLocalRecord('CLIENTS', clientsData);
+      }
+      if (Array.isArray(aptsData) && aptsData.length > 0) {
+        setAppointments(aptsData);
+        saveLocalRecord('APPOINTMENTS', aptsData);
+      }
+      if (Array.isArray(invData) && invData.length > 0) {
+        setInventory(invData);
+        saveLocalRecord('INVENTORY', invData);
+      }
+      if (Array.isArray(purData) && purData.length > 0) {
+        setPurchases(purData);
+        saveLocalRecord('PURCHASES', purData);
+      }
+      if (Array.isArray(salesData) && salesData.length > 0) {
+        setSales(salesData);
+        saveLocalRecord('SALES', salesData);
+      }
+      if (Array.isArray(usersData) && usersData.length > 0) {
         setUsers(usersData);
         setCurrentUser(usersData[0] || null);
+        saveLocalRecord('USERS', usersData);
       }
-      if (Array.isArray(logsData)) setAuditLogs(logsData);
-      if (setData) setSettings(setData);
+      if (Array.isArray(logsData) && logsData.length > 0) {
+        setAuditLogs(logsData);
+        saveLocalRecord('LOGS', logsData);
+      }
+      if (setData) {
+        setSettings(setData);
+        saveLocalRecord('SETTINGS', setData);
+      }
     } catch (err) {
       console.error('Error fetching initial data:', err);
     }
   };
 
-  const refreshStats = async () => {
-    try {
-      const res = await fetch('/api/dashboard/stats');
-      const json = await res.json();
-      const data = json.data !== undefined ? json.data : json;
-      if (data) setDashboardStats(data);
-    } catch (err) {
-      console.error(err);
-    }
+  const refreshStats = (
+    currentClients = clients,
+    currentApts = appointments,
+    currentInv = inventory,
+    currentSales = sales,
+    currentLogs = auditLogs
+  ) => {
+    const updated = calculateDashboardStats(currentClients, currentApts, currentInv, currentSales, currentLogs);
+    setDashboardStats(updated);
   };
 
-  // Calculate astrology chart via Ephemeris API
+  // Calculate astrology chart via high-precision client engine + optional backend API
   const calculateAstrologyChart = async (formData: {
     name: string;
     birthDate: string;
@@ -176,15 +263,23 @@ export function App() {
   }) => {
     setIsCalculatingChart(true);
     try {
-      const res = await fetch('/api/astrology/calculate', {
+      // 1. Direct high-precision astronomical computation in-browser (Jean Meeus algorithm)
+      const calculated = calculateFullAstrologyChart(formData);
+      setChartData(calculated);
+
+      // 2. Non-blocking background sync if backend server is available
+      fetch('/api/astrology/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      }).then(r => r.json());
-
-      if (res.success && res.data) {
-        setChartData(res.data);
-      }
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (res && res.success && res.data) {
+            setChartData(res.data);
+          }
+        })
+        .catch(() => {});
     } catch (err) {
       console.error('Failed to calculate astrology chart:', err);
     } finally {
@@ -196,27 +291,49 @@ export function App() {
   const handleSaveChartAsClient = async () => {
     if (!chartData) return;
     try {
-      const res = await fetch('/api/clients', {
+      const newClient: Client = {
+        id: 'cli_' + Date.now(),
+        name: chartData.subjectName,
+        email: `${chartData.subjectName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        phone: '',
+        dateOfBirth: chartData.birthDate,
+        timeOfBirth: chartData.birthTime,
+        placeOfBirth: chartData.birthPlace,
+        latitude: chartData.latitude,
+        longitude: chartData.longitude,
+        gender: 'Prefer not to say',
+        tags: ['Natal Chart Lead', (chartData.interpretations.coreAscendant.sign || 'Aries') + ' Rising'],
+        notes: `Ascendant: ${chartData.interpretations.coreAscendant.sign}, Sun: ${chartData.planets.find(p => p.name === 'Sun')?.sign}, Moon: ${chartData.planets.find(p => p.name === 'Moon')?.sign}. Recommended stone: ${chartData.interpretations.gemstoneRecommendations[0]?.stone}`,
+        attachedCharts: [
+          {
+            id: 'chart_' + Date.now(),
+            name: `${chartData.subjectName} - Natal Chart`,
+            calculatedAt: new Date().toISOString(),
+            sunSign: chartData.planets.find(p => p.name === 'Sun')?.sign || 'Sun',
+            moonSign: chartData.planets.find(p => p.name === 'Moon')?.sign || 'Moon',
+            ascendantSign: chartData.interpretations.coreAscendant.sign || 'Ascendant',
+            chartData,
+          },
+        ],
+        totalConsultations: 0,
+        totalSpent: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const updated = [newClient, ...clients];
+      setClients(updated);
+      saveLocalRecord('CLIENTS', updated);
+      refreshStats(updated);
+      setActiveTab('clients');
+
+      // Sync with Cloud & Backend silently
+      saveClientToCloud(newClient).catch(() => {});
+      fetch('/api/clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: chartData.subjectName,
-          email: `${chartData.subjectName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-          dateOfBirth: chartData.birthDate,
-          timeOfBirth: chartData.birthTime,
-          placeOfBirth: chartData.birthPlace,
-          latitude: chartData.latitude,
-          longitude: chartData.longitude,
-          tags: ['Natal Chart Lead', chartData.interpretations.coreAscendant.sign + ' Rising'],
-          notes: `Ascendant: ${chartData.interpretations.coreAscendant.sign}, Sun: ${chartData.planets.find(p=>p.name==='Sun')?.sign}, Moon: ${chartData.planets.find(p=>p.name==='Moon')?.sign}. Recommended stone: ${chartData.interpretations.gemstoneRecommendations[0]?.stone}`,
-        }),
-      }).then(r => r.json());
-
-      if (res.success) {
-        setClients(prev => [res.data, ...prev]);
-        refreshStats();
-        setActiveTab('clients');
-      }
+        body: JSON.stringify(newClient),
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -225,26 +342,62 @@ export function App() {
   // Client Handlers
   const handleCreateOrUpdateClient = async (clientData: Partial<Client>) => {
     try {
+      let updatedList: Client[] = [];
+      let savedClient: Client;
+
       if (clientToEdit) {
-        const res = await fetch(`/api/clients/${clientToEdit.id}`, {
+        savedClient = {
+          ...clientToEdit,
+          ...clientData,
+          updatedAt: new Date().toISOString(),
+        } as Client;
+        updatedList = clients.map(c => (c.id === clientToEdit.id ? savedClient : c));
+      } else {
+        savedClient = {
+          id: 'cli_' + Date.now(),
+          name: clientData.name || 'New Client',
+          email: clientData.email || '',
+          phone: clientData.phone || '',
+          dateOfBirth: clientData.dateOfBirth || '1990-01-01',
+          timeOfBirth: clientData.timeOfBirth || '12:00',
+          placeOfBirth: clientData.placeOfBirth || 'London, UK',
+          latitude: clientData.latitude || 51.5074,
+          longitude: clientData.longitude || -0.1278,
+          gender: clientData.gender || 'Prefer not to say',
+          address: clientData.address || '',
+          occupation: clientData.occupation || '',
+          notes: clientData.notes || '',
+          tags: clientData.tags || ['Client'],
+          attachedCharts: clientData.attachedCharts || [],
+          totalConsultations: 0,
+          totalSpent: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        updatedList = [savedClient, ...clients];
+      }
+
+      setClients(updatedList);
+      saveLocalRecord('CLIENTS', updatedList);
+      refreshStats(updatedList);
+      setIsClientFormModalOpen(false);
+      setClientToEdit(null);
+
+      // Cloud & API sync
+      saveClientToCloud(savedClient).catch(() => {});
+      if (clientToEdit) {
+        fetch(`/api/clients/${clientToEdit.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(clientData),
-        }).then(r => r.json());
-        if (res.success) {
-          setClients(prev => prev.map(c => c.id === clientToEdit.id ? res.data : c));
-        }
+          body: JSON.stringify(savedClient),
+        }).catch(() => {});
       } else {
-        const res = await fetch('/api/clients', {
+        fetch('/api/clients', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(clientData),
-        }).then(r => r.json());
-        if (res.success) {
-          setClients(prev => [res.data, ...prev]);
-        }
+          body: JSON.stringify(savedClient),
+        }).catch(() => {});
       }
-      refreshStats();
     } catch (err) {
       console.error(err);
     }
@@ -253,9 +406,12 @@ export function App() {
   const handleDeleteClient = async (clientId: string) => {
     if (!window.confirm('Are you sure you want to remove this client profile?')) return;
     try {
-      await fetch(`/api/clients/${clientId}`, { method: 'DELETE' });
-      setClients(prev => prev.filter(c => c.id !== clientId));
-      refreshStats();
+      const updated = clients.filter(c => c.id !== clientId);
+      setClients(updated);
+      saveLocalRecord('CLIENTS', updated);
+      refreshStats(updated);
+      deleteClientFromCloud(clientId).catch(() => {});
+      fetch(`/api/clients/${clientId}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -263,13 +419,17 @@ export function App() {
 
   const handleUpdateClientNotes = async (clientId: string, notes: string) => {
     try {
-      const res = await fetch(`/api/clients/${clientId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
-      }).then(r => r.json());
-      if (res.success) {
-        setClients(prev => prev.map(c => c.id === clientId ? res.data : c));
+      const updated = clients.map(c => (c.id === clientId ? { ...c, notes, updatedAt: new Date().toISOString() } : c));
+      setClients(updated);
+      saveLocalRecord('CLIENTS', updated);
+      const target = updated.find(c => c.id === clientId);
+      if (target) {
+        saveClientToCloud(target).catch(() => {});
+        fetch(`/api/clients/${clientId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes }),
+        }).catch(() => {});
       }
     } catch (err) {
       console.error(err);
@@ -279,15 +439,41 @@ export function App() {
   // Appointment Handlers
   const handleCreateAppointment = async (aptData: Partial<Appointment>) => {
     try {
-      const res = await fetch('/api/appointments', {
+      const client = clients.find(c => c.id === aptData.clientId);
+      const astrologer = users.find(u => u.id === aptData.astrologerId);
+
+      const newApt: Appointment = {
+        id: 'apt_' + Date.now(),
+        clientId: aptData.clientId || (clients[0]?.id || ''),
+        clientName: client?.name || aptData.clientName || 'Client',
+        clientEmail: client?.email || aptData.clientEmail || '',
+        clientPhone: client?.phone || aptData.clientPhone || '',
+        astrologerId: aptData.astrologerId || (users[0]?.id || ''),
+        astrologerName: astrologer?.name || aptData.astrologerName || 'Astrologer',
+        date: aptData.date || new Date().toISOString().split('T')[0],
+        time: aptData.time || '11:00',
+        durationMinutes: aptData.durationMinutes || 45,
+        type: aptData.type || 'natal_reading',
+        status: aptData.status || 'scheduled',
+        notes: aptData.notes || '',
+        fee: aptData.fee || 150,
+        isPaid: aptData.isPaid || false,
+        meetingMode: aptData.meetingMode || 'Video Call (Zoom/GMeet)',
+        createdAt: new Date().toISOString(),
+      };
+
+      const updated = [newApt, ...appointments];
+      setAppointments(updated);
+      saveLocalRecord('APPOINTMENTS', updated);
+      refreshStats(clients, updated);
+      setIsAppointmentModalOpen(false);
+
+      saveAppointmentToCloud(newApt).catch(() => {});
+      fetch('/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(aptData),
-      }).then(r => r.json());
-      if (res.success) {
-        setAppointments(prev => [res.data, ...prev]);
-        refreshStats();
-      }
+        body: JSON.stringify(newApt),
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -295,14 +481,19 @@ export function App() {
 
   const handleUpdateAppointmentStatus = async (id: string, status: Appointment['status']) => {
     try {
-      const res = await fetch(`/api/appointments/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      }).then(r => r.json());
-      if (res.success) {
-        setAppointments(prev => prev.map(a => a.id === id ? res.data : a));
-        refreshStats();
+      const updated = appointments.map(a => (a.id === id ? { ...a, status } : a));
+      setAppointments(updated);
+      saveLocalRecord('APPOINTMENTS', updated);
+      refreshStats(clients, updated);
+
+      const target = updated.find(a => a.id === id);
+      if (target) {
+        saveAppointmentToCloud(target).catch(() => {});
+        fetch(`/api/appointments/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        }).catch(() => {});
       }
     } catch (err) {
       console.error(err);
@@ -311,9 +502,12 @@ export function App() {
 
   const handleDeleteAppointment = async (id: string) => {
     try {
-      await fetch(`/api/appointments/${id}`, { method: 'DELETE' });
-      setAppointments(prev => prev.filter(a => a.id !== id));
-      refreshStats();
+      const updated = appointments.filter(a => a.id !== id);
+      setAppointments(updated);
+      saveLocalRecord('APPOINTMENTS', updated);
+      refreshStats(clients, updated);
+      deleteAppointmentFromCloud(id).catch(() => {});
+      fetch(`/api/appointments/${id}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -322,26 +516,64 @@ export function App() {
   // Inventory Handlers
   const handleCreateOrUpdateStone = async (stoneData: Partial<InventoryItem>) => {
     try {
+      let updatedList: InventoryItem[] = [];
+      let savedStone: InventoryItem;
+
       if (stoneToEdit) {
-        const res = await fetch(`/api/inventory/${stoneToEdit.id}`, {
+        savedStone = {
+          ...stoneToEdit,
+          ...stoneData,
+          updatedAt: new Date().toISOString(),
+        } as InventoryItem;
+        updatedList = inventory.map(i => (i.id === stoneToEdit.id ? savedStone : i));
+      } else {
+        savedStone = {
+          id: 'gem_' + Date.now(),
+          sku: stoneData.sku || `GEM-${Date.now().toString().slice(-4)}`,
+          name: stoneData.name || 'Natural Gemstone',
+          categoryId: stoneData.categoryId || 'cat_yellow_sapphire',
+          categoryName: stoneData.categoryName || 'Yellow Sapphire',
+          weightCarats: stoneData.weightCarats || 4.5,
+          weightRatti: stoneData.weightRatti || 5.0,
+          purchasePrice: stoneData.purchasePrice || 500,
+          salePrice: stoneData.salePrice || 1200,
+          stockQuantity: stoneData.stockQuantity !== undefined ? stoneData.stockQuantity : 1,
+          minStockThreshold: stoneData.minStockThreshold || 2,
+          supplier: stoneData.supplier || 'Gemstone Supplier',
+          origin: stoneData.origin || 'Ceylon, Sri Lanka',
+          certificateNumber: stoneData.certificateNumber || `CERT-${Date.now().toString().slice(-6)}`,
+          treatment: stoneData.treatment || 'Untreated',
+          rulingPlanet: stoneData.rulingPlanet || 'Jupiter',
+          clarity: stoneData.clarity || 'VVS',
+          shapeCut: stoneData.shapeCut || 'Oval',
+          imageUrl: stoneData.imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&auto=format&fit=crop&q=80',
+          notes: stoneData.notes || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        updatedList = [savedStone, ...inventory];
+      }
+
+      setInventory(updatedList);
+      saveLocalRecord('INVENTORY', updatedList);
+      refreshStats(clients, appointments, updatedList);
+      setIsStoneModalOpen(false);
+      setStoneToEdit(null);
+
+      saveInventoryItemToCloud(savedStone).catch(() => {});
+      if (stoneToEdit) {
+        fetch(`/api/inventory/${stoneToEdit.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(stoneData),
-        }).then(r => r.json());
-        if (res.success) {
-          setInventory(prev => prev.map(i => i.id === stoneToEdit.id ? res.data : i));
-        }
+          body: JSON.stringify(savedStone),
+        }).catch(() => {});
       } else {
-        const res = await fetch('/api/inventory', {
+        fetch('/api/inventory', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(stoneData),
-        }).then(r => r.json());
-        if (res.success) {
-          setInventory(prev => [res.data, ...prev]);
-        }
+          body: JSON.stringify(savedStone),
+        }).catch(() => {});
       }
-      refreshStats();
     } catch (err) {
       console.error(err);
     }
@@ -350,9 +582,12 @@ export function App() {
   const handleDeleteStone = async (id: string) => {
     if (!window.confirm('Delete this gemstone lot from inventory?')) return;
     try {
-      await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
-      setInventory(prev => prev.filter(i => i.id !== id));
-      refreshStats();
+      const updated = inventory.filter(i => i.id !== id);
+      setInventory(updated);
+      saveLocalRecord('INVENTORY', updated);
+      refreshStats(clients, appointments, updated);
+      deleteInventoryItemFromCloud(id).catch(() => {});
+      fetch(`/api/inventory/${id}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -360,16 +595,45 @@ export function App() {
 
   const handleBulkImportStones = async (importedItems: Partial<InventoryItem>[]) => {
     try {
-      for (const item of importedItems) {
-        await fetch('/api/inventory', {
+      const newItems: InventoryItem[] = importedItems.map((item, idx) => ({
+        id: 'gem_' + (Date.now() + idx),
+        sku: item.sku || `GEM-IMP-${Date.now().toString().slice(-4)}-${idx}`,
+        name: item.name || 'Imported Gemstone',
+        categoryId: item.categoryId || 'cat_yellow_sapphire',
+        categoryName: item.categoryName || 'Yellow Sapphire',
+        weightCarats: item.weightCarats || 4.0,
+        weightRatti: item.weightRatti || 4.4,
+        purchasePrice: item.purchasePrice || 400,
+        salePrice: item.salePrice || 950,
+        stockQuantity: item.stockQuantity || 1,
+        minStockThreshold: item.minStockThreshold || 2,
+        supplier: item.supplier || 'Import Lot',
+        origin: item.origin || 'Sri Lanka',
+        certificateNumber: item.certificateNumber || 'CERT-IMP',
+        treatment: item.treatment || 'Untreated',
+        rulingPlanet: item.rulingPlanet || 'Jupiter',
+        clarity: item.clarity || 'VVS',
+        shapeCut: item.shapeCut || 'Oval',
+        imageUrl: item.imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&auto=format&fit=crop&q=80',
+        notes: item.notes || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
+      const updated = [...newItems, ...inventory];
+      setInventory(updated);
+      saveLocalRecord('INVENTORY', updated);
+      refreshStats(clients, appointments, updated);
+      setIsCsvImportModalOpen(false);
+
+      newItems.forEach(item => {
+        saveInventoryItemToCloud(item).catch(() => {});
+        fetch('/api/inventory', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(item),
-        });
-      }
-      const refreshed = await fetch('/api/inventory').then(r => r.json());
-      if (refreshed.success) setInventory(refreshed.data);
-      refreshStats();
+        }).catch(() => {});
+      });
     } catch (err) {
       console.error(err);
     }
@@ -378,17 +642,49 @@ export function App() {
   // Purchases Handlers
   const handleCreatePurchase = async (purchaseData: Partial<Purchase>) => {
     try {
-      const res = await fetch('/api/purchases', {
+      const newPurchase: Purchase = {
+        id: 'pur_' + Date.now(),
+        invoiceNumber: purchaseData.invoiceNumber || `PUR-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+        supplierName: purchaseData.supplierName || 'Gem Supplier',
+        supplierContact: purchaseData.supplierContact || '',
+        purchaseDate: purchaseData.purchaseDate || new Date().toISOString().split('T')[0],
+        items: purchaseData.items || [],
+        subtotal: purchaseData.subtotal || 0,
+        taxAmount: purchaseData.taxAmount || 0,
+        grandTotal: purchaseData.grandTotal || 0,
+        status: purchaseData.status || 'received',
+        paymentStatus: purchaseData.paymentStatus || 'Paid',
+        notes: purchaseData.notes || '',
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedPurchases = [newPurchase, ...purchases];
+      setPurchases(updatedPurchases);
+      saveLocalRecord('PURCHASES', updatedPurchases);
+
+      // Increase stock of purchased items
+      const updatedInventory = inventory.map(item => {
+        const matchingPurchased = newPurchase.items.find(pi => pi.stoneId === item.id);
+        if (matchingPurchased) {
+          return {
+            ...item,
+            stockQuantity: item.stockQuantity + matchingPurchased.quantity,
+          };
+        }
+        return item;
+      });
+
+      setInventory(updatedInventory);
+      saveLocalRecord('INVENTORY', updatedInventory);
+      refreshStats(clients, appointments, updatedInventory, sales);
+      setIsPurchaseModalOpen(false);
+
+      savePurchaseToCloud(newPurchase).catch(() => {});
+      fetch('/api/purchases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(purchaseData),
-      }).then(r => r.json());
-      if (res.success) {
-        setPurchases(prev => [res.data, ...prev]);
-        const refInv = await fetch('/api/inventory').then(r => r.json());
-        if (refInv.success) setInventory(refInv.data);
-        refreshStats();
-      }
+        body: JSON.stringify(newPurchase),
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -397,17 +693,55 @@ export function App() {
   // Sales Handlers
   const handleCreateSale = async (saleData: Partial<Sale>) => {
     try {
-      const res = await fetch('/api/sales', {
+      const newSale: Sale = {
+        id: 'inv_' + Date.now(),
+        invoiceNumber: saleData.invoiceNumber || `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+        clientId: saleData.clientId || (clients[0]?.id || ''),
+        clientName: saleData.clientName || 'Client',
+        clientPhone: saleData.clientPhone || '',
+        clientEmail: saleData.clientEmail || '',
+        clientAddress: saleData.clientAddress || '',
+        saleDate: saleData.saleDate || new Date().toISOString().split('T')[0],
+        items: saleData.items || [],
+        subtotal: saleData.subtotal || 0,
+        discountAmount: saleData.discountAmount || 0,
+        taxRatePercent: saleData.taxRatePercent || 5,
+        taxAmount: saleData.taxAmount || 0,
+        grandTotal: saleData.grandTotal || 0,
+        paymentMethod: saleData.paymentMethod || 'Credit/Debit Card',
+        astrologerRecommended: saleData.astrologerRecommended || (users[0]?.name || 'Acharya Rajesh Sharma'),
+        prescriptionDetails: saleData.prescriptionDetails || '',
+        notes: saleData.notes || '',
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedSales = [newSale, ...sales];
+      setSales(updatedSales);
+      saveLocalRecord('SALES', updatedSales);
+
+      // Deduct stock for sold items
+      const updatedInventory = inventory.map(item => {
+        const matchingSold = newSale.items.find(si => si.stoneId === item.id);
+        if (matchingSold) {
+          return {
+            ...item,
+            stockQuantity: Math.max(0, item.stockQuantity - matchingSold.quantity),
+          };
+        }
+        return item;
+      });
+
+      setInventory(updatedInventory);
+      saveLocalRecord('INVENTORY', updatedInventory);
+      refreshStats(clients, appointments, updatedInventory, updatedSales);
+      setIsSaleModalOpen(false);
+
+      saveSaleToCloud(newSale).catch(() => {});
+      fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(saleData),
-      }).then(r => r.json());
-      if (res.success) {
-        setSales(prev => [res.data, ...prev]);
-        const refInv = await fetch('/api/inventory').then(r => r.json());
-        if (refInv.success) setInventory(refInv.data);
-        refreshStats();
-      }
+        body: JSON.stringify(newSale),
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -416,14 +750,27 @@ export function App() {
   // Admin & Settings Handlers
   const handleAddUser = async (userData: Partial<User>) => {
     try {
-      const res = await fetch('/api/users', {
+      const newUser: User = {
+        id: 'usr_' + Date.now(),
+        name: userData.name || 'New Staff Member',
+        email: userData.email || 'staff@astroerp.com',
+        role: userData.role || 'staff',
+        status: userData.status || 'active',
+        title: userData.title || 'Staff Astrologer',
+        avatarUrl: userData.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        lastLogin: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+
+      const updated = [newUser, ...users];
+      setUsers(updated);
+      saveLocalRecord('USERS', updated);
+
+      fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      }).then(r => r.json());
-      if (res.success) {
-        setUsers(prev => [res.data, ...prev]);
-      }
+        body: JSON.stringify(newUser),
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -431,8 +778,10 @@ export function App() {
 
   const handleDeleteUser = async (id: string) => {
     try {
-      await fetch(`/api/users/${id}`, { method: 'DELETE' });
-      setUsers(prev => prev.filter(u => u.id !== id));
+      const updated = users.filter(u => u.id !== id);
+      setUsers(updated);
+      saveLocalRecord('USERS', updated);
+      fetch(`/api/users/${id}`, { method: 'DELETE' }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -440,14 +789,14 @@ export function App() {
 
   const handleSaveSettings = async (newSettings: StoreSettings) => {
     try {
-      const res = await fetch('/api/settings', {
+      setSettings(newSettings);
+      saveLocalRecord('SETTINGS', newSettings);
+      saveSettingsToCloud(newSettings).catch(() => {});
+      fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSettings),
-      }).then(r => r.json());
-      if (res.success) {
-        setSettings(res.data);
-      }
+      }).catch(() => {});
     } catch (err) {
       console.error(err);
     }
@@ -457,6 +806,9 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col lg:flex-row font-sans selection:bg-indigo-500 selection:text-white">
+      {/* Dynamic SEO Meta & Schema.org JSON-LD Manager */}
+      <SEOHead activeTab={activeTab} chartData={chartData} />
+
       {/* Sidebar Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -464,6 +816,7 @@ export function App() {
         currentUser={currentUser}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
         settings={settings}
+        onOpenCloudModal={() => setIsCloudModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -489,6 +842,18 @@ export function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Cloud Database & SEO Manager Trigger */}
+            <button
+              type="button"
+              id="topbar-btn-cloud-seo"
+              onClick={() => setIsCloudModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <Cloud className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Cloud DB & SEO</span>
+            </button>
+
             <button
               type="button"
               id="header-btn-quick-chart"
@@ -584,6 +949,15 @@ export function App() {
                     </div>
 
                     <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        id="btn-cloud-share-chart"
+                        onClick={() => setIsCloudModalOpen(true)}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        Save to Cloud & Share Link
+                      </button>
                       <button
                         type="button"
                         id="btn-save-to-crm"
@@ -872,6 +1246,24 @@ export function App() {
         users={users}
         currentUser={currentUser}
         onSwitchUser={u => setCurrentUser(u)}
+      />
+
+      {/* Cloud Database & SEO Manager Modal */}
+      <CloudDatabaseModal
+        isOpen={isCloudModalOpen}
+        onClose={() => setIsCloudModalOpen(false)}
+        chartData={chartData}
+        clients={clients}
+        inventory={inventory}
+        appointments={appointments}
+        purchases={purchases}
+        sales={sales}
+        users={users}
+        settings={settings}
+        onLoadSavedChart={(cloudChart) => {
+          setChartData(cloudChart.chartData);
+          setActiveTab('astrology');
+        }}
       />
 
       {/* Natal Chart PDF Preview Modal */}

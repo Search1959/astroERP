@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Client } from '../../types';
-import { WORLD_CITIES } from '../../../server/storage';
+import { WORLD_CITIES } from '../../data/initialDemoData';
 import { X, User, Calendar, Clock, MapPin, Tag, FileText } from 'lucide-react';
 
 interface ClientFormModalProps {
