@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role-based access for Astrologer, Staff, and Admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "astrologer", "staff"] },
+        "phone": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Astrology clients and gemstone buyers directory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "dateOfBirth": { "type": "string" },
+        "timeOfBirth": { "type": "string" },
+        "placeOfBirth": { "type": "string" },
+        "totalSpend": { "type": "number" },
+        "consultationsCount": { "type": "number" },
+        "notes": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "phone"]
+    },
+    "Gemstone": {
+      "title": "Gemstone",
+      "description": "Certified Vedic & Astrological Gemstone inventory item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "variety": { "type": "string" },
+        "caratWeight": { "type": "number" },
+        "rattiWeight": { "type": "number" },
+        "origin": { "type": "string" },
+        "cutShape": { "type": "string" },
+        "color": { "type": "string" },
+        "clarity": { "type": "string" },
+        "treatment": { "type": "string" },
+        "certificateNumber": { "type": "string" },
+        "certifyingLab": { "type": "string" },
+        "costPrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "status": { "type": "string", "enum": ["in_stock", "reserved", "sold", "memo"] },
+        "astrologicalSuitability": { "type": "array", "items": { "type": "string" } },
+        "imageUrl": { "type": "string" },
+        "qrCode": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "variety", "caratWeight", "sellingPrice", "status"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Astrological consultation bookings and calendar schedule",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientPhone": { "type": "string" },
+        "astrologerId": { "type": "string" },
+        "astrologerName": { "type": "string" },
+        "date": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "serviceType": { "type": "string" },
+        "fee": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["paid", "pending", "partially_paid"] },
+        "status": { "type": "string", "enum": ["confirmed", "completed", "cancelled", "no_show"] },
+        "consultationNotes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "clientName", "date", "startTime", "serviceType", "fee", "status"]
+    },
+    "PurchaseOrder": {
+      "title": "PurchaseOrder",
+      "description": "Gemstone supplier procurement orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "supplierContact": { "type": "string" },
+        "orderDate": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "paymentStatus": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "orderNumber", "supplierName", "orderDate", "totalAmount", "status"]
+    },
+    "SalesInvoice": {
+      "title": "SalesInvoice",
+      "description": "Client sales invoices for gemstones, jewelry, and consultations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "date": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "taxAmount": { "type": "number" },
+        "discount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "invoiceNumber", "clientName", "date", "totalAmount", "paymentStatus"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Security and compliance audit trail records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "action", "timestamp"]
+    },
+    "SavedChart": {
+      "title": "SavedChart",
+      "description": "Calculated Kundali charts with interpretations & predictions saved online",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "gender": { "type": "string" },
+        "dateOfBirth": { "type": "string" },
+        "timeOfBirth": { "type": "string" },
+        "placeOfBirth": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "timezone": { "type": "number" },
+        "chartData": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "subjectName", "dateOfBirth", "timeOfBirth", "placeOfBirth", "createdAt"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global enterprise and astrology studio preferences",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "taxRate": { "type": "number" },
+        "currency": { "type": "string" },
+        "defaultLanguage": { "type": "string" },
+        "gemstoneCertificatePrefix": { "type": "string" }
+      },
+      "required": ["storeName", "currency"]
+    }
+  }
+}
