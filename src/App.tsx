@@ -126,13 +126,31 @@ export function App() {
   // Navigation: defaults to Home Landing Page
   const [activeTab, setActiveTab] = useState<string>('home');
 
-  // Android Mobile App Interface Mode (Optimized for Daily Operations)
+  // Automatic Mobile vs Desktop Detection (auto-displays Mobile Web App on mobile devices/screens <768px)
   const [isMobileAppMode, setIsMobileAppMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024;
+      const isSmallScreen = window.innerWidth < 768;
+      const isMobileAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent || ''
+      );
+      return isSmallScreen || isMobileAgent;
     }
     return false;
   });
+
+  useEffect(() => {
+    const checkResponsiveDevice = () => {
+      const isSmallScreen = window.innerWidth < 768;
+      const isMobileAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent || ''
+      );
+      setIsMobileAppMode(isSmallScreen || isMobileAgent);
+    };
+
+    window.addEventListener('resize', checkResponsiveDevice);
+    return () => window.removeEventListener('resize', checkResponsiveDevice);
+  }, []);
+
   const [mobileConvertLead, setMobileConvertLead] = useState<Lead | null>(null);
 
   // Application Data States
@@ -2142,8 +2160,6 @@ export function App() {
             }}
             onGoToHome={() => setActiveTab('home')}
             onOpenCloudModal={() => setIsCloudModalOpen(true)}
-            onToggleMobileAppMode={() => setIsMobileAppMode(true)}
-            isMobileAppMode={isMobileAppMode}
             settings={settings}
           />
 
@@ -2186,16 +2202,6 @@ export function App() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileAppMode(true)}
-                    className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-700/60"
-                    title="Switch to Android Mobile App View"
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                    <span>Android App Mode (₹)</span>
-                  </button>
-
                   <button
                     onClick={() => {
                       setScannerPurpose('stock_add');
