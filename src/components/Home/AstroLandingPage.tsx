@@ -169,7 +169,7 @@ export const AstroLandingPage: React.FC<AstroLandingPageProps> = ({
               onClick={e => scrollToSection(e, 'pricing')}
               className="hover:text-amber-300 transition cursor-pointer"
             >
-              Pricing ($200/mo)
+              Pricing (₹200/mo)
             </a>
           </nav>
 
@@ -591,10 +591,10 @@ export const AstroLandingPage: React.FC<AstroLandingPageProps> = ({
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-white group-hover:text-rose-300 transition">
-                Tenant Control & $200/mo Billing
+                Tenant Control & ₹200/mo Billing
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                System admin dashboard to view credentials, edit accounts, delete tenants, and record monthly $200
+                System admin dashboard to view credentials, edit accounts, delete tenants, and record monthly ₹200
                 software subscription licenses with automated billing ledger tracking.
               </p>
               <div className="text-[11px] font-semibold text-rose-400 flex items-center gap-1">
@@ -957,8 +957,8 @@ export const AstroLandingPage: React.FC<AstroLandingPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
-              <DollarSign className="w-3.5 h-3.5" />
-              <span>Transparent Professional Pricing</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Transparent Professional Pricing (INR)</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
               Professional Astrologer License
@@ -977,7 +977,7 @@ export const AstroLandingPage: React.FC<AstroLandingPageProps> = ({
               <h3 className="text-xl font-bold text-white">AstroERP Enterprise License</h3>
               <p className="text-xs text-slate-400">Full Cloud & Offline Suite with Zero-Data Tenant Isolation</p>
               <div className="pt-2 flex items-baseline gap-2">
-                <span className="text-4xl sm:text-5xl font-extrabold text-amber-300">$200</span>
+                <span className="text-4xl sm:text-5xl font-extrabold text-amber-300">₹200</span>
                 <span className="text-sm font-semibold text-slate-400">/ month</span>
               </div>
             </div>

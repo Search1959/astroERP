@@ -1,7 +1,7 @@
 /**
  * Super Admin Management Console & Subscription Billing Ledger
  * Tab 1: All Registered Accounts & User Credentials (with View, Edit, Delete beside each)
- * Tab 2: Monthly Subscriptions & Billing Ledger with '+ Add $200 Monthly Fee' action
+ * Tab 2: Monthly Subscriptions & Billing Ledger with '+ Add ₹200 Monthly Fee' action
  * Live auto-load & instant refresh.
  */
 
@@ -204,7 +204,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
             <h2 className="text-xl font-extrabold text-slate-900">System Admin Command & Tenant Console</h2>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage all tenant astrologer credentials, fresh zero-data workspaces, and $200/month recurring subscription billing ledger.
+            Manage all tenant astrologer credentials, fresh zero-data workspaces, and ₹200/month recurring subscription billing ledger.
           </p>
         </div>
 
@@ -240,7 +240,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
             {currencySymbol}
             {monthlyRecurringRevenue.toLocaleString()}
           </div>
-          <span className="text-[10px] text-emerald-600 font-medium">Standard $200.00 / account / month</span>
+          <span className="text-[10px] text-emerald-600 font-medium">Standard ₹200.00 / account / month</span>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
@@ -297,7 +297,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          <span>Monthly Subscriptions & Billing Ledger ($200/mo)</span>
+          <span>Monthly Subscriptions & Billing Ledger (₹200/mo)</span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
             {subscriptionRecords.length}
           </span>
@@ -538,16 +538,16 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: MONTHLY SUBSCRIPTIONS & BILLING LEDGER ($200/MO)                     */}
+      {/* TAB 2: MONTHLY SUBSCRIPTIONS & BILLING LEDGER (₹200/MO)                   */}
       {/* ========================================================================= */}
       {activeTab === 'billing' && (
         <div className="space-y-4">
           {/* Header Action Bar */}
           <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div>
-              <h3 className="font-bold text-sm text-slate-900">Tenant Subscription Licensing ($200.00 / month)</h3>
+              <h3 className="font-bold text-sm text-slate-900">Tenant Subscription Licensing (₹200.00 / month)</h3>
               <p className="text-xs text-slate-500">
-                Click '+ Add $200 Monthly Fee' to record billing cycle charges and renew astrologer licenses.
+                Click '+ Add ₹200 Monthly Fee' to record billing cycle charges and renew astrologer licenses.
               </p>
             </div>
 
@@ -557,7 +557,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
             >
               <Zap className="w-4 h-4" />
-              <span>Batch Add $200 Monthly Fee to All Active Accounts</span>
+              <span>Batch Add ₹200 Monthly Fee to All Active Accounts</span>
             </button>
           </div>
 
@@ -567,7 +567,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               <span className="font-bold text-xs text-slate-700 uppercase tracking-wider">
                 Tenant Accounts Subscription Schedule
               </span>
-              <span className="text-xs text-slate-500">Fixed Rate: $200.00 USD / mo</span>
+              <span className="text-xs text-slate-500">Fixed Rate: ₹200.00 INR / mo</span>
             </div>
 
             <div className="overflow-x-auto">
@@ -605,7 +605,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                         <td className="py-3.5 px-4">
                           <span className="font-extrabold text-emerald-700 text-sm">
                             {currencySymbol}
-                            {fee}.00
+                            {fee.toLocaleString('en-IN')}.00
                           </span>
                           <span className="text-[10px] text-slate-400 block">/ month</span>
                         </td>
@@ -636,22 +636,22 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                         <td className="py-3.5 px-4">
                           <span className="font-bold text-slate-900 font-mono">
                             {currencySymbol}
-                            {totalBilled.toLocaleString()}
+                            {totalBilled.toLocaleString('en-IN')}
                           </span>
                         </td>
 
-                        {/* Prominent '+ Add $200 Monthly Fee' Button */}
+                        {/* Prominent '+ Add ₹200 Monthly Fee' Button */}
                         <td className="py-3.5 px-4 text-right">
                           <button
                             type="button"
                             onClick={() => {
                               onAddMonthlyBilling(user.id, 200);
-                              showNotice(`Recorded $200 monthly subscription fee for ${user.name}.`);
+                              showNotice(`Recorded ₹200 monthly subscription fee for ${user.name}.`);
                             }}
                             className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5 ml-auto cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>+ Add $200 Monthly Fee</span>
+                            <span>+ Add ₹200 Monthly Fee</span>
                           </button>
                         </td>
                       </tr>
@@ -694,8 +694,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                       </td>
                       <td className="py-3 px-4 text-slate-600 text-[11px]">{record.description}</td>
                       <td className="py-3 px-4 font-extrabold text-emerald-700 text-sm">
-                        {record.currency}
-                        {record.amount.toFixed(2)}
+                        ₹{record.amount.toLocaleString('en-IN')}.00
                       </td>
                       <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">{record.billingDate}</td>
                       <td className="py-3 px-4">
@@ -1054,8 +1053,8 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                   onChange={e => setNewRole(e.target.value as any)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
                 >
-                  <option value="astrologer">Astrologer ($200/mo)</option>
-                  <option value="staff">Staff ($200/mo)</option>
+                  <option value="astrologer">Astrologer (₹200/mo)</option>
+                  <option value="staff">Staff (₹200/mo)</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>

@@ -1,7 +1,7 @@
 /**
  * Professional Polish Navigation Sidebar & Top Header
  * Supports Home Page landing view, Astro Ephemeris, Client CRM, Inventory Vault,
- * System Admin Data console (Tenant credentials & $200/mo subscriptions), and Demo Read-Only mode.
+ * System Admin Data console (Tenant credentials & ₹200/mo subscriptions), and Demo Read-Only mode.
  */
 
 import React, { useState } from 'react';
@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const tabs = [
     ...baseTabs,
     ...(isSuperAdmin
-      ? [{ id: 'system_admin', label: 'System Admin Data', icon: ShieldCheck, badge: '$200/mo' }]
+      ? [{ id: 'system_admin', label: 'System Admin Data', icon: ShieldCheck, badge: '₹200/mo' }]
       : []),
     { id: 'admin', label: 'Staff & Security', icon: Shield },
     { id: 'settings', label: 'Settings', icon: Settings },

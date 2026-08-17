@@ -8,7 +8,7 @@
  * - Camera / Barcode Scanning for Live Stock & Procurement Intake
  * - Vedic Astrology Themed Home Landing Page
  * - Dual-Tab Auth Modal (Register Zero-Data A/C vs Login) & 1-Click Demo Mode (Read-Only)
- * - Super Admin System Console with Tenant Credential Vault & $200/mo Subscription Billing
+ * - Super Admin System Console with Tenant Credential Vault & ₹200/mo Subscription Billing
  */
 
 import React, { useState, useEffect } from 'react';
@@ -1658,7 +1658,7 @@ export function App() {
     }
   };
 
-  // Super Admin Monthly Fee ($200/mo) Subscriptions Handlers
+  // Super Admin Monthly Fee (₹200/mo) Subscriptions Handlers
   const handleAddMonthlyBilling = (accountId: string, amount: number = 200) => {
     const targetUser = users.find(u => u.id === accountId);
     if (!targetUser) return;
@@ -1675,7 +1675,7 @@ export function App() {
       billingDate: today,
       dueDate: nextMonth,
       amount: amount,
-      currency: 'USD',
+      currency: 'INR',
       status: 'paid',
       planName: 'Professional Astrologer ERP',
       paymentMethod: 'Auto Monthly Debit',
@@ -1699,7 +1699,7 @@ export function App() {
     handleUpdateUser(updatedUser);
 
     showAutomationNotice(
-      `$${amount} Monthly Fee Added`,
+      `₹${amount.toLocaleString('en-IN')} Monthly Fee Added`,
       `Generated invoice #${newRecord.invoiceNumber} for ${targetUser.name}.`
     );
   };
@@ -1723,12 +1723,12 @@ export function App() {
       billingDate: today,
       dueDate: nextMonth,
       amount: 200,
-      currency: 'USD',
+      currency: 'INR',
       status: 'paid',
       planName: 'Professional Astrologer ERP',
       paymentMethod: 'Monthly Subscription',
       invoiceNumber: `INV-SUB-${Date.now().toString().slice(-4)}-${idx + 1}`,
-      notes: 'Batch $200 Monthly Billing Cycle',
+      notes: 'Batch ₹200 Monthly Billing Cycle',
     }));
 
     const updatedSubs = [...newRecords, ...subscriptions];
@@ -1752,7 +1752,7 @@ export function App() {
     saveLocalRecord('USERS', updatedUsers);
 
     showAutomationNotice(
-      `⚡ Batch $200 Fee Processed`,
+      `⚡ Batch ₹200 Fee Processed`,
       `Generated monthly billing invoices for ${targetUsers.length} astrologer accounts.`
     );
   };
@@ -1807,7 +1807,7 @@ export function App() {
       createdAt: new Date().toISOString(),
     };
 
-    // Add initial subscription entry ($200 monthly plan)
+    // Add initial subscription entry (₹200 monthly plan)
     const initialSubRecord: SubscriptionBillingRecord = {
       id: 'sub_' + Date.now(),
       accountId: newUser.id,
@@ -1817,12 +1817,12 @@ export function App() {
       billingDate: today,
       dueDate: nextMonth,
       amount: 200,
-      currency: 'USD',
+      currency: 'INR',
       status: 'paid',
       planName: 'Professional Astrologer ERP (Monthly)',
       paymentMethod: 'Initial Account Activation',
       invoiceNumber: `INV-SUB-${Date.now().toString().slice(-6)}`,
-      notes: 'Initial account provisioning with $200/mo active subscription',
+      notes: 'Initial account provisioning with ₹200/mo active subscription',
     };
 
     const updatedSubs = [initialSubRecord, ...subscriptions];
@@ -1862,7 +1862,7 @@ export function App() {
 
     showAutomationNotice(
       `Welcome, ${newUser.name}!`,
-      `Your dedicated workspace is live with clean zero-data state and active $200/mo plan.`
+      `Your dedicated workspace is live with clean zero-data state and active ₹200/mo plan.`
     );
   };
 
@@ -2227,7 +2227,7 @@ export function App() {
             <div className="flex-1 overflow-y-auto w-full">
               <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 w-full">
                 {/* ========================================================================= */}
-                {/* VIEW 0: System Admin Data & $200 Subscriptions Console                    */}
+                {/* VIEW 0: System Admin Data & ₹200 Subscriptions Console                    */}
                 {/* ========================================================================= */}
                 {activeTab === 'system_admin' && (
                   <SuperAdminConsole
