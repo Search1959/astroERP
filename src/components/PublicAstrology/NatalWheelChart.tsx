@@ -43,7 +43,7 @@ export const NatalWheelChart: React.FC<NatalWheelChartProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-slate-200 shadow-sm text-slate-800">
+    <div className="relative flex flex-col items-center justify-center p-4 bg-[#120408] rounded-2xl border border-red-900/60 shadow-xl text-slate-100 font-sans">
       <svg
         width={size}
         height={size}
@@ -293,32 +293,32 @@ export const NatalWheelChart: React.FC<NatalWheelChartProps> = ({
       </svg>
 
       {/* Interactive Tooltip Bar */}
-      <div className="w-full mt-3 p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs text-slate-700 min-h-[44px]">
+      <div className="w-full mt-3 p-3 rounded-xl bg-[#16050b] border border-red-950/80 flex items-center justify-between text-xs text-slate-200 min-h-[44px] shadow-sm">
         {hoveredPlanet || selectedPlanet ? (
           (() => {
             const active = hoveredPlanet || selectedPlanet!;
             return (
               <div className="flex flex-wrap items-center gap-3 w-full justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-base text-indigo-600 font-bold">{active.symbol}</span>
-                  <span className="font-semibold text-slate-900">{active.name}</span>
-                  <span className="text-slate-500">in</span>
-                  <span className="font-semibold text-indigo-700">{active.sign}</span>
-                  <span className="font-mono text-indigo-600">({active.formattedDegrees})</span>
+                  <span className="text-base text-orange-400 font-bold">{active.symbol}</span>
+                  <span className="font-semibold text-white">{active.name}</span>
+                  <span className="text-slate-400">in</span>
+                  <span className="font-semibold text-orange-300">{active.sign}</span>
+                  <span className="font-mono text-orange-400 font-semibold">({active.formattedDegrees})</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 font-medium">
+                  <span className="bg-orange-950/80 text-orange-300 px-2 py-0.5 rounded-lg border border-orange-700/60 font-medium">
                     House {active.house}
                   </span>
-                  <span className={`px-2 py-0.5 rounded font-medium ${
-                    active.dignity === 'Rulership' || active.dignity === 'Exalted' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                    active.dignity === 'Fall' || active.dignity === 'Detriment' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                    'bg-slate-200 text-slate-700'
+                  <span className={`px-2 py-0.5 rounded-lg font-medium ${
+                    active.dignity === 'Rulership' || active.dignity === 'Exalted' ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60' :
+                    active.dignity === 'Fall' || active.dignity === 'Detriment' ? 'bg-rose-950/80 text-rose-300 border border-rose-800/80' :
+                    'bg-slate-800 text-slate-300 border border-slate-700'
                   }`}>
                     {active.dignity}
                   </span>
                   {active.isRetrograde && (
-                    <span className="bg-rose-50 text-rose-700 px-2 py-0.5 rounded border border-rose-200 font-medium">
+                    <span className="bg-rose-950/80 text-rose-300 px-2 py-0.5 rounded-lg border border-rose-800/80 font-medium">
                       Retrograde
                     </span>
                   )}
@@ -327,9 +327,9 @@ export const NatalWheelChart: React.FC<NatalWheelChartProps> = ({
             );
           })()
         ) : (
-          <div className="text-slate-500 flex items-center justify-between w-full">
+          <div className="text-slate-400 flex items-center justify-between w-full">
             <span>✨ Hover over any planet glyph or house to inspect exact astronomical coordinates</span>
-            <span className="text-indigo-600 font-medium">Ascendant: {chartData.interpretations.coreAscendant.sign} ({chartData.planets.find(p=>p.name==='Sun')?.sign} Sun)</span>
+            <span className="text-orange-400 font-medium">Ascendant: {chartData.interpretations.coreAscendant.sign} ({chartData.planets.find(p=>p.name==='Sun')?.sign} Sun)</span>
           </div>
         )}
       </div>

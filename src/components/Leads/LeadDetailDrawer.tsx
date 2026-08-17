@@ -153,14 +153,14 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end animate-fade-in">
-      <div className="w-full max-w-3xl bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col h-full text-slate-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex justify-end font-sans animate-in fade-in duration-200">
+      <div className="w-full max-w-3xl bg-[#0e0307] border-l border-red-900/60 shadow-2xl flex flex-col h-full text-slate-200 overflow-hidden">
         {/* Drawer Header */}
-        <div className="bg-slate-950 px-6 py-4 border-b border-slate-800 shrink-0">
+        <div className="bg-[#120408] px-6 py-4 border-b border-red-950/80 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-500/30 px-2 py-0.5 rounded-lg">
+                <span className="font-mono text-xs text-orange-400 bg-[#1c060e] border border-red-950 px-2 py-0.5 rounded-lg">
                   {lead.lead_id}
                 </span>
                 <span
@@ -186,7 +186,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 )}
               </div>
 
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
                 {lead.name}
               </h2>
 
@@ -197,7 +197,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                   <button
                     onClick={handleCopyPhone}
                     title="Copy phone"
-                    className="p-1 text-slate-500 hover:text-white"
+                    className="p-1 text-slate-500 hover:text-white cursor-pointer"
                   >
                     {copiedPhone ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                   </button>
@@ -220,14 +220,14 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 href={waUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-950 flex items-center gap-1.5 transition"
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-950 flex items-center gap-1.5 transition cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 WhatsApp Web
               </a>
               <button
                 onClick={() => onOpenConvertModal(lead)}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition"
+                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-md flex items-center gap-1.5 transition cursor-pointer"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Convert
@@ -235,20 +235,20 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
               <button
                 onClick={() => onOpenEditModal(lead)}
                 title="Edit Lead"
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                className="p-2 rounded-xl bg-[#1c060e] hover:bg-[#280814] text-slate-300 hover:text-white border border-red-950 transition cursor-pointer"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onDeleteLead(lead.lead_id)}
                 title="Delete Lead"
-                className="p-2 rounded-xl bg-slate-800 hover:bg-rose-950/80 hover:text-rose-400 text-slate-400 transition"
+                className="p-2 rounded-xl bg-[#1c060e] hover:bg-rose-950/80 hover:text-rose-400 text-slate-400 border border-red-950 transition cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                className="p-2 rounded-xl bg-[#1c060e] hover:bg-[#280814] text-slate-400 hover:text-white border border-red-950 transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -256,8 +256,8 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </div>
 
           {/* Pipeline Stage Stepper */}
-          <div className="mt-4 pt-3 border-t border-slate-800/80">
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+          <div className="mt-4 pt-3 border-t border-red-950/80">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {pipelineStages.map((step, idx) => {
                 const isActive = lead.lead_status === step.stage;
                 const isPast =
@@ -270,12 +270,12 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                   <button
                     key={step.stage}
                     onClick={() => onUpdateStatus(lead.lead_id, step.stage)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition border ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border cursor-pointer ${
                       isActive
-                        ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-900/40'
+                        ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white border-orange-400/50 shadow-md'
                         : isPast
-                        ? 'bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-600'
-                        : 'bg-slate-900 text-slate-500 border-slate-800 hover:text-slate-300'
+                        ? 'bg-[#1c060e] text-slate-200 border-red-950 hover:border-orange-500/40'
+                        : 'bg-[#120408] text-slate-500 border-red-950/60 hover:text-slate-300'
                     }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-current" />
@@ -286,10 +286,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
 
               <button
                 onClick={() => onOpenLostModal(lead)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition border ml-auto ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ml-auto cursor-pointer ${
                   lead.lead_status === 'LOST' || lead.lead_status === 'REJECTED'
                     ? 'bg-rose-950/80 text-rose-300 border-rose-500/40'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-rose-400 hover:border-rose-900'
+                    : 'bg-[#16050b] text-slate-400 border-red-950 hover:text-rose-400 hover:border-rose-900'
                 }`}
               >
                 {lead.lead_status === 'LOST'
@@ -303,16 +303,16 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
         </div>
 
         {/* Quick Assignment & Priority Bar */}
-        <div className="bg-slate-900/80 px-6 py-2.5 border-b border-slate-800 grid grid-cols-3 gap-3 text-xs shrink-0">
+        <div className="bg-[#16050b] px-6 py-3 border-b border-red-950/80 grid grid-cols-3 gap-3 text-xs shrink-0">
           <div>
-            <span className="text-slate-400 text-[11px] block">Assigned Astrologer:</span>
+            <span className="text-slate-400 text-[11px] block font-semibold mb-1">Assigned Astrologer:</span>
             <select
               value={lead.assigned_to}
               onChange={e => {
                 const user = staffUsers.find(u => u.id === e.target.value);
                 onUpdateAssignee(lead.lead_id, e.target.value, user?.name || 'Staff');
               }}
-              className="mt-0.5 w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-[#120408] border border-red-950/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             >
               {staffUsers.map(u => (
                 <option key={u.id} value={u.id}>
@@ -323,11 +323,11 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </div>
 
           <div>
-            <span className="text-slate-400 text-[11px] block">Priority:</span>
+            <span className="text-slate-400 text-[11px] block font-semibold mb-1">Priority:</span>
             <select
               value={lead.priority}
               onChange={e => onUpdatePriority(lead.lead_id, e.target.value as any)}
-              className="mt-0.5 w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full bg-[#120408] border border-red-950/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
@@ -337,18 +337,18 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </div>
 
           <div>
-            <span className="text-slate-400 text-[11px] block">Service Interest:</span>
-            <div className="mt-1 text-white font-medium truncate" title={lead.service_interested}>
+            <span className="text-slate-400 text-[11px] block font-semibold mb-1">Service Interest:</span>
+            <div className="mt-1 text-white font-semibold truncate" title={lead.service_interested}>
               {lead.service_interested || 'Vedic Consultation'}
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-4 px-6 border-b border-slate-800 bg-slate-950/40 text-xs shrink-0">
+        <div className="flex items-center gap-4 px-6 border-b border-red-950/80 bg-[#120408] text-xs shrink-0">
           <button
             onClick={() => setActiveTab('chat')}
-            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'chat'
                 ? 'border-emerald-500 text-emerald-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -359,9 +359,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('followups')}
-            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'followups'
-                ? 'border-indigo-500 text-indigo-400'
+                ? 'border-orange-500 text-orange-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -370,9 +370,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'timeline'
-                ? 'border-indigo-500 text-indigo-400'
+                ? 'border-orange-500 text-orange-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -381,9 +381,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('details')}
-            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition ${
+            className={`py-3 font-semibold flex items-center gap-2 border-b-2 transition cursor-pointer ${
               activeTab === 'details'
-                ? 'border-indigo-500 text-indigo-400'
+                ? 'border-orange-500 text-orange-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -393,7 +393,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
         </div>
 
         {/* Tab Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 text-xs">
+        <div className="flex-1 overflow-y-auto p-6 text-xs bg-[#0e0307]">
           {/* TAB 1: WHATSAPP CHAT */}
           {activeTab === 'chat' && (
             <div className="flex flex-col h-full space-y-4">
@@ -416,7 +416,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                         <div
                           className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${
                             isInbound
-                              ? 'bg-slate-800 border border-slate-700 text-slate-100 rounded-tl-sm'
+                              ? 'bg-[#16050b] border border-red-950/80 text-slate-100 rounded-tl-sm'
                               : 'bg-emerald-700 text-white rounded-tr-sm'
                           }`}
                         >
@@ -433,10 +433,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
               </div>
 
               {/* Canned Templates Quick Picker */}
-              <div className="pt-2 border-t border-slate-800 space-y-2">
+              <div className="pt-2 border-t border-red-950/80 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-[11px] font-bold text-orange-400 flex items-center gap-1 font-['Outfit',sans-serif]">
+                    <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                     Quick WhatsApp Template:
                   </span>
                   <select
@@ -446,7 +446,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                       const tpl = templates.find(t => t.id === e.target.value);
                       if (tpl) handleApplyTemplate(tpl.content);
                     }}
-                    className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none"
+                    className="bg-[#16050b] border border-red-950 rounded-xl px-2.5 py-1 text-xs text-white focus:outline-none focus:border-orange-500"
                   >
                     <option value="">-- Choose Template --</option>
                     {templates.map(t => (
@@ -464,11 +464,11 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     placeholder="Type WhatsApp reply to customer..."
-                    className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-xs"
+                    className="flex-1 bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-xs"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center gap-1.5 transition shrink-0"
+                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 transition shrink-0 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     Send
@@ -482,10 +482,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           {activeTab === 'followups' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-white">Scheduled Follow-up Reminders</h4>
+                <h4 className="text-sm font-bold text-white font-['Outfit',sans-serif]">Scheduled Follow-up Reminders</h4>
                 <button
                   onClick={() => setIsAddingFollowup(!isAddingFollowup)}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium flex items-center gap-1 transition"
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold flex items-center gap-1 transition shadow-md cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Schedule Follow-up
@@ -496,34 +496,34 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
               {isAddingFollowup && (
                 <form
                   onSubmit={handleCreateFollowup}
-                  className="bg-slate-800/80 border border-indigo-500/30 rounded-xl p-4 space-y-3"
+                  className="bg-[#120408] border border-red-950/80 rounded-2xl p-4 space-y-3"
                 >
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-300 mb-1">Date</label>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Date</label>
                       <input
                         type="date"
                         required
                         value={newFollowupDate}
                         onChange={e => setNewFollowupDate(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-orange-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-300 mb-1">Time</label>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Time</label>
                       <input
                         type="time"
                         value={newFollowupTime}
                         onChange={e => setNewFollowupTime(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-orange-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-300 mb-1">Channel</label>
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Channel</label>
                       <select
                         value={newFollowupType}
                         onChange={e => setNewFollowupType(e.target.value as any)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-2.5 py-1.5 text-white focus:outline-none focus:border-orange-500"
                       >
                         <option value="WhatsApp">WhatsApp</option>
                         <option value="Phone Call">Phone Call</option>
@@ -534,14 +534,14 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">Follow-up Notes / Task</label>
+                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">Follow-up Notes / Task</label>
                     <input
                       type="text"
                       required
                       value={newFollowupNotes}
                       onChange={e => setNewFollowupNotes(e.target.value)}
                       placeholder="e.g. Share lab certificate of 5.25 Ratti Pukhraj & discuss auspicious wearing day."
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-orange-500"
                     />
                   </div>
 
@@ -549,13 +549,13 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsAddingFollowup(false)}
-                      className="px-3 py-1 text-slate-400 hover:text-white"
+                      className="px-3 py-1 text-slate-400 hover:text-white cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+                      className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold cursor-pointer"
                     >
                       Save Reminder
                     </button>
@@ -573,19 +573,19 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                     return (
                       <div
                         key={flw.followup_id}
-                        className={`p-3.5 rounded-xl border flex items-start justify-between gap-3 ${
+                        className={`p-3.5 rounded-2xl border flex items-start justify-between gap-3 ${
                           isPending
-                            ? 'bg-slate-800/80 border-slate-700'
+                            ? 'bg-[#120408] border-red-950/80'
                             : 'bg-emerald-950/20 border-emerald-500/20 opacity-75'
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                            <span className="font-bold text-white flex items-center gap-1 font-['Outfit',sans-serif]">
+                              <Calendar className="w-3.5 h-3.5 text-orange-400" />
                               {flw.followup_date} at {flw.followup_time || '11:00'}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] bg-slate-700 text-slate-300">
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-[#1c060e] text-slate-300 border border-red-950">
                               {flw.type}
                             </span>
                             <span
@@ -610,7 +610,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                               const outcome = prompt('Enter follow-up outcome notes:');
                               onCompleteFollowup(lead.lead_id, flw.followup_id, outcome || 'Completed');
                             }}
-                            className="px-3 py-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white font-medium shrink-0 flex items-center gap-1"
+                            className="px-3 py-1 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-white font-semibold shrink-0 flex items-center gap-1 cursor-pointer transition"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             Mark Done
@@ -634,24 +634,24 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                   value={newNote}
                   onChange={e => setNewNote(e.target.value)}
                   placeholder="Add custom internal note to lead history..."
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-xs"
+                  className="flex-1 bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 text-xs"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shrink-0"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold shrink-0 cursor-pointer shadow-md"
                 >
                   Add Log
                 </button>
               </form>
 
               {/* Timeline Items */}
-              <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+              <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-red-950">
                 {leadActivities.map(act => (
                   <div key={act.activity_id} className="relative">
-                    <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-indigo-500 border-2 border-slate-900" />
-                    <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
+                    <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-orange-500 border-2 border-[#0e0307]" />
+                    <div className="bg-[#120408] border border-red-950/80 rounded-2xl p-3.5 space-y-1">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-semibold text-indigo-300">{act.title}</span>
+                        <span className="font-bold text-orange-300 font-['Outfit',sans-serif]">{act.title}</span>
                         <span className="text-slate-500">
                           {new Date(act.timestamp).toLocaleString('en-IN', {
                             day: 'numeric',
@@ -673,32 +673,32 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           {/* TAB 4: ATTRIBUTION & NOTES */}
           {activeTab === 'details' && (
             <div className="space-y-4">
-              <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-3">
-                <h4 className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
+              <div className="bg-[#120408] border border-red-950/80 rounded-2xl p-4 space-y-3">
+                <h4 className="text-xs font-bold text-orange-400 uppercase tracking-wider font-['Outfit',sans-serif]">
                   Meta Ads & Campaign Tracking
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-slate-500 block">Lead Source:</span>
-                    <span className="font-medium text-white">{lead.source}</span>
+                    <span className="text-slate-400 block font-medium">Lead Source:</span>
+                    <span className="font-semibold text-white">{lead.source}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Campaign Name:</span>
-                    <span className="font-mono text-indigo-300">{lead.campaign_name || 'Direct / Organic'}</span>
+                    <span className="text-slate-400 block font-medium">Campaign Name:</span>
+                    <span className="font-mono text-orange-300">{lead.campaign_name || 'Direct / Organic'}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Ad Set:</span>
+                    <span className="text-slate-400 block font-medium">Ad Set:</span>
                     <span className="text-slate-300">{lead.ad_set_name || 'None'}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Ad Creative:</span>
+                    <span className="text-slate-400 block font-medium">Ad Creative:</span>
                     <span className="text-slate-300">{lead.ad_name || 'None'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-2">
-                <h4 className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
+              <div className="bg-[#120408] border border-red-950/80 rounded-2xl p-4 space-y-2">
+                <h4 className="text-xs font-bold text-orange-400 uppercase tracking-wider font-['Outfit',sans-serif]">
                   Initial Requirement Notes
                 </h4>
                 <p className="text-slate-200 whitespace-pre-wrap leading-relaxed">
@@ -711,9 +711,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                   {lead.tags.map((tag, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs flex items-center gap-1"
+                      className="px-2.5 py-1 rounded-xl bg-[#16050b] text-slate-300 border border-red-950 text-xs flex items-center gap-1"
                     >
-                      <Tag className="w-3 h-3 text-indigo-400" />
+                      <Tag className="w-3 h-3 text-orange-400" />
                       {tag}
                     </span>
                   ))}
@@ -721,7 +721,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
               )}
 
               {lead.lead_status === 'CONVERTED' && lead.conversion_details && (
-                <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-4 space-y-2 text-emerald-200">
+                <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4 space-y-2 text-emerald-200">
                   <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" />
                     Conversion Record

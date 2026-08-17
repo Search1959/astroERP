@@ -52,12 +52,12 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   for (let d = 1; d <= daysInMonth; d++) daysArray.push(d);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Header and Controls */}
-      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-400" />
+          <h2 className="text-lg font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
+            <Calendar className="w-5 h-5 text-orange-400" />
             Appointment Scheduler & Consultations
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -67,11 +67,13 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
         <div className="flex flex-wrap items-center gap-3">
           {/* View Mode Toggle */}
-          <div className="bg-slate-900 p-1 rounded-xl border border-slate-800 flex items-center text-xs">
+          <div className="bg-[#14050a] p-1 rounded-xl border border-red-950/80 flex items-center text-xs">
             <button
               onClick={() => setViewMode('calendar')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
-                viewMode === 'calendar' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                viewMode === 'calendar'
+                  ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Calendar View
@@ -79,7 +81,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             <button
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
-                viewMode === 'list' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                viewMode === 'list'
+                  ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               List Roster ({filteredAppointments.length})
@@ -89,7 +93,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           <button
             id="btn-book-consultation"
             onClick={() => onOpenBookingModal()}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Book Consultation
@@ -100,49 +104,49 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       {/* Filter Row */}
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
+          <div className="flex items-center gap-2 bg-[#0e0307] px-3.5 py-2 rounded-xl border border-red-950/80 text-slate-300">
             <span className="text-slate-400 font-medium">Astrologer:</span>
             <select
               value={selectedAstrologerId}
               onChange={e => setSelectedAstrologerId(e.target.value)}
               className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="all" className="bg-slate-900 text-white">All Astrologers</option>
+              <option value="all" className="bg-[#14050a] text-white">All Astrologers</option>
               {astrologers.map(a => (
-                <option key={a.id} value={a.id} className="bg-slate-900 text-white">{a.name}</option>
+                <option key={a.id} value={a.id} className="bg-[#14050a] text-white">{a.name}</option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-slate-300">
+          <div className="flex items-center gap-2 bg-[#0e0307] px-3.5 py-2 rounded-xl border border-red-950/80 text-slate-300">
             <span className="text-slate-400 font-medium">Status:</span>
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
               className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="all" className="bg-slate-900 text-white">All Statuses</option>
-              <option value="scheduled" className="bg-slate-900 text-white">Scheduled</option>
-              <option value="in_progress" className="bg-slate-900 text-white">In Progress</option>
-              <option value="completed" className="bg-slate-900 text-white">Completed</option>
-              <option value="cancelled" className="bg-slate-900 text-white">Cancelled</option>
+              <option value="all" className="bg-[#14050a] text-white">All Statuses</option>
+              <option value="scheduled" className="bg-[#14050a] text-white">Scheduled</option>
+              <option value="in_progress" className="bg-[#14050a] text-white">In Progress</option>
+              <option value="completed" className="bg-[#14050a] text-white">Completed</option>
+              <option value="cancelled" className="bg-[#14050a] text-white">Cancelled</option>
             </select>
           </div>
         </div>
 
         {/* Month Navigation if in Calendar view */}
         {viewMode === 'calendar' && (
-          <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-200 font-bold">
+          <div className="flex items-center gap-2 bg-[#0e0307] px-3 py-1.5 rounded-xl border border-red-950/80 text-slate-200 font-bold">
             <button
               onClick={() => setCurrentDateOffset(prev => prev - 1)}
-              className="p-1 hover:bg-slate-800 rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
+              className="p-1 hover:bg-[#1a070e] rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="w-36 text-center text-white">{monthName}</span>
+            <span className="w-36 text-center text-white font-['Cinzel',serif]">{monthName}</span>
             <button
               onClick={() => setCurrentDateOffset(prev => prev + 1)}
-              className="p-1 hover:bg-slate-800 rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
+              className="p-1 hover:bg-[#1a070e] rounded-lg transition cursor-pointer text-slate-400 hover:text-white"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -152,9 +156,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       {/* View 1: Calendar Grid View */}
       {viewMode === 'calendar' && (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-sm overflow-hidden">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm overflow-hidden">
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-orange-300 uppercase tracking-wider font-['Outfit',sans-serif]">
             <div>Sun</div>
             <div>Mon</div>
             <div>Tue</div>
@@ -168,7 +172,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           <div className="grid grid-cols-7 gap-2">
             {daysArray.map((dayNum, idx) => {
               if (dayNum === null) {
-                return <div key={`empty-${idx}`} className="h-28 bg-slate-900/30 rounded-xl border border-slate-900" />;
+                return <div key={`empty-${idx}`} className="h-28 bg-[#0a0205]/40 rounded-xl border border-red-950/30" />;
               }
 
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
@@ -180,18 +184,18 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   key={`day-${dayNum}`}
                   className={`h-28 p-2.5 rounded-xl border flex flex-col justify-between transition ${
                     isCurrentDay
-                      ? 'bg-indigo-950/40 border-indigo-500/80 shadow-sm'
-                      : 'bg-slate-900/90 border-slate-800/90 hover:border-slate-700'
+                      ? 'bg-[#250813] border-orange-500/80 shadow-md shadow-orange-950/40'
+                      : 'bg-[#14050a] border-red-950/70 hover:border-orange-500/40'
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] ${
-                      isCurrentDay ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300'
+                      isCurrentDay ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold' : 'text-slate-300'
                     }`}>
                       {dayNum}
                     </span>
                     {dayAppointments.length > 0 && (
-                      <span className="text-[10px] text-indigo-400 font-bold">
+                      <span className="text-[10px] text-orange-400 font-bold">
                         {dayAppointments.length} apt{dayAppointments.length > 1 ? 's' : ''}
                       </span>
                     )}
@@ -203,9 +207,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       <div
                         key={apt.id}
                         className={`text-[10px] p-1 rounded-md font-semibold truncate flex items-center justify-between ${
-                          apt.status === 'completed' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/80' :
-                          apt.status === 'cancelled' ? 'bg-rose-950/60 text-rose-300 border border-rose-800/80' :
-                          'bg-indigo-950/60 text-indigo-300 border border-indigo-800/80'
+                          apt.status === 'completed' ? 'bg-[#1c060e] text-orange-300 border border-orange-500/30' :
+                          apt.status === 'cancelled' ? 'bg-[#20040a] text-red-300 border border-red-800/80' :
+                          'bg-[#250813] text-orange-200 border border-orange-500/40'
                         }`}
                         title={`${apt.time} - ${apt.clientName} (${apt.type})`}
                       >
@@ -216,7 +220,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
                   <button
                     onClick={() => onOpenBookingModal()}
-                    className="text-[10px] text-slate-500 hover:text-indigo-400 text-center py-0.5 opacity-0 hover:opacity-100 transition font-medium cursor-pointer"
+                    className="text-[10px] text-slate-500 hover:text-orange-400 text-center py-0.5 opacity-0 hover:opacity-100 transition font-medium cursor-pointer"
                   >
                     + Book
                   </button>
@@ -229,11 +233,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       {/* View 2: List Roster View */}
       {viewMode === 'list' && (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-900 text-slate-400 uppercase font-semibold tracking-wider border-b border-slate-800">
+                <tr className="bg-[#14050a] text-orange-200 uppercase font-semibold tracking-wider border-b border-red-950/80 font-['Outfit',sans-serif]">
                   <th className="py-3.5 px-4">Client & Contact</th>
                   <th className="py-3.5 px-4">Date & Time</th>
                   <th className="py-3.5 px-4">Consultation Type</th>
@@ -243,7 +247,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80 font-medium text-slate-200">
+              <tbody className="divide-y divide-red-950/50 font-medium text-slate-300">
                 {filteredAppointments.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-slate-500">
@@ -252,18 +256,18 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   </tr>
                 ) : (
                   filteredAppointments.map(apt => (
-                    <tr key={apt.id} className="hover:bg-slate-900/60 transition">
+                    <tr key={apt.id} className="hover:bg-[#1a070e]/60 transition">
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-white text-sm">{apt.clientName}</div>
+                        <div className="font-bold text-white text-sm font-['Outfit',sans-serif]">{apt.clientName}</div>
                         <div className="text-slate-400 text-[11px]">{apt.clientEmail || apt.clientPhone}</div>
                       </td>
 
                       <td className="py-3.5 px-4">
                         <div className="text-white font-semibold flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                          <Calendar className="w-3.5 h-3.5 text-orange-400" />
                           {apt.date}
                         </div>
-                        <div className="text-indigo-400 text-[11px] flex items-center gap-1 mt-0.5 font-medium">
+                        <div className="text-orange-400 text-[11px] flex items-center gap-1 mt-0.5 font-medium">
                           <Clock className="w-3 h-3" />
                           {apt.time} ({apt.durationMinutes} min)
                         </div>
@@ -274,7 +278,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           {(apt.type || 'consultation').replace(/_/g, ' ')}
                         </span>
                         <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                          {(apt.meetingMode || '').includes('Video') ? <Video className="w-3 h-3 text-indigo-400" /> : <MapPin className="w-3 h-3 text-amber-400" />}
+                          {(apt.meetingMode || '').includes('Video') ? <Video className="w-3 h-3 text-orange-400" /> : <MapPin className="w-3 h-3 text-amber-400" />}
                           {apt.meetingMode || 'In-Person / Online'}
                         </span>
                       </td>
@@ -288,24 +292,24 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           value={apt.status}
                           onChange={e => onUpdateAppointmentStatus(apt.id, e.target.value as any)}
                           className={`text-xs px-2.5 py-1 rounded-lg font-semibold border focus:outline-none cursor-pointer ${
-                            apt.status === 'completed' ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800' :
-                            apt.status === 'cancelled' ? 'bg-rose-950/80 text-rose-300 border-rose-800' :
-                            apt.status === 'in_progress' ? 'bg-amber-950/80 text-amber-300 border-amber-800' :
-                            'bg-indigo-950/80 text-indigo-300 border-indigo-800'
+                            apt.status === 'completed' ? 'bg-[#1c060e] text-orange-300 border-orange-500/40' :
+                            apt.status === 'cancelled' ? 'bg-[#20040a] text-red-300 border-red-800' :
+                            apt.status === 'in_progress' ? 'bg-[#2a0914] text-amber-300 border-amber-800' :
+                            'bg-[#14050a] text-orange-200 border-red-900/60'
                           }`}
                         >
-                          <option value="scheduled" className="bg-slate-900 text-white">Scheduled</option>
-                          <option value="in_progress" className="bg-slate-900 text-white">In Progress</option>
-                          <option value="completed" className="bg-slate-900 text-white">Completed</option>
-                          <option value="cancelled" className="bg-slate-900 text-white">Cancelled</option>
+                          <option value="scheduled" className="bg-[#14050a] text-white">Scheduled</option>
+                          <option value="in_progress" className="bg-[#14050a] text-white">In Progress</option>
+                          <option value="completed" className="bg-[#14050a] text-white">Completed</option>
+                          <option value="cancelled" className="bg-[#14050a] text-white">Cancelled</option>
                         </select>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-emerald-400 font-mono">
+                        <div className="font-bold text-orange-400 font-['Cinzel',serif]">
                           {currencySymbol}{apt.fee}
                         </div>
-                        <span className={`text-[10px] font-semibold ${apt.isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        <span className={`text-[10px] font-semibold ${apt.isPaid ? 'text-orange-400' : 'text-amber-400'}`}>
                           {apt.isPaid ? 'Paid' : 'Unpaid'}
                         </span>
                       </td>
@@ -313,7 +317,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => onDeleteAppointment(apt.id)}
-                          className="px-2.5 py-1 bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 rounded-lg text-xs font-semibold border border-slate-800 hover:border-rose-800 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-[#14050a] hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg text-xs font-semibold border border-red-950 transition cursor-pointer"
                         >
                           Cancel
                         </button>

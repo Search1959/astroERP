@@ -137,14 +137,14 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
   };
 
   return (
-    <div id="chart-calculator-card" className="w-full bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-slate-800">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
+    <div id="chart-calculator-card" className="w-full bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-xl text-slate-200 font-['Plus_Jakarta_Sans',sans-serif]">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-red-950 pb-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
+            <Sparkles className="w-5 h-5 text-orange-400" />
             {t('calculatorTitle')}
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             {t('calculatorSubtitle')}
           </p>
         </div>
@@ -153,7 +153,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
         <div className="flex flex-wrap items-center gap-3 text-xs">
           {onSelectLanguage && (
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-500 font-medium hidden sm:inline">Language:</span>
+              <span className="text-slate-400 font-medium hidden sm:inline">Language:</span>
               <LanguageSelector
                 selectedLanguage={selectedLanguage}
                 onSelectLanguage={onSelectLanguage}
@@ -162,13 +162,13 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-            <span className="text-slate-500 font-medium">{t('quickSamples')}:</span>
+          <div className="flex items-center gap-1.5 bg-[#14050a] px-2.5 py-1 rounded-xl border border-red-950">
+            <span className="text-slate-400 font-medium">{t('quickSamples')}:</span>
             <button
               type="button"
               id="preset-kolkata"
               onClick={() => loadPreset('Kolkata')}
-              className="px-2 py-0.5 bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded border border-slate-200 font-medium transition cursor-pointer text-[11px]"
+              className="px-2 py-0.5 bg-[#250813] hover:bg-orange-600 hover:text-white text-orange-300 rounded border border-orange-500/30 font-medium transition cursor-pointer text-[11px]"
             >
               Kolkata
             </button>
@@ -176,7 +176,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               type="button"
               id="preset-mumbai"
               onClick={() => loadPreset('Mumbai')}
-              className="px-2 py-0.5 bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded border border-slate-200 font-medium transition cursor-pointer text-[11px]"
+              className="px-2 py-0.5 bg-[#250813] hover:bg-orange-600 hover:text-white text-orange-300 rounded border border-orange-500/30 font-medium transition cursor-pointer text-[11px]"
             >
               Mumbai
             </button>
@@ -184,7 +184,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               type="button"
               id="preset-delhi"
               onClick={() => loadPreset('Delhi')}
-              className="px-2 py-0.5 bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded border border-slate-200 font-medium transition cursor-pointer text-[11px]"
+              className="px-2 py-0.5 bg-[#250813] hover:bg-orange-600 hover:text-white text-orange-300 rounded border border-orange-500/30 font-medium transition cursor-pointer text-[11px]"
             >
               Delhi
             </button>
@@ -192,7 +192,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               type="button"
               id="preset-london"
               onClick={() => loadPreset('London')}
-              className="px-2 py-0.5 bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded border border-slate-200 font-medium transition cursor-pointer text-[11px]"
+              className="px-2 py-0.5 bg-[#250813] hover:bg-orange-600 hover:text-white text-orange-300 rounded border border-orange-500/30 font-medium transition cursor-pointer text-[11px]"
             >
               London
             </button>
@@ -205,8 +205,8 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
           {/* Full Name */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-indigo-600" />
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-orange-400" />
                 {t('subjectName')}
               </label>
               <FieldHelp
@@ -221,15 +221,15 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Arun Kumar Jaiswal"
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition font-medium"
+              className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-sm text-white placeholder-slate-500 focus:bg-[#1a070e] focus:outline-none focus:border-orange-500 transition font-medium"
             />
           </div>
 
           {/* Date of Birth */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-orange-400" />
                 {t('dateOfBirth')}
               </label>
               <FieldHelp
@@ -243,15 +243,15 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               required
               value={birthDate}
               onChange={e => setBirthDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition font-medium"
+              className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-sm text-white focus:bg-[#1a070e] focus:outline-none focus:border-orange-500 transition font-medium"
             />
           </div>
 
           {/* Time of Birth */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-indigo-600" />
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-orange-400" />
                 {t('timeOfBirth')}
               </label>
               <FieldHelp
@@ -265,15 +265,15 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               required
               value={birthTime}
               onChange={e => setBirthTime(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition font-medium"
+              className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-sm text-white focus:bg-[#1a070e] focus:outline-none focus:border-orange-500 transition font-medium"
             />
           </div>
 
           {/* Place of Birth (Autocomplete dropdown) */}
           <div className="space-y-1.5 relative">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-orange-400" />
                 {t('placeOfBirth')}
               </label>
               <FieldHelp
@@ -289,21 +289,21 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               onChange={e => handleCitySearch(e.target.value)}
               onFocus={() => setIsCityDropdownOpen(true)}
               placeholder="Search city e.g. Kolkata, Mumbai, London..."
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition font-medium"
+              className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-sm text-white placeholder-slate-500 focus:bg-[#1a070e] focus:outline-none focus:border-orange-500 transition font-medium"
             />
 
             {/* City Autocomplete Dropdown */}
             {isCityDropdownOpen && cityResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg divide-y divide-slate-100">
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto bg-[#14050a] border border-red-900 rounded-xl shadow-2xl divide-y divide-red-950">
                 {cityResults.map((c, i) => (
                   <button
                     key={`${c.name}-${i}`}
                     type="button"
                     onClick={() => handleSelectCity(c)}
-                    className="w-full px-3.5 py-2 text-left text-xs text-slate-800 hover:bg-indigo-50 hover:text-indigo-900 flex items-center justify-between transition cursor-pointer"
+                    className="w-full px-3.5 py-2 text-left text-xs text-slate-300 hover:bg-[#250813] hover:text-white flex items-center justify-between transition cursor-pointer"
                   >
                     <span className="font-medium">{c.name}</span>
-                    <span className="text-slate-500 text-[11px]">{c.lat.toFixed(2)}°, {c.lng.toFixed(2)}° (UTC{c.tz >= 0 ? `+${c.tz}` : c.tz})</span>
+                    <span className="text-orange-400 text-[11px] font-mono">{c.lat.toFixed(2)}°, {c.lng.toFixed(2)}° (UTC{c.tz >= 0 ? `+${c.tz}` : c.tz})</span>
                   </button>
                 ))}
               </div>
@@ -317,17 +317,17 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
             type="button"
             id="btn-toggle-advanced"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-xs text-indigo-600 hover:text-indigo-700 flex items-center gap-1 font-semibold transition cursor-pointer"
+            className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1 font-semibold transition cursor-pointer"
           >
             <Compass className="w-3.5 h-3.5" />
             {showAdvanced ? 'Hide Advanced Astrological Settings ▲' : 'Show Advanced Calculation Settings (House & Zodiac Systems, Custom Lat/Lng) ▼'}
           </button>
 
           {showAdvanced && (
-            <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div className="mt-3 p-4 bg-[#14050a] rounded-xl border border-red-950 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-700 font-semibold">House System / भाव पद्धति</label>
+                  <label className="text-slate-300 font-semibold">House System / भाव पद्धति</label>
                   <FieldHelp
                     text="Calculation method for 12 house cusps (Whole Sign for Vedic Jyotish, Placidus for Western Astrology)."
                   />
@@ -335,7 +335,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
                 <select
                   value={houseSystem}
                   onChange={e => setHouseSystem(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-1 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 bg-[#0e0307] border border-red-950 rounded-lg text-slate-200 text-xs focus:ring-1 focus:ring-orange-500"
                 >
                   <option value="whole_sign">Whole Sign / सम्पूर्ण राशि भाव (Vedic Standard)</option>
                   <option value="placidus">Placidus (Standard Topocentric)</option>
@@ -345,7 +345,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-700 font-semibold">Zodiac Coordinate System / अयनांश</label>
+                  <label className="text-slate-300 font-semibold">Zodiac Coordinate System / अयनांश</label>
                   <FieldHelp
                     text="Sidereal Lahiri / Chitra Paksha for Vedic astrology; Tropical for Western seasonal wheel."
                   />
@@ -353,7 +353,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
                 <select
                   value={zodiacSystem}
                   onChange={e => setZodiacSystem(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:ring-1 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 bg-[#0e0307] border border-red-950 rounded-lg text-slate-200 text-xs focus:ring-1 focus:ring-orange-500"
                 >
                   <option value="sidereal_lahiri">Sidereal (Lahiri / Chitra Paksha Ayanamsha - Vedic)</option>
                   <option value="tropical">Tropical Zodiac (Western Ephemeris Standard)</option>
@@ -362,7 +362,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-700 font-semibold">Latitude (° अक्षांश)</label>
+                  <label className="text-slate-300 font-semibold">Latitude (° अक्षांश)</label>
                   <FieldHelp
                     text="Decimal degrees of north (+) or south (-) latitude."
                     example="22.5726"
@@ -373,13 +373,13 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
                   step="0.0001"
                   value={latitude}
                   onChange={e => setLatitude(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs"
+                  className="w-full px-3 py-2 bg-[#0e0307] border border-red-950 rounded-lg text-slate-200 text-xs font-mono"
                 />
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-700 font-semibold">Longitude (° रेखांश)</label>
+                  <label className="text-slate-300 font-semibold">Longitude (° रेखांश)</label>
                   <FieldHelp
                     text="Decimal degrees of east (+) or west (-) longitude."
                     example="88.3639"
@@ -390,7 +390,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
                   step="0.0001"
                   value={longitude}
                   onChange={e => setLongitude(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs"
+                  className="w-full px-3 py-2 bg-[#0e0307] border border-red-950 rounded-lg text-slate-200 text-xs font-mono"
                 />
               </div>
             </div>
@@ -398,9 +398,9 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
         </div>
 
         {/* Submit Action */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-red-950">
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
             <span>High-precision Swiss Ephemeris Engine active</span>
           </div>
 
@@ -408,7 +408,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
             type="submit"
             id="btn-calculate-chart"
             disabled={isLoading}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm flex items-center gap-2 transition cursor-pointer text-sm disabled:opacity-50"
+            className="px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold rounded-xl shadow-lg shadow-orange-950 flex items-center gap-2 transition cursor-pointer text-sm disabled:opacity-50 font-['Outfit',sans-serif]"
           >
             {isLoading ? (
               <>
@@ -417,7 +417,7 @@ export const ChartCalculatorForm: React.FC<ChartCalculatorFormProps> = ({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-indigo-200" />
+                <Sparkles className="w-4 h-4 text-orange-200" />
                 <span>{t('calculateButton')}</span>
               </>
             )}

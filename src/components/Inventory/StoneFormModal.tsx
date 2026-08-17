@@ -166,19 +166,19 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-      <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto font-sans">
+      <div className="bg-[#0e0307] border border-red-900/60 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-red-950/80 bg-[#120408]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-600/30 border border-amber-500/50 flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-xl bg-[#1c060e] border border-red-950 flex items-center justify-center text-orange-400">
               <Gem className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
                 {editingStone ? `Edit Gemstone: ${editingStone.name}` : 'Add Gemstone Stock / Lot'}
                 {!editingStone && (
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  <span className="text-[10px] bg-emerald-950/60 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
                     Auto-Purchase Sync
                   </span>
                 )}
@@ -197,7 +197,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                   onClose();
                   onOpenScanner();
                 }}
-                className="px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/50 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3 py-1.5 bg-[#1c060e] hover:bg-[#280814] text-orange-300 border border-red-950 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
               >
                 <Camera className="w-3.5 h-3.5" />
                 Scan via Camera / Barcode
@@ -205,7 +205,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-rose-950/80 hover:text-rose-300 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -213,12 +213,12 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs bg-[#0e0307]">
           {/* Quick Jyotish Presets */}
           {!editingStone && (
-            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2">
-              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <div className="bg-[#120408] p-3.5 rounded-2xl border border-red-950/80 space-y-2">
+              <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5 font-['Outfit',sans-serif]">
+                <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                 1-Click Quick Presets (Vedic Navaratna)
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -227,9 +227,9 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                     key={preset.name}
                     type="button"
                     onClick={() => applyPreset(preset)}
-                    className="px-2.5 py-1 bg-slate-900 hover:bg-indigo-950 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-[11px] text-slate-300 hover:text-white font-medium transition cursor-pointer"
+                    className="px-2.5 py-1 bg-[#16050b] hover:bg-[#280814] border border-red-950 hover:border-orange-500/40 rounded-xl text-[11px] text-slate-300 hover:text-white font-medium transition cursor-pointer"
                   >
-                    {preset.planet}: <strong className="text-amber-400">{preset.sanskrit}</strong>
+                    {preset.planet}: <strong className="text-orange-400">{preset.sanskrit}</strong>
                   </button>
                 ))}
               </div>
@@ -250,7 +250,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 required
                 value={sku}
                 onChange={e => setSku(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl font-mono text-amber-300 focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl font-mono text-orange-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               />
             </div>
 
@@ -268,7 +268,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Natural Ceylon Yellow Sapphire (Pukhraj)"
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 value={sanskritName}
                 onChange={e => setSanskritName(e.target.value)}
                 placeholder="e.g. Pushparag / Neelam / Manikya"
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 font-serif"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-orange-300 font-serif focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -301,7 +301,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white focus:outline-none focus:border-orange-500"
               >
                 <option value="Precious Gemstones">Precious Gemstones (Maharatna)</option>
                 <option value="Semi-Precious Gemstones">Semi-Precious (Uparatna)</option>
@@ -321,7 +321,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
               <select
                 value={associatedPlanet}
                 onChange={e => setAssociatedPlanet(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-semibold"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-orange-400 font-semibold focus:outline-none focus:border-orange-500"
               >
                 <option value="Sun">Sun (Surya) - Ruby</option>
                 <option value="Moon">Moon (Chandra) - Pearl</option>
@@ -340,7 +340,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="font-semibold text-slate-300 flex items-center gap-1">
-                  <Scale className="w-3.5 h-3.5 text-amber-400" />
+                  <Scale className="w-3.5 h-3.5 text-orange-400" />
                   Weight in Carats (ct)
                 </label>
                 <FieldHelp
@@ -354,14 +354,14 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 required
                 value={weightCarats}
                 onChange={e => handleCaratChange(parseFloat(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white font-mono font-bold focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="font-semibold text-slate-300 flex items-center gap-1">
-                  <Scale className="w-3.5 h-3.5 text-indigo-400" />
+                  <Scale className="w-3.5 h-3.5 text-orange-400" />
                   Vedic Weight (Ratti)
                 </label>
                 <FieldHelp
@@ -374,7 +374,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 step="0.01"
                 value={weightRatti}
                 onChange={e => setWeightRatti(parseFloat(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-indigo-300 font-mono font-bold"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-orange-300 font-mono font-bold focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -391,7 +391,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 value={origin}
                 onChange={e => setOrigin(e.target.value)}
                 placeholder="e.g. Ceylon (Sri Lanka) / Burma / Colombia"
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
@@ -408,7 +408,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 type="number"
                 value={costPrice}
                 onChange={e => setCostPrice(parseFloat(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold font-mono"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white font-bold font-mono focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -424,7 +424,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 required
                 value={sellingPrice}
                 onChange={e => setSellingPrice(parseFloat(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-bold font-mono"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-emerald-400 font-bold font-mono focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -440,7 +440,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 required
                 value={stockQuantity}
                 onChange={e => setStockQuantity(parseInt(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white font-bold focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -455,7 +455,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                 type="number"
                 value={minStockThreshold}
                 onChange={e => setMinStockThreshold(parseInt(e.target.value) || 0)}
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-rose-300 font-bold"
+                className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-rose-300 font-bold focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
@@ -463,7 +463,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
           {/* Supplier Info */}
           <div className="space-y-1">
             <label className="font-semibold text-slate-300 flex items-center gap-1.5">
-              <Truck className="w-3.5 h-3.5 text-indigo-400" />
+              <Truck className="w-3.5 h-3.5 text-orange-400" />
               Procurement Supplier / Dealer Source
             </label>
             <input
@@ -471,19 +471,19 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
               value={supplier}
               onChange={e => setSupplier(e.target.value)}
               placeholder="e.g. Ceylon & Jaipur Gem Traders Consortium"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white"
+              className="w-full px-3.5 py-2.5 bg-[#120408] border border-red-950/80 rounded-xl text-white focus:outline-none focus:border-orange-500"
             />
           </div>
 
           {/* Certification Details */}
-          <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+          <div className="p-4 bg-[#120408] rounded-2xl border border-red-950/80 space-y-3">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="isCertifiedCheck"
                 checked={isCertified}
                 onChange={e => setIsCertified(e.target.checked)}
-                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900 border-slate-700 cursor-pointer"
+                className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 bg-[#16050b] border-red-950 cursor-pointer"
               />
               <label htmlFor="isCertifiedCheck" className="text-white font-semibold flex items-center gap-1.5 cursor-pointer">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -500,7 +500,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                     value={certificationLab}
                     onChange={e => setCertificationLab(e.target.value)}
                     placeholder="e.g. GIA, IGI, GTL, Govt Lab"
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white"
+                    className="w-full px-3 py-2 bg-[#16050b] border border-red-950/80 rounded-xl text-white focus:outline-none focus:border-orange-500"
                   />
                 </div>
 
@@ -511,7 +511,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
                     value={certificateNumber}
                     onChange={e => setCertificateNumber(e.target.value)}
                     placeholder="e.g. GIA-92837190"
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono"
+                    className="w-full px-3 py-2 bg-[#16050b] border border-red-950/80 rounded-xl text-white font-mono focus:outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -520,17 +520,17 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
 
           {/* Auto-Purchase Automation Checkbox */}
           {!editingStone && (
-            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
+            <div className="bg-[#120408] p-4 rounded-2xl border border-red-950/80 space-y-1">
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={autoGeneratePurchase}
                   onChange={e => setAutoGeneratePurchase(e.target.checked)}
-                  className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="mt-0.5 rounded text-orange-600 focus:ring-orange-500 cursor-pointer"
                 />
                 <div>
-                  <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5 font-['Outfit',sans-serif]">
+                    <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                     ⚡ Auto-Generate Verified Supplier Purchase Record
                   </span>
                   <span className="text-[11px] text-slate-400 block mt-0.5">
@@ -541,17 +541,17 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
             </div>
           )}
 
-          <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-red-950/80 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-medium transition cursor-pointer"
+              className="px-4 py-2 bg-[#16050b] hover:bg-[#280814] text-slate-300 border border-red-950 rounded-xl font-medium transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg transition cursor-pointer flex items-center gap-2"
+              className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold rounded-xl shadow-lg transition cursor-pointer flex items-center gap-2"
             >
               <Gem className="w-4 h-4" />
               {editingStone ? 'Save Gemstone Details' : 'Add to Stock & Auto-Sync Purchases'}

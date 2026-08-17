@@ -2164,14 +2164,14 @@ export function App() {
           />
 
           {/* Main Right-Side Workspace Area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-hidden bg-[#0B0F19]">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen lg:h-screen lg:overflow-hidden bg-[#070204]">
             {/* Demo Read-Only Notice or Automation Status Banner */}
             {currentUser?.role === 'demo_user' ? (
-              <div className="bg-amber-950/70 border-b border-amber-800/80 px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between text-xs text-amber-200 gap-2 shrink-0 z-20">
+              <div className="bg-[#1c060e] border-b border-orange-500/40 px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between text-xs text-orange-200 gap-2 shrink-0 z-20">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span className="font-bold">Demo Mode (Read-Only):</span>
-                  <span className="text-amber-300/90 text-[11px]">
+                  <Eye className="w-4 h-4 text-orange-400 shrink-0" />
+                  <span className="font-bold text-white">Demo Mode (Read-Only):</span>
+                  <span className="text-orange-200/90 text-[11px]">
                     Exploring pre-seeded sample data. All modifications are simulated.
                   </span>
                 </div>
@@ -2183,7 +2183,7 @@ export function App() {
                       setAuthModalInitialTab('signup');
                       setIsAuthModalOpen(true);
                     }}
-                    className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-sm"
                   >
                     <span>Create Your 0-Data Account</span>
                     <ArrowRight className="w-3 h-3" />
@@ -2191,14 +2191,14 @@ export function App() {
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-950/90 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2 shrink-0 z-20">
+              <div className="bg-[#0e0306] border-b border-red-950 px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between text-[11px] text-slate-300 gap-2 shrink-0 z-20">
                 <div className="flex items-center gap-2">
                   <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                   </span>
-                  <span className="font-semibold text-slate-200">Zero-Human-Overhead Active:</span>
-                  <span>Auto purchase orders & gemstone dispensing synchronized.</span>
+                  <span className="font-semibold text-white">Zero-Human-Overhead Active:</span>
+                  <span className="text-slate-300">Auto purchase orders & gemstone dispensing synchronized.</span>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -2207,21 +2207,21 @@ export function App() {
                       setScannerPurpose('stock_add');
                       setIsScannerModalOpen(true);
                     }}
-                    className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+                    className="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1 transition cursor-pointer"
                   >
                     <Camera className="w-3.5 h-3.5" />
                     Camera Scan
                   </button>
                   <button
                     onClick={() => setIsCsvImportModalOpen(true)}
-                    className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer"
+                    className="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1 transition cursor-pointer"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     Excel Import
                   </button>
                   <button
                     onClick={() => setActiveTab('home')}
-                    className="text-amber-400 hover:text-amber-300 font-semibold text-xs transition cursor-pointer"
+                    className="text-orange-300 hover:text-white font-semibold text-xs transition cursor-pointer flex items-center gap-1"
                   >
                     Home Page ✧
                   </button>
@@ -2253,13 +2253,13 @@ export function App() {
                 {/* VIEW 1: Public Astrology Kundli & Ephemeris Calculator                    */}
                 {/* ========================================================================= */}
                 {activeTab === 'astrology' && (
-                  <div className="space-y-8">
+                  <div className="space-y-8 font-sans">
                     {/* Top Banner & Language Selector */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-950/90 border border-slate-800 p-5 rounded-2xl shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-4 bg-[#120408] border border-red-900/60 p-5 sm:p-6 rounded-2xl shadow-xl">
                       <div>
-                        <h1 className="text-xl font-extrabold text-white flex items-center gap-2.5">
-                          <Sparkles className="w-6 h-6 text-amber-400" />
-                          Ephemeris Calculation & Kundli Engine
+                        <h1 className="text-xl font-extrabold text-white flex items-center gap-2.5 font-['Outfit',sans-serif]">
+                          <Sparkles className="w-6 h-6 text-orange-400" />
+                          <span>Ephemeris Calculation & Kundli Engine</span>
                         </h1>
                         <p className="text-xs text-slate-400 mt-1">
                           High-precision Swiss Ephemeris astronomical positions, Vedic Vimshottari Dasha, and Ratna Jyotish.
@@ -2276,17 +2276,17 @@ export function App() {
                             <button
                               id="btn-open-predictions-window-top"
                               onClick={() => setIsPredictionsWindowOpen(true)}
-                              className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                              className="px-3.5 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
                             >
                               <Sparkles className="w-4 h-4 text-amber-300" />
-                              Predictions Window
+                              <span>Predictions Window</span>
                             </button>
                             <button
                               onClick={() => setIsPdfModalOpen(true)}
-                              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                              className="px-3.5 py-2 bg-[#1c060e] hover:bg-[#280814] text-orange-300 border border-orange-600/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             >
-                              <Download className="w-4 h-4" />
-                              Export PDF
+                              <Download className="w-4 h-4 text-orange-400" />
+                              <span>Export PDF</span>
                             </button>
                           </>
                         )}
@@ -2303,12 +2303,12 @@ export function App() {
                     {chartData && (
                       <div className="space-y-8 animate-in fade-in duration-300">
                         {/* Subject Header & Quick Client Save */}
-                        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+                        <div className="bg-[#120408] border border-red-900/60 rounded-2xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
                           <div>
-                            <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-800">
+                            <span className="text-[10px] uppercase font-bold tracking-wider text-orange-300 bg-red-950 px-2.5 py-1 rounded-md border border-orange-600/50">
                               Natal Ephemeris Generated
                             </span>
-                            <h2 className="text-xl font-bold text-white mt-2">
+                            <h2 className="text-xl font-bold text-white mt-2 font-['Outfit',sans-serif]">
                               {chartData.subjectName}
                             </h2>
                             <p className="text-xs text-slate-400 mt-0.5">
@@ -2320,28 +2320,28 @@ export function App() {
                             <button
                               id="btn-open-predictions-window-banner"
                               onClick={() => setIsPredictionsWindowOpen(true)}
-                              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                              className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
                             >
                               <Sparkles className="w-4 h-4 text-amber-300" />
-                              View Weekly / Monthly / Yearly Predictions
+                              <span>View Weekly / Monthly / Yearly Predictions</span>
                             </button>
                             <button
                               id="btn-save-as-client"
                               onClick={handleSaveChartAsClient}
-                              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                              className="px-4 py-2 bg-[#1c060e] hover:bg-[#280814] text-white border border-red-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             >
-                              <Users className="w-4 h-4 text-indigo-400" />
-                              Save to CRM
+                              <Users className="w-4 h-4 text-orange-400" />
+                              <span>Save to CRM</span>
                             </button>
                           </div>
                         </div>
 
                         {/* Natal Wheel and Interpretations */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                          <div className="lg:col-span-6 flex flex-col items-center bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm">
-                            <h3 className="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2 self-start">
-                              <Sparkles className="w-4 h-4 text-indigo-400" />
-                              Planetary Natal Wheel Chart
+                          <div className="lg:col-span-6 flex flex-col items-center bg-[#120408] border border-red-900/60 rounded-2xl p-6 shadow-xl">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 self-start font-['Outfit',sans-serif]">
+                              <Sparkles className="w-4 h-4 text-orange-400" />
+                              <span>Planetary Natal Wheel Chart</span>
                             </h3>
                             <NatalWheelChart chartData={chartData} size={480} />
                           </div>

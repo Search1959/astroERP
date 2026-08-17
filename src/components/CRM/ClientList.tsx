@@ -59,15 +59,15 @@ export const ClientList: React.FC<ClientListProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Header and Controls */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
+            <Users className="w-5 h-5 text-orange-400" />
             Client Management (CRM & Natal Profiles)
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Maintain client records, attached natal charts, consultation history, and gemstone purchases.
           </p>
         </div>
@@ -75,15 +75,15 @@ export const ClientList: React.FC<ClientListProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={exportClientsCSV}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-[#1c060e] hover:bg-[#2a0914] text-orange-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-orange-500/30 transition cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-orange-400" />
             Export CSV
           </button>
           <button
             id="btn-add-client-crm"
             onClick={onOpenNewClientModal}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Add New Client
@@ -94,26 +94,28 @@ export const ClientList: React.FC<ClientListProps> = ({
       {/* Filter and Search Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 min-w-[280px] max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-orange-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             id="search-clients-input"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, phone, city..."
-            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-2 bg-[#0e0307] border border-red-950/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
           />
         </div>
 
         {/* Tag Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
-            <Tag className="w-3 h-3 text-slate-400" /> Filter:
+          <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+            <Tag className="w-3 h-3 text-orange-400" /> Filter:
           </span>
           <button
             onClick={() => setSelectedTag('all')}
-            className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
-              selectedTag === 'all' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              selectedTag === 'all'
+                ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-sm'
+                : 'bg-[#14050a] text-slate-300 hover:text-white border border-red-950/70'
             }`}
           >
             All ({clients.length})
@@ -122,8 +124,10 @@ export const ClientList: React.FC<ClientListProps> = ({
             <button
               key={tag}
               onClick={() => setSelectedTag(tag)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
-                selectedTag === tag ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                selectedTag === tag
+                  ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-sm'
+                  : 'bg-[#14050a] text-slate-300 hover:text-white border border-red-950/70'
               }`}
             >
               {tag}
@@ -133,11 +137,11 @@ export const ClientList: React.FC<ClientListProps> = ({
       </div>
 
       {/* Clients Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold tracking-wider border-b border-slate-200">
+              <tr className="bg-[#14050a] text-orange-200 uppercase font-semibold tracking-wider border-b border-red-950/80 font-['Outfit',sans-serif]">
                 <th className="py-3 px-4">Client Name & Contact</th>
                 <th className="py-3 px-4">Birth Details</th>
                 <th className="py-3 px-4">Attached Charts</th>
@@ -146,7 +150,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+            <tbody className="divide-y divide-red-950/50 font-medium text-slate-300">
               {filteredClients.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -155,36 +159,36 @@ export const ClientList: React.FC<ClientListProps> = ({
                 </tr>
               ) : (
                 filteredClients.map(client => (
-                  <tr key={client.id} className="hover:bg-slate-50/80 transition">
+                  <tr key={client.id} className="hover:bg-[#1a070e]/60 transition">
                     {/* Name & Contact */}
                     <td className="py-3 px-4">
                       <div
                         onClick={() => onSelectClient(client)}
-                        className="font-bold text-slate-900 text-sm hover:text-indigo-600 cursor-pointer transition"
+                        className="font-bold text-white text-sm hover:text-orange-400 cursor-pointer transition font-['Outfit',sans-serif]"
                       >
                         {client.name}
                       </div>
-                      <div className="text-slate-500 text-[11px] mt-0.5">{client.email}</div>
-                      <div className="text-slate-400 text-[11px]">{client.phone}</div>
+                      <div className="text-slate-400 text-[11px] mt-0.5">{client.email}</div>
+                      <div className="text-slate-500 text-[11px]">{client.phone}</div>
                     </td>
 
                     {/* Birth Details */}
-                    <td className="py-3 px-4 text-slate-700">
-                      <div>{client.dateOfBirth} at {client.timeOfBirth}</div>
-                      <div className="text-slate-500 text-[11px] mt-0.5">{client.placeOfBirth}</div>
+                    <td className="py-3 px-4 text-slate-300">
+                      <div className="text-white font-medium">{client.dateOfBirth} at {client.timeOfBirth}</div>
+                      <div className="text-slate-400 text-[11px] mt-0.5">{client.placeOfBirth}</div>
                     </td>
 
                     {/* Attached Charts */}
                     <td className="py-3 px-4">
                       {client.attachedCharts && client.attachedCharts.length > 0 ? (
                         <div className="flex items-center gap-1.5">
-                          <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-semibold flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-amber-500" />
+                          <span className="px-2 py-0.5 rounded-md bg-[#250813] text-orange-300 border border-orange-500/30 text-[11px] font-semibold flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-orange-400" />
                             {client.attachedCharts.length} Chart{client.attachedCharts.length > 1 ? 's' : ''}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">No chart attached</span>
+                        <span className="text-slate-500 text-[11px]">No chart attached</span>
                       )}
                     </td>
 
@@ -194,7 +198,7 @@ export const ClientList: React.FC<ClientListProps> = ({
                         {(client.tags || []).map((t, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                            className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#1a070e] text-orange-200 border border-red-900/60"
                           >
                             {t}
                           </span>
@@ -204,10 +208,10 @@ export const ClientList: React.FC<ClientListProps> = ({
 
                     {/* Spend & Consultations */}
                     <td className="py-3 px-4">
-                      <div className="font-bold text-emerald-700 text-sm">
+                      <div className="font-bold text-orange-400 text-sm font-['Cinzel',serif]">
                         {currencySymbol}{(client.totalSpent || 0).toLocaleString()}
                       </div>
-                      <div className="text-slate-500 text-[11px]">
+                      <div className="text-slate-400 text-[11px]">
                         {client.totalConsultations || 0} Consultation{(client.totalConsultations || 0) !== 1 ? 's' : ''}
                       </div>
                     </td>
@@ -218,28 +222,28 @@ export const ClientList: React.FC<ClientListProps> = ({
                         <button
                           onClick={() => onBookAppointmentForClient(client)}
                           title="Book Consultation"
-                          className="p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                          className="p-1.5 bg-[#14050a] hover:bg-orange-500/20 text-slate-300 hover:text-orange-300 rounded-lg border border-red-950 transition cursor-pointer"
                         >
                           <Calendar className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => onSelectClient(client)}
                           title="View Profile & Charts"
-                          className="p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                          className="p-1.5 bg-[#14050a] hover:bg-orange-500/20 text-slate-300 hover:text-orange-300 rounded-lg border border-red-950 transition cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => onEditClient(client)}
                           title="Edit Profile"
-                          className="p-1.5 bg-slate-100 hover:bg-amber-50 hover:text-amber-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                          className="p-1.5 bg-[#14050a] hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 rounded-lg border border-red-950 transition cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => onDeleteClient(client.id)}
                           title="Delete Client"
-                          className="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                          className="p-1.5 bg-[#14050a] hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg border border-red-950 transition cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

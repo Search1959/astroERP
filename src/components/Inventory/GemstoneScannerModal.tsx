@@ -413,18 +413,18 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-      <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto font-sans">
+      <div className="bg-[#0e0307] border border-red-900/60 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-red-950/80 bg-[#120408]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-400">
+            <div className="w-8 h-8 rounded-xl bg-[#1c060e] border border-red-950 flex items-center justify-center text-orange-400">
               <Camera className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
                 Gemstone Camera & Barcode Scanner
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
+                <span className="text-[10px] bg-emerald-950/60 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
                   Zero Human Overhead
                 </span>
               </h3>
@@ -435,18 +435,18 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-rose-950/80 hover:text-rose-300 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body Content */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-[#0e0307]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Camera Viewfinder & Scanner */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="relative aspect-4/3 bg-black rounded-2xl overflow-hidden border border-slate-700 flex items-center justify-center shadow-inner">
+              <div className="relative aspect-4/3 bg-black rounded-2xl overflow-hidden border border-red-950/80 flex items-center justify-center shadow-inner">
                 {/* Video Element */}
                 <video
                   ref={videoRef}
@@ -458,22 +458,22 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
 
                 {/* Laser Reticle & Scan Overlay */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="w-64 h-48 border-2 border-indigo-400/80 rounded-xl relative overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                  <div className="w-64 h-48 border-2 border-red-500/80 rounded-xl relative overflow-hidden shadow-[0_0_15px_rgba(239,68,68,0.5)]">
                     {/* Corner Reticles */}
-                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-amber-400" />
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-amber-400" />
-                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-amber-400" />
-                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-amber-400" />
+                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-orange-400" />
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-orange-400" />
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-orange-400" />
+                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-orange-400" />
 
                     {/* Animated Laser Scanning Line */}
                     {isScanning && (
-                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent absolute animate-bounce shadow-[0_0_8px_rgba(239,68,68,0.9)]" />
+                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent absolute animate-bounce shadow-[0_0_8px_rgba(249,115,22,0.9)]" />
                     )}
                   </div>
                 </div>
 
                 {/* Camera Status Bar */}
-                <div className="absolute bottom-3 left-3 right-3 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 flex items-center justify-between text-[11px] text-slate-300">
+                <div className="absolute bottom-3 left-3 right-3 bg-[#120408]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-red-950/80 flex items-center justify-between text-[11px] text-slate-300">
                   <span className="truncate max-w-[280px]">{statusMessage}</span>
                   <div className="flex items-center gap-2">
                     <button
@@ -484,7 +484,7 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                     </button>
-                    <label className="p-1 text-indigo-400 hover:text-indigo-300 rounded transition cursor-pointer" title="Upload Certificate Photo">
+                    <label className="p-1 text-orange-400 hover:text-orange-300 rounded transition cursor-pointer" title="Upload Certificate Photo">
                       <Upload className="w-3.5 h-3.5" />
                       <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                     </label>
@@ -493,10 +493,10 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
               </div>
 
               {/* Simulation Tray (1-Click Test Barcodes) */}
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+              <div className="bg-[#120408] p-3.5 rounded-2xl border border-red-950/80 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5 font-['Outfit',sans-serif]">
+                    <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                     Quick Test: Simulate Physical Gemstone Tags
                   </span>
                   <span className="text-[10px] text-slate-500">1-click test</span>
@@ -507,14 +507,14 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                       key={lot.barcode}
                       type="button"
                       onClick={() => handleDetection(lot.barcode)}
-                      className="p-2 bg-slate-900 hover:bg-indigo-950/60 border border-slate-800 hover:border-indigo-500/60 rounded-lg text-left transition cursor-pointer group"
+                      className="p-2 bg-[#16050b] hover:bg-[#280814] border border-red-950 hover:border-orange-500/50 rounded-xl text-left transition cursor-pointer group"
                     >
-                      <div className="text-[11px] font-bold text-indigo-300 group-hover:text-indigo-200 truncate">
+                      <div className="text-[11px] font-bold text-orange-300 group-hover:text-orange-200 truncate">
                         {lot.name.split('(')[0]}
                       </div>
                       <div className="text-[10px] text-slate-400 flex items-center justify-between mt-0.5">
                         <span>{lot.carats} ct</span>
-                        <span className="font-mono text-amber-300">{lot.barcode}</span>
+                        <span className="font-mono text-orange-400">{lot.barcode}</span>
                       </div>
                     </button>
                   ))}
@@ -524,18 +524,18 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
 
             {/* Right: Scanned Result Card & Automation Commit */}
             <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-              <div className="bg-slate-950 rounded-2xl p-5 border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+              <div className="bg-[#120408] rounded-2xl p-5 border border-red-950/80 space-y-4">
+                <div className="flex items-center justify-between border-b border-red-950/80 pb-3">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
                     Scanned Gemstone Intelligence
                   </h4>
                   {scannedData ? (
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md font-bold border border-emerald-500/30">
+                    <span className="text-[10px] bg-emerald-950/60 text-emerald-300 px-2 py-0.5 rounded-md font-bold border border-emerald-500/30">
                       Validated
                     </span>
                   ) : (
-                    <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md font-mono">
+                    <span className="text-[10px] bg-[#16050b] text-slate-400 px-2 py-0.5 rounded-md font-mono border border-red-950">
                       Waiting for scan
                     </span>
                   )}
@@ -545,18 +545,18 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                   <div className="space-y-3 text-xs">
                     <div>
                       <span className="text-[10px] text-slate-400 uppercase font-semibold">Gemstone Variety:</span>
-                      <div className="text-sm font-bold text-amber-400 mt-0.5">{scannedData.name}</div>
+                      <div className="text-sm font-bold text-orange-400 mt-0.5">{scannedData.name}</div>
                       <div className="text-[11px] text-slate-400 font-serif">{scannedData.sanskritName} • Ruling Graha: {scannedData.associatedPlanet}</div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                    <div className="grid grid-cols-2 gap-2 bg-[#16050b] p-3 rounded-xl border border-red-950/80">
                       <div>
                         <span className="text-[10px] text-slate-500">Weight:</span>
                         <div className="font-bold text-white">{scannedData.weightCarats} Carats ({scannedData.weightRatti} Ratti)</div>
                       </div>
                       <div>
                         <span className="text-[10px] text-slate-500">SKU / Tag:</span>
-                        <div className="font-mono text-indigo-300 font-semibold">{scannedData.sku}</div>
+                        <div className="font-mono text-orange-300 font-semibold">{scannedData.sku}</div>
                       </div>
                       <div>
                         <span className="text-[10px] text-slate-500">Dealer Cost:</span>
@@ -564,7 +564,7 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                       </div>
                       <div>
                         <span className="text-[10px] text-slate-500">Retail Value:</span>
-                        <div className="font-bold text-amber-300">{currencySymbol}{scannedData.sellingPrice}</div>
+                        <div className="font-bold text-orange-300">{currencySymbol}{scannedData.sellingPrice}</div>
                       </div>
                     </div>
 
@@ -576,20 +576,20 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                   </div>
                 ) : (
                   <div className="py-12 text-center text-slate-500 space-y-2">
-                    <Scan className="w-8 h-8 mx-auto text-slate-600 animate-pulse" />
+                    <Scan className="w-8 h-8 mx-auto text-orange-500/40 animate-pulse" />
                     <p className="text-xs">No gemstone scanned yet.</p>
                     <p className="text-[11px] text-slate-600">Align a barcode or click any preset below the camera to preview.</p>
                   </div>
                 )}
 
                 {/* Automation Toggles */}
-                <div className="pt-3 border-t border-slate-800 space-y-2 text-xs">
+                <div className="pt-3 border-t border-red-950/80 space-y-2 text-xs">
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={autoCreatePurchase}
                       onChange={e => setAutoCreatePurchase(e.target.checked)}
-                      className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      className="mt-0.5 rounded text-orange-600 focus:ring-orange-500 cursor-pointer"
                     />
                     <div>
                       <span className="font-semibold text-slate-200 block">
@@ -611,8 +611,8 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                   onClick={handleConfirmAddStock}
                   className={`w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer ${
                     scannedData
-                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/30'
-                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white shadow-orange-600/30'
+                      : 'bg-[#16050b] text-slate-500 border border-red-950 cursor-not-allowed'
                   }`}
                 >
                   <Plus className="w-4 h-4" />
@@ -627,7 +627,7 @@ export const GemstoneScannerModal: React.FC<GemstoneScannerModalProps> = ({
                       setIsScanning(true);
                       setStatusMessage('Ready for next scan.');
                     }}
-                    className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition cursor-pointer"
+                    className="w-full py-2 bg-[#16050b] hover:bg-[#280814] text-slate-300 rounded-xl text-xs font-semibold border border-red-950 transition cursor-pointer"
                   >
                     Scan Another Gemstone Lot
                   </button>

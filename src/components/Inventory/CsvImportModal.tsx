@@ -218,18 +218,18 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-      <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto font-sans">
+      <div className="bg-[#0e0307] border border-red-900/60 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-red-950/80 bg-[#120408]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600/30 border border-emerald-500/50 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-[#1c060e] border border-red-950 flex items-center justify-center text-orange-400">
               <FileSpreadsheet className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
                 Import Gemstone Stock via Excel (.xlsx) or CSV
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
+                <span className="text-[10px] bg-emerald-950/60 text-emerald-300 font-mono px-2 py-0.5 rounded-full border border-emerald-500/30">
                   Auto-Purchase Sync
                 </span>
               </h3>
@@ -240,18 +240,18 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-rose-950/80 hover:text-rose-300 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-xs bg-[#0e0307]">
           {/* File Upload / Action Bar */}
-          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-[#120408] p-4 rounded-2xl border border-red-950/80 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <label className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold cursor-pointer transition flex items-center gap-2 shadow-sm">
+              <label className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl font-bold cursor-pointer transition flex items-center gap-2 shadow-sm">
                 <Upload className="w-3.5 h-3.5" />
                 Upload Excel / CSV File
                 <input type="file" accept=".xlsx, .xls, .csv, .tsv, .txt" onChange={handleFileUpload} className="hidden" />
@@ -260,7 +260,7 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
               <button
                 type="button"
                 onClick={handleDownloadExcelTemplate}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-xl font-semibold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-[#16050b] hover:bg-[#280814] text-emerald-300 rounded-xl font-semibold border border-red-950 transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download .XLSX Template
@@ -269,14 +269,14 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
               <button
                 type="button"
                 onClick={handleLoadSample}
-                className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer"
+                className="text-xs text-orange-400 hover:text-orange-300 font-semibold cursor-pointer"
               >
                 Load Sample Data
               </button>
             </div>
 
             {fileName && (
-              <div className="text-[11px] text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+              <div className="text-[11px] text-slate-400 bg-[#16050b] px-3 py-1.5 rounded-xl border border-red-950">
                 Active File: <span className="font-mono text-emerald-400 font-bold">{fileName}</span>
               </div>
             )}
@@ -296,12 +296,12 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
                 handleParseCsv(e.target.value);
               }}
               placeholder="Paste CSV rows here..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+              className="w-full bg-[#120408] border border-red-950/80 rounded-xl p-3 text-slate-200 font-mono text-xs focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
           </div>
 
           {parseError && (
-            <div className="p-3 bg-red-950/50 border border-red-800/80 rounded-xl text-red-300 flex items-center gap-2">
+            <div className="p-3 bg-red-950/50 border border-red-900 rounded-xl text-red-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
               <span>{parseError}</span>
             </div>
@@ -311,7 +311,7 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
           {parsedItems.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-200 flex items-center gap-2">
+                <span className="font-bold text-slate-200 flex items-center gap-2 font-['Outfit',sans-serif]">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   Ready to Ingest ({parsedItems.length} Gemstone Lots)
                 </span>
@@ -320,9 +320,9 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
                 </span>
               </div>
 
-              <div className="max-h-56 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
+              <div className="max-h-56 overflow-y-auto rounded-2xl border border-red-950/80 bg-[#120408]">
                 <table className="w-full text-left border-collapse">
-                  <thead className="bg-slate-900 text-slate-400 sticky top-0 text-[10px] uppercase font-semibold">
+                  <thead className="bg-[#16050b] text-slate-400 sticky top-0 text-[10px] uppercase font-semibold border-b border-red-950">
                     <tr>
                       <th className="p-2.5">SKU</th>
                       <th className="p-2.5">Gemstone Variety</th>
@@ -334,12 +334,12 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
                       <th className="p-2.5">Certificate</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 text-[11px] text-slate-300">
+                  <tbody className="divide-y divide-red-950/60 text-[11px] text-slate-300">
                     {parsedItems.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/60">
-                        <td className="p-2.5 font-mono text-indigo-400 font-semibold">{item.sku}</td>
+                      <tr key={idx} className="hover:bg-[#1a060f]">
+                        <td className="p-2.5 font-mono text-orange-400 font-semibold">{item.sku}</td>
                         <td className="p-2.5 font-medium text-white">{item.name}</td>
-                        <td className="p-2.5 text-amber-400 font-semibold">{item.associatedPlanet}</td>
+                        <td className="p-2.5 text-orange-300 font-semibold">{item.associatedPlanet}</td>
                         <td className="p-2.5">{item.weightCarats} ct ({item.weightRatti} R)</td>
                         <td className="p-2.5 text-slate-400">{currencySymbol}{item.costPrice}</td>
                         <td className="p-2.5 text-emerald-400 font-semibold">{currencySymbol}{item.sellingPrice}</td>
@@ -354,17 +354,17 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
           )}
 
           {/* Zero Human Contribution Automation Checkbox */}
-          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div className="bg-[#120408] p-4 rounded-2xl border border-red-950/80 space-y-2">
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={autoGeneratePurchases}
                 onChange={e => setAutoGeneratePurchases(e.target.checked)}
-                className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                className="mt-0.5 rounded text-orange-600 focus:ring-orange-500 cursor-pointer"
               />
               <div>
-                <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5 font-['Outfit',sans-serif]">
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                   Auto-Generate Supplier Purchase Order / Ledger Entry
                 </span>
                 <span className="text-[11px] text-slate-400 block mt-0.5">
@@ -376,11 +376,11 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-slate-950">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-red-950/80 bg-[#120408]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-slate-400 hover:text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition cursor-pointer"
+            className="px-4 py-2 text-slate-400 hover:text-white rounded-xl text-xs font-semibold hover:bg-[#16050b] transition cursor-pointer"
           >
             Cancel
           </button>
@@ -391,8 +391,8 @@ GEM-9006,Italian Red Coral (Moonga),Praval,Precious Gemstones,6.5,Mars,180,420,8
             onClick={handleImportConfirm}
             className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg transition cursor-pointer ${
               parsedItems.length > 0
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white shadow-orange-600/30'
+                : 'bg-[#16050b] text-slate-500 border border-red-950 cursor-not-allowed'
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />

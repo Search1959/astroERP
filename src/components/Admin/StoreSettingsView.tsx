@@ -45,88 +45,88 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6 max-w-4xl font-['Plus_Jakarta_Sans',sans-serif]">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-bold text-slate-900">Office & Astrological Ephemeris Settings</h2>
+            <Settings className="w-5 h-5 text-orange-400" />
+            <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">Office & Astrological Ephemeris Settings</h2>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Configure business identity, currency formatting, default house computation methods, and public portal settings.
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6 text-xs text-slate-700">
+      <form onSubmit={handleSubmit} className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm space-y-6 text-xs text-slate-300">
         {/* Business Identity */}
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-2">
-            <Globe className="w-4 h-4 text-indigo-600" /> Business Identity & Office Details
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-red-950/80 pb-2 font-['Outfit',sans-serif]">
+            <Globe className="w-4 h-4 text-orange-400" /> Business Identity & Office Details
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Sanctuary / Practice Name</label>
+              <label className="font-semibold text-slate-300">Sanctuary / Practice Name</label>
               <input
                 type="text"
                 value={formData.storeName}
                 onChange={e => setFormData({ ...formData, storeName: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Primary Astrologer Professional Title</label>
+              <label className="font-semibold text-slate-300">Primary Astrologer Professional Title</label>
               <input
                 type="text"
                 value={formData.astrologerTitle}
                 onChange={e => setFormData({ ...formData, astrologerTitle: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Contact Email</label>
+              <label className="font-semibold text-slate-300">Contact Email</label>
               <input
                 type="email"
                 value={formData.contactEmail}
                 onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Contact Phone / WhatsApp</label>
+              <label className="font-semibold text-slate-300">Contact Phone / WhatsApp</label>
               <input
                 type="text"
                 value={formData.contactPhone}
                 onChange={e => setFormData({ ...formData, contactPhone: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1 sm:col-span-2">
-              <label className="font-semibold text-slate-700">Physical Office Address (Printed on Invoices)</label>
+              <label className="font-semibold text-slate-300">Physical Office Address (Printed on Invoices)</label>
               <input
                 type="text"
                 value={formData.officeAddress}
                 onChange={e => setFormData({ ...formData, officeAddress: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Currency & Tax */}
-        <div className="space-y-4 pt-4 border-t border-slate-200">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-2">
-            <Shield className="w-4 h-4 text-emerald-600" /> Currency & Billing Preferences
+        <div className="space-y-4 pt-4 border-t border-red-950/80">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-red-950/80 pb-2 font-['Outfit',sans-serif]">
+            <Shield className="w-4 h-4 text-orange-400" /> Currency & Billing Preferences
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Base Currency Code</label>
+              <label className="font-semibold text-slate-300">Base Currency Code</label>
               <select
                 value={formData.currency}
                 onChange={e => {
@@ -134,7 +134,7 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
                   const sym = val === 'USD' ? '$' : val === 'EUR' ? '€' : val === 'GBP' ? '£' : '₹';
                   setFormData({ ...formData, currency: val, currencySymbol: sym });
                 }}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               >
                 <option value="INR">INR (₹ - Indian Rupee)</option>
                 <option value="USD">USD ($)</option>
@@ -144,40 +144,40 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Currency Symbol</label>
+              <label className="font-semibold text-slate-300">Currency Symbol</label>
               <input
                 type="text"
                 value={formData.currencySymbol}
                 onChange={e => setFormData({ ...formData, currencySymbol: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white font-mono focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Default Sales Tax Rate (%)</label>
+              <label className="font-semibold text-slate-300">Default Sales Tax Rate (%)</label>
               <input
                 type="number"
                 value={formData.taxRatePercent}
                 onChange={e => setFormData({ ...formData, taxRatePercent: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white font-mono focus:ring-1 focus:ring-orange-500 focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Astrological Defaults */}
-        <div className="space-y-4 pt-4 border-t border-slate-200">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-2">
-            <Sparkles className="w-4 h-4 text-indigo-600" /> Default Astrological Ephemeris Engine Settings
+        <div className="space-y-4 pt-4 border-t border-red-950/80">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-red-950/80 pb-2 font-['Outfit',sans-serif]">
+            <Sparkles className="w-4 h-4 text-orange-400" /> Default Astrological Ephemeris Engine Settings
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Default House Calculation System</label>
+              <label className="font-semibold text-slate-300">Default House Calculation System</label>
               <select
                 value={formData.defaultHouseSystem}
                 onChange={e => setFormData({ ...formData, defaultHouseSystem: e.target.value as any })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               >
                 <option value="placidus">Placidus (Standard Topocentric)</option>
                 <option value="whole_sign">Whole Sign (Vedic & Hellenistic standard)</option>
@@ -186,11 +186,11 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Default Zodiac Reference System</label>
+              <label className="font-semibold text-slate-300">Default Zodiac Reference System</label>
               <select
                 value={formData.defaultAyanamsha}
                 onChange={e => setFormData({ ...formData, defaultAyanamsha: e.target.value as any })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               >
                 <option value="tropical">Tropical Zodiac (Western Astrodienst style)</option>
                 <option value="sidereal_lahiri">Sidereal Lahiri Ayanamsha (Vedic Jyotish)</option>
@@ -198,11 +198,11 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-slate-700">Default Indian Language for Kundali & Reports</label>
+              <label className="font-semibold text-slate-300">Default Indian Language for Kundali & Reports</label>
               <select
                 value={formData.defaultLanguage || 'hi'}
                 onChange={e => setFormData({ ...formData, defaultLanguage: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#14050a] border border-red-950 rounded-xl text-white focus:ring-1 focus:ring-orange-500 focus:outline-none"
               >
                 <option value="hi">हिन्दी (Hindi - Devanagari)</option>
                 <option value="sa">संस्कृतम् (Sanskrit - Classical Vedic)</option>
@@ -221,8 +221,8 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
-          <div className="text-emerald-700 text-xs font-semibold flex items-center gap-1.5">
+        <div className="pt-4 border-t border-red-950/80 flex items-center justify-between">
+          <div className="text-orange-400 text-xs font-semibold flex items-center gap-1.5">
             {isSaved && (
               <>
                 <CheckCircle2 className="w-4 h-4" />
@@ -232,7 +232,7 @@ export const StoreSettingsView: React.FC<StoreSettingsViewProps> = ({
           </div>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm flex items-center gap-2 transition cursor-pointer"
+            className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold rounded-xl shadow-md flex items-center gap-2 transition cursor-pointer"
           >
             <Save className="w-4 h-4" />
             Save Store Settings

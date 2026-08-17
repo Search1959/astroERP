@@ -163,16 +163,16 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden text-slate-200 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto font-sans">
+      <div className="bg-[#0e0307] border border-red-900/60 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/40 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-[#120408] px-6 py-4 border-b border-red-950/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-600 to-orange-500 border border-orange-500/50 text-white flex items-center justify-center shadow-md">
               {isEditing ? <UserCheck className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-bold text-white font-['Outfit',sans-serif]">
                 {isEditing ? `Edit Lead (${leadToEdit?.lead_id})` : 'New Lead Manual Entry'}
               </h3>
               <p className="text-xs text-slate-400">
@@ -182,7 +182,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-rose-950/80 hover:text-rose-300 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -190,22 +190,22 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
 
         {/* Duplicate Warning */}
         {duplicateWarning && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
             <span>{duplicateWarning}</span>
           </div>
         )}
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs bg-[#0e0307]">
           {/* Section 1: Contact Info */}
           <div>
-            <div className="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider mb-2">
+            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-2 font-['Outfit',sans-serif]">
               1. Customer Identity & Contacts
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">
+                <label className="block font-semibold text-slate-300 mb-1">
                   Full Name <span className="text-rose-400">*</span>
                 </label>
                 <input
@@ -214,12 +214,12 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="e.g. Rahul Varma"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">
+                <label className="block font-semibold text-slate-300 mb-1">
                   WhatsApp Number (+Country Code) <span className="text-rose-400">*</span>
                 </label>
                 <input
@@ -228,46 +228,46 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
                   value={whatsappNumber}
                   onChange={e => handlePhoneChange(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Alternate Phone (Optional)</label>
+                <label className="block font-semibold text-slate-300 mb-1">Alternate Phone (Optional)</label>
                 <input
                   type="text"
                   value={alternatePhone}
                   onChange={e => setAlternatePhone(e.target.value)}
                   placeholder="+91 98765 43211"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Email Address</label>
+                <label className="block font-semibold text-slate-300 mb-1">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="e.g. rahul@example.com"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 2: Source & Campaign Attribution */}
-          <div className="pt-2 border-t border-slate-800">
-            <div className="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider mb-2">
+          <div className="pt-3 border-t border-red-950/80">
+            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-2 font-['Outfit',sans-serif]">
               2. Source & Meta Ads Attribution
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Lead Source</label>
+                <label className="block font-semibold text-slate-300 mb-1">Lead Source</label>
                 <select
                   value={source}
                   onChange={e => setSource(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 >
                   {customSources.map(s => (
                     <option key={s} value={s}>
@@ -278,52 +278,52 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Campaign Name / Identifier</label>
+                <label className="block font-semibold text-slate-300 mb-1">Campaign Name / Identifier</label>
                 <input
                   type="text"
                   value={campaignName}
                   onChange={e => setCampaignName(e.target.value)}
                   placeholder="e.g. Meta_ClickToWhatsApp_Gemstone_Q1"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Ad Set / Target Audience</label>
+                <label className="block font-semibold text-slate-300 mb-1">Ad Set / Target Audience</label>
                 <input
                   type="text"
                   value={adSetName}
                   onChange={e => setAdSetName(e.target.value)}
                   placeholder="e.g. Audience_Bangalore_Professionals"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Ad Creative / Reel Name</label>
+                <label className="block font-semibold text-slate-300 mb-1">Ad Creative / Reel Name</label>
                 <input
                   type="text"
                   value={adName}
                   onChange={e => setAdName(e.target.value)}
                   placeholder="e.g. Ad_Pukhraj_YellowSapphire_Video"
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: Consultation Service & Requirement */}
-          <div className="pt-2 border-t border-slate-800">
-            <div className="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider mb-2">
+          <div className="pt-3 border-t border-red-950/80">
+            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-2 font-['Outfit',sans-serif]">
               3. Astrological Interest & Client Requirement
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Service Interested</label>
+                <label className="block font-semibold text-slate-300 mb-1">Service Interested</label>
                 <select
                   value={serviceInterested}
                   onChange={e => setServiceInterested(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 >
                   {customServices.map(srv => (
                     <option key={srv} value={srv}>
@@ -334,11 +334,11 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Assigned Astrologer / Staff</label>
+                <label className="block font-semibold text-slate-300 mb-1">Assigned Astrologer / Staff</label>
                 <select
                   value={assignedTo}
                   onChange={e => setAssignedTo(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 >
                   {staffUsers.length > 0 ? (
                     staffUsers.map(u => (
@@ -358,29 +358,29 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-slate-300 mb-1">Requirement / First Enquiry Notes</label>
+              <label className="block font-semibold text-slate-300 mb-1">Requirement / First Enquiry Notes</label>
               <textarea
                 rows={2}
                 value={requirement}
                 onChange={e => setRequirement(e.target.value)}
                 placeholder="e.g. Inquiring for Ceylon Yellow Sapphire (Pukhraj) 5.25 Ratti for Jupiter enhancement. Birth: 12-Aug-1991, 06:45 AM, Bangalore."
-                className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-[#16050b] border border-red-950/80 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 resize-none shadow-inner"
               />
             </div>
           </div>
 
           {/* Section 4: Pipeline Status & Follow-up */}
-          <div className="pt-2 border-t border-slate-800">
-            <div className="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider mb-2">
+          <div className="pt-3 border-t border-red-950/80">
+            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-2 font-['Outfit',sans-serif]">
               4. Pipeline Status & Next Follow-up
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Lead Stage</label>
+                <label className="block font-semibold text-slate-300 mb-1">Lead Stage</label>
                 <select
                   value={leadStatus}
                   onChange={e => setLeadStatus(e.target.value as any)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 >
                   <option value="NEW">New Lead</option>
                   <option value="CONTACTED">Contacted</option>
@@ -396,11 +396,11 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Priority</label>
+                <label className="block font-semibold text-slate-300 mb-1">Priority</label>
                 <select
                   value={priority}
                   onChange={e => setPriority(e.target.value as any)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -410,50 +410,50 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Next Follow-up Date</label>
+                <label className="block font-semibold text-slate-300 mb-1">Next Follow-up Date</label>
                 <input
                   type="date"
                   value={nextFollowupDate}
                   onChange={e => setNextFollowupDate(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
 
               <div>
-                <label className="block font-medium text-slate-300 mb-1">Time</label>
+                <label className="block font-semibold text-slate-300 mb-1">Time</label>
                 <input
                   type="time"
                   value={nextFollowupTime}
                   onChange={e => setNextFollowupTime(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
 
             <div className="mt-3">
-              <label className="block font-medium text-slate-300 mb-1">Tags (Comma-separated)</label>
+              <label className="block font-semibold text-slate-300 mb-1">Tags (Comma-separated)</label>
               <input
                 type="text"
                 value={tagsInput}
                 onChange={e => setTagsInput(e.target.value)}
                 placeholder="e.g. Meta Click-to-WA, High Value, Pukhraj Inquiry"
-                className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-[#16050b] border border-red-950/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-red-950/80 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition text-xs font-medium"
+              className="px-4 py-2 bg-[#1c060e] hover:bg-[#280814] text-slate-300 hover:text-white border border-red-950 rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-900/30 flex items-center gap-2 transition"
+              className="px-5 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold rounded-xl text-xs shadow-md flex items-center gap-2 transition cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               {isEditing ? 'Save Lead Changes' : 'Create & Assign Lead'}

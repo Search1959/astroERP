@@ -182,15 +182,15 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Banner Notice */}
       {notice && (
-        <div className="p-4 rounded-xl bg-emerald-950/90 border border-emerald-700 text-emerald-200 text-xs font-semibold flex items-center justify-between shadow-lg animate-in fade-in">
+        <div className="p-4 rounded-xl bg-[#1c060e] border border-orange-500/50 text-orange-200 text-xs font-semibold flex items-center justify-between shadow-lg animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-orange-400" />
             <span>{notice}</span>
           </div>
-          <button onClick={() => setNotice(null)} className="text-emerald-400 hover:text-white">
+          <button onClick={() => setNotice(null)} className="text-orange-400 hover:text-white cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -200,10 +200,10 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-amber-500" />
-            <h2 className="text-xl font-extrabold text-slate-900">System Admin Command & Tenant Console</h2>
+            <ShieldCheck className="w-6 h-6 text-orange-400" />
+            <h2 className="text-xl font-bold text-white font-['Outfit',sans-serif]">System Admin Command & Tenant Console</h2>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5">
             Manage all tenant astrologer credentials, fresh zero-data workspaces, and ₹200/month recurring subscription billing ledger.
           </p>
         </div>
@@ -212,7 +212,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           <button
             type="button"
             onClick={() => setIsNewUserModalOpen(true)}
-            className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Tenant Account</span>
@@ -222,66 +222,66 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
 
       {/* 4 Metrics Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-indigo-600" />
+        <div className="p-4 rounded-2xl bg-[#0e0307]/90 border border-red-950/80 shadow-sm space-y-1">
+          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-orange-400" />
             <span>Total Tenant Accounts</span>
           </span>
-          <div className="text-2xl font-extrabold text-slate-900">{totalAccounts}</div>
-          <span className="text-[10px] text-indigo-600 font-medium">All registered practitioners & clinics</span>
+          <div className="text-2xl font-bold text-white font-['Cinzel',serif]">{totalAccounts}</div>
+          <span className="text-[10px] text-orange-300 font-medium">All registered practitioners & clinics</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-            <DollarSign className="w-4 h-4 text-emerald-600" />
+        <div className="p-4 rounded-2xl bg-[#0e0307]/90 border border-red-950/80 shadow-sm space-y-1">
+          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+            <DollarSign className="w-4 h-4 text-orange-400" />
             <span>Monthly Recurring Billing (MRR)</span>
           </span>
-          <div className="text-2xl font-extrabold text-emerald-700">
+          <div className="text-2xl font-bold text-orange-400 font-['Cinzel',serif]">
             {currencySymbol}
             {monthlyRecurringRevenue.toLocaleString()}
           </div>
-          <span className="text-[10px] text-emerald-600 font-medium">Standard ₹200.00 / account / month</span>
+          <span className="text-[10px] text-orange-300/80 font-medium">Standard ₹200.00 / account / month</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-            <CreditCard className="w-4 h-4 text-amber-600" />
+        <div className="p-4 rounded-2xl bg-[#0e0307]/90 border border-red-950/80 shadow-sm space-y-1">
+          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+            <CreditCard className="w-4 h-4 text-orange-400" />
             <span>Lifetime Subscriptions Collected</span>
           </span>
-          <div className="text-2xl font-extrabold text-amber-700">
+          <div className="text-2xl font-bold text-white font-['Cinzel',serif]">
             {currencySymbol}
             {totalLifetimeBilling.toLocaleString()}
           </div>
-          <span className="text-[10px] text-amber-600 font-medium">Recorded subscription invoices</span>
+          <span className="text-[10px] text-orange-300/80 font-medium">Recorded subscription invoices</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-purple-600" />
+        <div className="p-4 rounded-2xl bg-[#0e0307]/90 border border-red-950/80 shadow-sm space-y-1">
+          <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+            <Zap className="w-4 h-4 text-orange-400" />
             <span>Active Paid Subscriptions</span>
           </span>
-          <div className="text-2xl font-extrabold text-purple-700">
+          <div className="text-2xl font-bold text-orange-400 font-['Cinzel',serif]">
             {activeSubscribedUsers.length} / {totalAccounts}
           </div>
-          <span className="text-[10px] text-purple-600 font-medium">100% cloud automated synchronization</span>
+          <span className="text-[10px] text-orange-300/80 font-medium">100% cloud automated synchronization</span>
         </div>
       </div>
 
       {/* Main 2-Tab Navigation */}
-      <div className="flex border-b border-slate-200 gap-4">
+      <div className="flex border-b border-red-950/80 gap-4">
         <button
           type="button"
           id="admin-tab-accounts"
           onClick={() => setActiveTab('accounts')}
           className={`pb-3 font-bold text-sm flex items-center gap-2 border-b-2 transition cursor-pointer ${
             activeTab === 'accounts'
-              ? 'border-indigo-600 text-indigo-700'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              ? 'border-orange-500 text-orange-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <Users className="w-4 h-4" />
           <span>All Registered Accounts & Credentials</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[#250813] text-orange-300 border border-orange-500/30 font-bold">
             {users.length}
           </span>
         </button>
@@ -292,13 +292,13 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           onClick={() => setActiveTab('billing')}
           className={`pb-3 font-bold text-sm flex items-center gap-2 border-b-2 transition cursor-pointer ${
             activeTab === 'billing'
-              ? 'border-emerald-600 text-emerald-700'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              ? 'border-orange-500 text-orange-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <DollarSign className="w-4 h-4" />
           <span>Monthly Subscriptions & Billing Ledger (₹200/mo)</span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[#250813] text-orange-300 border border-orange-500/30 font-bold">
             {subscriptionRecords.length}
           </span>
         </button>
@@ -310,15 +310,15 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {activeTab === 'accounts' && (
         <div className="space-y-4">
           {/* Search and Filters Bar */}
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="p-4 bg-[#0e0307]/90 rounded-2xl border border-red-950/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
             <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-orange-400/70" />
               <input
                 type="text"
                 placeholder="Search by name, company, email, username..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full pl-9 pr-4 py-2 bg-[#14050a] border border-red-950/80 rounded-xl text-xs text-white focus:bg-[#1a070e] focus:ring-1 focus:ring-orange-500 outline-none"
               />
             </div>
 
@@ -326,7 +326,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               <select
                 value={roleFilter}
                 onChange={e => setRoleFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none"
+                className="px-3 py-2 bg-[#14050a] border border-red-950/80 rounded-xl text-xs text-slate-200 outline-none"
               >
                 <option value="all">All Roles</option>
                 <option value="super_admin">Super Admin</option>
@@ -338,7 +338,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 outline-none"
+                className="px-3 py-2 bg-[#14050a] border border-red-950/80 rounded-xl text-xs text-slate-200 outline-none"
               >
                 <option value="all">All Statuses</option>
                 <option value="active">Active</option>
@@ -349,10 +349,10 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           </div>
 
           {/* Accounts Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="bg-[#0e0307]/90 rounded-2xl border border-red-950/80 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase tracking-wider text-[10px]">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-[#14050a] border-b border-red-950/80 font-bold text-orange-200 uppercase tracking-wider text-[10px] font-['Outfit',sans-serif]">
                   <tr>
                     <th className="py-3.5 px-4">User ID & Astrologer</th>
                     <th className="py-3.5 px-4">Company / Organization</th>
@@ -363,7 +363,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                     <th className="py-3.5 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-red-950/50">
                   {filteredUsers.map(user => {
                     const isVisible = visiblePasswords[user.id];
                     const rawPassword = user.password || '••••••••';
@@ -372,25 +372,25 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                     const salesCount = salesCountMap[user.id] ?? (user.role === 'super_admin' || user.role === 'demo_user' ? 6 : 0);
 
                     return (
-                      <tr key={user.id} className="hover:bg-slate-50/80 transition">
+                      <tr key={user.id} className="hover:bg-[#1a070e]/60 transition">
                         {/* User ID & Astrologer */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center font-bold text-indigo-700 text-xs shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-[#250813] border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-xs shrink-0 font-['Cinzel',serif]">
                               {user.name.charAt(0)}
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                              <div className="font-bold text-white text-xs flex items-center gap-1.5 font-['Outfit',sans-serif]">
                                 <span>{user.name}</span>
                                 {user.role === 'super_admin' && (
-                                  <span className="text-[9px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.2 rounded border border-amber-300">
+                                  <span className="text-[9px] bg-gradient-to-r from-red-600 to-orange-500 text-white font-extrabold px-1.5 py-0.2 rounded shadow-2xs">
                                     ADMIN
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+                              <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                                 <span>ID:</span>
-                                <span className="font-bold text-indigo-700">{user.username || user.id}</span>
+                                <span className="font-bold text-orange-400">{user.username || user.id}</span>
                               </div>
                             </div>
                           </div>
@@ -398,13 +398,13 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
 
                         {/* Company */}
                         <td className="py-3.5 px-4">
-                          <div className="font-semibold text-slate-800">{user.companyName || 'Private Practice'}</div>
+                          <div className="font-semibold text-white">{user.companyName || 'Private Practice'}</div>
                           <div className="text-[10px] text-slate-400">{user.specialty || 'Vedic Astrology'}</div>
                         </td>
 
                         {/* Email & Phone */}
                         <td className="py-3.5 px-4">
-                          <div className="text-slate-800 font-mono">{user.email}</div>
+                          <div className="text-slate-200 font-mono">{user.email}</div>
                           <div className="text-[10px] text-slate-400">{user.phone || 'No phone entered'}</div>
                         </td>
 
@@ -414,12 +414,12 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <span
                               className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                                 user.role === 'super_admin'
-                                  ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                  ? 'bg-[#250813] text-orange-300 border border-orange-500/40'
                                   : user.role === 'astrologer'
-                                  ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                                  ? 'bg-[#1c060e] text-orange-200 border border-red-900'
                                   : user.role === 'demo_user'
-                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                  ? 'bg-amber-950/80 text-amber-300 border border-amber-800'
+                                  : 'bg-[#14050a] text-slate-400 border border-red-950'
                               }`}
                             >
                               {user.role}
@@ -427,12 +427,12 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <div>
                               <span
                                 className={`text-[10px] font-semibold flex items-center gap-1 ${
-                                  (user.status || 'active') === 'active' ? 'text-emerald-600' : 'text-rose-600'
+                                  (user.status || 'active') === 'active' ? 'text-orange-400' : 'text-rose-400'
                                 }`}
                               >
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    (user.status || 'active') === 'active' ? 'bg-emerald-500' : 'bg-rose-500'
+                                    (user.status || 'active') === 'active' ? 'bg-orange-500' : 'bg-rose-500'
                                   }`}
                                 />
                                 {user.status || 'active'}
@@ -444,13 +444,13 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                         {/* Password */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-slate-700 text-xs px-2 py-1 bg-slate-100 rounded-md border border-slate-200">
+                            <span className="font-mono text-slate-200 text-xs px-2 py-1 bg-[#14050a] rounded-md border border-red-950/80">
                               {isVisible ? rawPassword : '••••••••'}
                             </span>
                             <button
                               type="button"
                               onClick={() => togglePasswordVisibility(user.id)}
-                              className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                              className="p-1 text-slate-400 hover:text-orange-400 transition cursor-pointer"
                               title={isVisible ? 'Hide Password' : 'Show Password'}
                             >
                               {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -458,11 +458,11 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <button
                               type="button"
                               onClick={() => copyToClipboard(user.password || '', user.id)}
-                              className="p-1 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                              className="p-1 text-slate-400 hover:text-orange-400 transition cursor-pointer"
                               title="Copy password"
                             >
                               {copiedId === user.id ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <Check className="w-3.5 h-3.5 text-orange-400" />
                               ) : (
                                 <Copy className="w-3.5 h-3.5" />
                               )}
@@ -473,14 +473,14 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                         {/* Workspace Data Metrics */}
                         <td className="py-3.5 px-4">
                           <div className="text-[10px] space-y-0.5">
-                            <div className="text-slate-600">
-                              Clients: <strong className="text-indigo-700">{clientsCount}</strong>
+                            <div className="text-slate-400">
+                              Clients: <strong className="text-white">{clientsCount}</strong>
                             </div>
-                            <div className="text-slate-600">
-                              Vault Stones: <strong className="text-amber-700">{stonesCount}</strong>
+                            <div className="text-slate-400">
+                              Vault Stones: <strong className="text-orange-400">{stonesCount}</strong>
                             </div>
-                            <div className="text-slate-600">
-                              Invoices: <strong className="text-emerald-700">{salesCount}</strong>
+                            <div className="text-slate-400">
+                              Invoices: <strong className="text-white">{salesCount}</strong>
                             </div>
                           </div>
                         </td>
@@ -492,7 +492,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <button
                               type="button"
                               onClick={() => setViewingUser(user)}
-                              className="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 transition cursor-pointer"
+                              className="p-1.5 bg-[#1c060e] hover:bg-[#280914] text-orange-300 rounded-lg border border-red-900 transition cursor-pointer"
                               title="View Account Dossier"
                             >
                               <Eye className="w-3.5 h-3.5" />
@@ -502,7 +502,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <button
                               type="button"
                               onClick={() => setEditingUser({ ...user })}
-                              className="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg border border-amber-200 transition cursor-pointer"
+                              className="p-1.5 bg-[#250813] hover:bg-[#340c1c] text-orange-300 rounded-lg border border-orange-500/30 transition cursor-pointer"
                               title="Edit Credentials & Details"
                             >
                               <Edit className="w-3.5 h-3.5" />
@@ -512,7 +512,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             <button
                               type="button"
                               onClick={() => setDeletingUser(user)}
-                              className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition cursor-pointer"
+                              className="p-1.5 bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 rounded-lg border border-rose-800/40 transition cursor-pointer"
                               title="Delete Account"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -525,7 +525,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
 
                   {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-slate-400">
+                      <td colSpan={7} className="py-8 text-center text-slate-500">
                         No user accounts match the search criteria.
                       </td>
                     </tr>
@@ -543,10 +543,10 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {activeTab === 'billing' && (
         <div className="space-y-4">
           {/* Header Action Bar */}
-          <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="p-4 bg-[#0e0307]/90 rounded-2xl border border-red-950/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
             <div>
-              <h3 className="font-bold text-sm text-slate-900">Tenant Subscription Licensing (₹200.00 / month)</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="font-bold text-sm text-white font-['Outfit',sans-serif]">Tenant Subscription Licensing (₹200.00 / month)</h3>
+              <p className="text-xs text-slate-400">
                 Click '+ Add ₹200 Monthly Fee' to record billing cycle charges and renew astrologer licenses.
               </p>
             </div>
@@ -554,7 +554,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
             <button
               type="button"
               onClick={onBatchAddMonthlyBilling}
-              className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
             >
               <Zap className="w-4 h-4" />
               <span>Batch Add ₹200 Monthly Fee to All Active Accounts</span>
@@ -562,17 +562,17 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           </div>
 
           {/* Active Tenant Accounts Billing Status Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <span className="font-bold text-xs text-slate-700 uppercase tracking-wider">
+          <div className="bg-[#0e0307]/90 rounded-2xl border border-red-950/80 overflow-hidden shadow-sm">
+            <div className="p-4 bg-[#14050a] border-b border-red-950/80 flex items-center justify-between">
+              <span className="font-bold text-xs text-orange-200 uppercase tracking-wider font-['Outfit',sans-serif]">
                 Tenant Accounts Subscription Schedule
               </span>
-              <span className="text-xs text-slate-500">Fixed Rate: ₹200.00 INR / mo</span>
+              <span className="text-xs text-slate-400">Fixed Rate: ₹200.00 INR / mo</span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase tracking-wider text-[10px]">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-[#14050a] border-b border-red-950/80 font-bold text-orange-200 uppercase tracking-wider text-[10px] font-['Outfit',sans-serif]">
                   <tr>
                     <th className="py-3 px-4">Tenant / Astrologer</th>
                     <th className="py-3 px-4">Company</th>
@@ -583,7 +583,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                     <th className="py-3 px-4 text-right">Instant Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-red-950/50">
                   {users.map(user => {
                     const fee = user.monthlyFee || 200;
                     const status = user.subscriptionStatus || 'active_paid';
@@ -592,18 +592,18 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                     const totalBilled = user.totalBilled || fee;
 
                     return (
-                      <tr key={user.id} className="hover:bg-slate-50/80 transition">
+                      <tr key={user.id} className="hover:bg-[#1a070e]/60 transition">
                         <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">{user.name}</div>
+                          <div className="font-bold text-white font-['Outfit',sans-serif]">{user.name}</div>
                           <div className="text-[10px] text-slate-400 font-mono">{user.email}</div>
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <div className="font-medium text-slate-800">{user.companyName || 'Astrology Studio'}</div>
+                          <div className="font-medium text-slate-200">{user.companyName || 'Astrology Studio'}</div>
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <span className="font-extrabold text-emerald-700 text-sm">
+                          <span className="font-bold text-orange-400 text-sm font-['Cinzel',serif]">
                             {currencySymbol}
                             {fee.toLocaleString('en-IN')}.00
                           </span>
@@ -614,10 +614,10 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                           <span
                             className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                               status === 'active_paid'
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                ? 'bg-[#1c060e] text-orange-300 border border-orange-500/40'
                                 : status === 'trial'
-                                ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                                : 'bg-amber-100 text-amber-800 border border-amber-200'
+                                ? 'bg-[#250813] text-orange-200 border border-red-900'
+                                : 'bg-amber-950/80 text-amber-300 border border-amber-800'
                             }`}
                           >
                             {status === 'active_paid' ? 'Active Paid' : status}
@@ -625,16 +625,16 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <div className="text-[11px] text-slate-600">
-                            Last: <span className="font-mono font-semibold">{lastDate}</span>
+                          <div className="text-[11px] text-slate-300">
+                            Last: <span className="font-mono font-semibold text-white">{lastDate}</span>
                           </div>
-                          <div className="text-[11px] text-slate-600">
-                            Next Due: <span className="font-mono font-semibold text-indigo-600">{nextDate}</span>
+                          <div className="text-[11px] text-slate-300">
+                            Next Due: <span className="font-mono font-semibold text-orange-400">{nextDate}</span>
                           </div>
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-slate-900 font-mono">
+                          <span className="font-bold text-orange-400 font-['Cinzel',serif]">
                             {currencySymbol}
                             {totalBilled.toLocaleString('en-IN')}
                           </span>
@@ -648,9 +648,9 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                               onAddMonthlyBilling(user.id, 200);
                               showNotice(`Recorded ₹200 monthly subscription fee for ${user.name}.`);
                             }}
-                            className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5 ml-auto cursor-pointer"
+                            className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5 ml-auto cursor-pointer"
                           >
-                            <Plus className="w-3.5 h-3.5 text-emerald-600" />
+                            <Plus className="w-3.5 h-3.5 text-white" />
                             <span>+ Add ₹200 Monthly Fee</span>
                           </button>
                         </td>
@@ -663,17 +663,17 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
           </div>
 
           {/* Historical Subscription Invoices Ledger */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-              <span className="font-bold text-xs text-slate-700 uppercase tracking-wider">
+          <div className="bg-[#0e0307]/90 rounded-2xl border border-red-950/80 overflow-hidden shadow-sm">
+            <div className="p-4 bg-[#14050a] border-b border-red-950/80 flex items-center justify-between">
+              <span className="font-bold text-xs text-orange-200 uppercase tracking-wider font-['Outfit',sans-serif]">
                 Historical Subscription Invoices Ledger
               </span>
-              <span className="text-xs text-slate-500 font-mono">Auto-refreshed</span>
+              <span className="text-xs text-slate-400 font-mono">Auto-refreshed</span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase tracking-wider text-[10px]">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-[#14050a] border-b border-red-950/80 font-bold text-orange-200 uppercase tracking-wider text-[10px] font-['Outfit',sans-serif]">
                   <tr>
                     <th className="py-3 px-4">Invoice #</th>
                     <th className="py-3 px-4">Account & Company</th>
@@ -684,25 +684,25 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                     <th className="py-3 px-4 text-right">Toggle Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-red-950/50">
                   {subscriptionRecords.map(record => (
-                    <tr key={record.id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3 px-4 font-mono font-bold text-indigo-700">{record.invoiceNumber}</td>
+                    <tr key={record.id} className="hover:bg-[#1a070e]/60 transition">
+                      <td className="py-3 px-4 font-mono font-bold text-orange-400">{record.invoiceNumber}</td>
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900">{record.accountName}</div>
+                        <div className="font-bold text-white font-['Outfit',sans-serif]">{record.accountName}</div>
                         <div className="text-[10px] text-slate-400">{record.companyName}</div>
                       </td>
-                      <td className="py-3 px-4 text-slate-600 text-[11px]">{record.description}</td>
-                      <td className="py-3 px-4 font-extrabold text-emerald-700 text-sm">
+                      <td className="py-3 px-4 text-slate-300 text-[11px]">{record.description}</td>
+                      <td className="py-3 px-4 font-bold text-orange-400 text-sm font-['Cinzel',serif]">
                         ₹{record.amount.toLocaleString('en-IN')}.00
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">{record.billingDate}</td>
+                      <td className="py-3 px-4 font-mono text-slate-400 text-[11px]">{record.billingDate}</td>
                       <td className="py-3 px-4">
                         <span
                           className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                             record.status === 'paid'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                              : 'bg-amber-100 text-amber-800 border border-amber-200'
+                              ? 'bg-[#1c060e] text-orange-300 border border-orange-500/40'
+                              : 'bg-amber-950/80 text-amber-300 border border-amber-800'
                           }`}
                         >
                           {record.status}
@@ -716,7 +716,7 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
                             onToggleSubscriptionPayment(record.id, next);
                             showNotice(`Invoice ${record.invoiceNumber} status changed to ${next}.`);
                           }}
-                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-semibold border border-slate-300 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-[#14050a] hover:bg-[#200812] text-slate-200 rounded-lg text-[10px] font-semibold border border-red-900 transition cursor-pointer"
                         >
                           Mark {record.status === 'paid' ? 'Pending' : 'Paid'}
                         </button>
@@ -734,65 +734,65 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {/* MODAL: VIEW ACCOUNT DOSSIER                                               */}
       {/* ========================================================================= */}
       {viewingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl text-slate-800 animate-in fade-in">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#0e0307] border border-red-900/80 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl text-white animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-red-950 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center font-bold text-indigo-700 text-sm">
+                <div className="w-10 h-10 rounded-xl bg-[#250813] border border-orange-500/30 flex items-center justify-center font-bold text-orange-400 text-sm font-['Cinzel',serif]">
                   {viewingUser.name.charAt(0)}
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-slate-900">{viewingUser.name}</h3>
-                  <p className="text-xs text-slate-500 font-mono">User ID: {viewingUser.username || viewingUser.id}</p>
+                  <h3 className="font-bold text-base text-white font-['Outfit',sans-serif]">{viewingUser.name}</h3>
+                  <p className="text-xs text-slate-400 font-mono">User ID: {viewingUser.username || viewingUser.id}</p>
                 </div>
               </div>
               <button
                 onClick={() => setViewingUser(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                className="p-1 text-slate-400 hover:text-white rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                 <span className="text-slate-400 block">Company / Clinic</span>
-                <span className="font-bold text-slate-900 text-sm">{viewingUser.companyName || 'Not specified'}</span>
+                <span className="font-bold text-white text-sm">{viewingUser.companyName || 'Not specified'}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                   <span className="text-slate-400 block">Email Address</span>
-                  <span className="font-semibold text-slate-800 font-mono">{viewingUser.email}</span>
+                  <span className="font-semibold text-slate-200 font-mono">{viewingUser.email}</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                   <span className="text-slate-400 block">Phone / WhatsApp</span>
-                  <span className="font-semibold text-slate-800">{viewingUser.phone || 'N/A'}</span>
+                  <span className="font-semibold text-slate-200">{viewingUser.phone || 'N/A'}</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                 <span className="text-slate-400 block">Astrological Specialization</span>
-                <span className="font-semibold text-slate-800">{viewingUser.specialty || 'Vedic Astrology'}</span>
+                <span className="font-semibold text-slate-200">{viewingUser.specialty || 'Vedic Astrology'}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                   <span className="text-slate-400 block">Monthly Fee</span>
-                  <span className="font-bold text-emerald-700 text-sm">${viewingUser.monthlyFee || 200}/mo</span>
+                  <span className="font-bold text-orange-400 text-sm font-['Cinzel',serif]">${viewingUser.monthlyFee || 200}/mo</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                <div className="p-3 bg-[#14050a] rounded-xl border border-red-950 space-y-1">
                   <span className="text-slate-400 block">Account Password</span>
-                  <span className="font-mono font-bold text-slate-900">{viewingUser.password || '••••••••'}</span>
+                  <span className="font-mono font-bold text-white">{viewingUser.password || '••••••••'}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 flex justify-end">
+            <div className="pt-2 border-t border-red-950 flex justify-end">
               <button
                 type="button"
                 onClick={() => setViewingUser(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl"
+                className="px-4 py-2 bg-[#1c060e] hover:bg-[#280914] border border-red-900 text-white font-semibold text-xs rounded-xl cursor-pointer"
               >
                 Close
               </button>
@@ -805,20 +805,20 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {/* MODAL: EDIT ACCOUNT CREDENTIALS & ROLE                                    */}
       {/* ========================================================================= */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
           <form
             onSubmit={handleSaveEditUser}
-            className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-slate-800 animate-in fade-in"
+            className="bg-[#0e0307] border border-red-900/80 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-white animate-in fade-in"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-red-950 pb-3">
               <div className="flex items-center gap-2">
-                <Edit className="w-5 h-5 text-amber-600" />
-                <h3 className="font-bold text-base text-slate-900">Edit Account & Credentials</h3>
+                <Edit className="w-5 h-5 text-orange-400" />
+                <h3 className="font-bold text-base text-white font-['Outfit',sans-serif]">Edit Account & Credentials</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                className="p-1 text-slate-400 hover:text-white rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -826,84 +826,84 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="space-y-1 sm:col-span-2">
-                <label className="font-semibold text-slate-700">Company / Clinic Name</label>
+                <label className="font-semibold text-slate-300">Company / Clinic Name</label>
                 <input
                   type="text"
                   value={editingUser.companyName || ''}
                   onChange={e => setEditingUser({ ...editingUser, companyName: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Astrologer / Owner Name *</label>
+                <label className="font-semibold text-slate-300">Astrologer / Owner Name *</label>
                 <input
                   type="text"
                   required
                   value={editingUser.name}
                   onChange={e => setEditingUser({ ...editingUser, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">User ID / Username *</label>
+                <label className="font-semibold text-slate-300">User ID / Username *</label>
                 <input
                   type="text"
                   required
                   value={editingUser.username || ''}
                   onChange={e => setEditingUser({ ...editingUser, username: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs font-mono text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Email Address *</label>
+                <label className="font-semibold text-slate-300">Email Address *</label>
                 <input
                   type="email"
                   required
                   value={editingUser.email}
                   onChange={e => setEditingUser({ ...editingUser, email: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Phone</label>
+                <label className="font-semibold text-slate-300">Phone</label>
                 <input
                   type="text"
                   value={editingUser.phone || ''}
                   onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Password</label>
+                <label className="font-semibold text-slate-300">Password</label>
                 <input
                   type="text"
                   value={editingUser.password || ''}
                   onChange={e => setEditingUser({ ...editingUser, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs font-mono text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Monthly Fee ($)</label>
+                <label className="font-semibold text-slate-300">Monthly Fee ($)</label>
                 <input
                   type="number"
                   value={editingUser.monthlyFee || 200}
                   onChange={e => setEditingUser({ ...editingUser, monthlyFee: parseFloat(e.target.value) || 200 })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Role</label>
+                <label className="font-semibold text-slate-300">Role</label>
                 <select
                   value={editingUser.role}
                   onChange={e => setEditingUser({ ...editingUser, role: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 >
                   <option value="astrologer">Astrologer</option>
                   <option value="staff">Staff</option>
@@ -913,11 +913,11 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Status</label>
+                <label className="font-semibold text-slate-300">Status</label>
                 <select
                   value={editingUser.status || 'active'}
                   onChange={e => setEditingUser({ ...editingUser, status: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -926,17 +926,17 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="pt-3 border-t border-red-950 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl"
+                className="px-4 py-2 bg-[#1c060e] hover:bg-[#280914] border border-red-900 text-white font-semibold text-xs rounded-xl cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md"
+                className="px-5 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
               >
                 Save Changes
               </button>
@@ -949,27 +949,27 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {/* MODAL: ADD NEW TENANT ACCOUNT                                             */}
       {/* ========================================================================= */}
       {isNewUserModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
           <form
             onSubmit={handleCreateNewUser}
-            className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-slate-800 animate-in fade-in"
+            className="bg-[#0e0307] border border-red-900/80 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-white animate-in fade-in"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-red-950 pb-3">
               <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-indigo-600" />
-                <h3 className="font-bold text-base text-slate-900">Provision New Tenant Account</h3>
+                <Plus className="w-5 h-5 text-orange-400" />
+                <h3 className="font-bold text-base text-white font-['Outfit',sans-serif]">Provision New Tenant Account</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsNewUserModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                className="p-1 text-slate-400 hover:text-white rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-[11px] text-indigo-900 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+            <div className="p-3 bg-[#250813] border border-orange-500/30 rounded-xl text-[11px] text-orange-200 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0" />
               <span>
                 New tenant accounts will receive an isolated, fresh 0-data workspace with zero initial records.
               </span>
@@ -977,81 +977,81 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="space-y-1 sm:col-span-2">
-                <label className="font-semibold text-slate-700">Company / Clinic Name *</label>
+                <label className="font-semibold text-slate-300">Company / Clinic Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Navagraha Astro Labs"
                   value={newCompanyName}
                   onChange={e => setNewCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Astrologer Name *</label>
+                <label className="font-semibold text-slate-300">Astrologer Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Acharya Ramesh"
                   value={newAstrologerName}
                   onChange={e => setNewAstrologerName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">User ID / Username *</label>
+                <label className="font-semibold text-slate-300">User ID / Username *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. ramesh_jyotish"
                   value={newUsername}
                   onChange={e => setNewUsername(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs font-mono text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Email Address *</label>
+                <label className="font-semibold text-slate-300">Email Address *</label>
                 <input
                   type="email"
                   required
                   placeholder="e.g. ramesh@astro.com"
                   value={newEmail}
                   onChange={e => setNewEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Phone</label>
+                <label className="font-semibold text-slate-300">Phone</label>
                 <input
                   type="text"
                   placeholder="e.g. +91 98000 12345"
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Password *</label>
+                <label className="font-semibold text-slate-300">Password *</label>
                 <input
                   type="text"
                   required
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs font-mono text-white"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-700">Role</label>
+                <label className="font-semibold text-slate-300">Role</label>
                 <select
                   value={newRole}
                   onChange={e => setNewRole(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-[#14050a] border border-red-950 rounded-xl text-xs text-white"
                 >
                   <option value="astrologer">Astrologer (₹200/mo)</option>
                   <option value="staff">Staff (₹200/mo)</option>
@@ -1060,17 +1060,17 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <div className="pt-3 border-t border-red-950 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setIsNewUserModalOpen(false)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl"
+                className="px-4 py-2 bg-[#1c060e] hover:bg-[#280914] border border-red-900 text-white font-semibold text-xs rounded-xl cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md"
+                className="px-5 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
               >
                 Create Account
               </button>
@@ -1083,16 +1083,16 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
       {/* MODAL: DELETE CONFIRMATION                                                */}
       {/* ========================================================================= */}
       {deletingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-slate-800 animate-in fade-in">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#0e0307] border border-red-900/80 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-white animate-in fade-in">
+            <div className="w-12 h-12 rounded-2xl bg-rose-950/60 border border-rose-800/60 flex items-center justify-center text-rose-400 mx-auto">
               <Trash2 className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-bold text-base text-slate-900">Delete Tenant Account?</h3>
-              <p className="text-xs text-slate-500">
-                Are you sure you want to delete <strong>{deletingUser.name}</strong> ({deletingUser.username || deletingUser.id})?
+              <h3 className="font-bold text-base text-white font-['Outfit',sans-serif]">Delete Tenant Account?</h3>
+              <p className="text-xs text-slate-400">
+                Are you sure you want to delete <strong className="text-white">{deletingUser.name}</strong> ({deletingUser.username || deletingUser.id})?
                 This action is irreversible and will purge all private workspace data.
               </p>
             </div>
@@ -1101,14 +1101,14 @@ export const SuperAdminConsole: React.FC<SuperAdminConsoleProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingUser(null)}
-                className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl"
+                className="py-2.5 bg-[#1c060e] hover:bg-[#280914] border border-red-900 text-white font-semibold text-xs rounded-xl cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md"
+                className="py-2.5 bg-gradient-to-r from-rose-700 to-red-600 hover:from-rose-600 hover:to-red-500 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
               >
                 Yes, Delete
               </button>

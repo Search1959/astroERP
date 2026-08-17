@@ -67,21 +67,21 @@ export const SalesList: React.FC<SalesListProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Header and Controls */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-bold text-slate-900">
+            <DollarSign className="w-5 h-5 text-orange-400" />
+            <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
               Sales Invoicing & Gemstone Billing
             </h2>
-            <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-emerald-600" />
+            <span className="text-[11px] bg-[#250813] text-orange-300 font-bold px-2 py-0.5 rounded-md border border-orange-500/30 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-orange-400" />
               Auto-Dispensing Active
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Issue authenticated gemstone invoices with GST/VAT calculations and lab certificate linkage.
           </p>
         </div>
@@ -90,25 +90,25 @@ export const SalesList: React.FC<SalesListProps> = ({
           {onOpenScanner && (
             <button
               onClick={onOpenScanner}
-              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-indigo-200 transition cursor-pointer shadow-xs"
+              className="px-3.5 py-2 bg-[#1c060e] hover:bg-[#2a0914] text-orange-200 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-orange-500/30 transition cursor-pointer shadow-xs"
             >
-              <Camera className="w-4 h-4 text-indigo-600" />
+              <Camera className="w-4 h-4 text-orange-400" />
               Scan to Invoice
             </button>
           )}
 
           <button
             onClick={exportSalesCSV}
-            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-[#14050a] hover:bg-[#1f0710] text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-red-950/80 transition cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-orange-400" />
             Export CSV
           </button>
 
           <button
             id="btn-new-sale-invoice"
             onClick={onOpenNewSaleModal}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Issue New Invoice
@@ -118,36 +118,36 @@ export const SalesList: React.FC<SalesListProps> = ({
 
       {/* Summary KPI */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Total Invoices Issued</span>
-            <div className="text-2xl font-bold text-slate-900 mt-1">{sales.length} Invoices</div>
+            <span className="text-xs text-slate-400 font-medium">Total Invoices Issued</span>
+            <div className="text-2xl font-bold text-white mt-1 font-['Cinzel',serif]">{sales.length} Invoices</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-orange-400 border border-orange-500/20">
             <FileText className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Gross Sales Revenue</span>
-            <div className="text-2xl font-bold text-emerald-700 mt-1">
+            <span className="text-xs text-slate-400 font-medium">Gross Sales Revenue</span>
+            <div className="text-2xl font-bold text-orange-400 mt-1 font-['Cinzel',serif]">
               {currencySymbol}{totalSalesRevenue.toLocaleString()}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-orange-400 border border-orange-500/20">
             <DollarSign className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Average Order Value</span>
-            <div className="text-2xl font-bold text-indigo-600 mt-1">
+            <span className="text-xs text-slate-400 font-medium">Average Order Value</span>
+            <div className="text-2xl font-bold text-white mt-1 font-['Cinzel',serif]">
               {currencySymbol}{sales.length ? Math.round(totalSalesRevenue / sales.length).toLocaleString() : '0'}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-orange-400 border border-orange-500/20">
             <ShieldCheck className="w-5 h-5" />
           </div>
         </div>
@@ -155,22 +155,22 @@ export const SalesList: React.FC<SalesListProps> = ({
 
       {/* Search Bar */}
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-orange-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Search by client name, invoice number, or stone..."
-          className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className="w-full pl-10 pr-4 py-2 bg-[#0e0307] border border-red-950/80 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:outline-none"
         />
       </div>
 
       {/* Sales Invoices Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold tracking-wider border-b border-slate-200">
+              <tr className="bg-[#14050a] text-orange-200 uppercase font-semibold tracking-wider border-b border-red-950/80 font-['Outfit',sans-serif]">
                 <th className="py-3 px-4">Invoice # & Client</th>
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Sold Gemstones / Items</th>
@@ -179,13 +179,13 @@ export const SalesList: React.FC<SalesListProps> = ({
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+            <tbody className="divide-y divide-red-950/50 font-medium text-slate-300">
               {filteredSales.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-500 space-y-2">
-                    <DollarSign className="w-8 h-8 mx-auto text-slate-400" />
-                    <p className="font-semibold text-slate-700">No sales invoices found.</p>
-                    <p className="text-xs text-slate-400">Issue an invoice manually, scan with camera, or auto-dispense from Astrological Chart recommendations.</p>
+                    <DollarSign className="w-8 h-8 mx-auto text-slate-600" />
+                    <p className="font-semibold text-slate-300">No sales invoices found.</p>
+                    <p className="text-xs text-slate-500">Issue an invoice manually, scan with camera, or auto-dispense from Astrological Chart recommendations.</p>
                   </td>
                 </tr>
               ) : (
@@ -193,15 +193,15 @@ export const SalesList: React.FC<SalesListProps> = ({
                   const isAuto = (sale.id || '').includes('auto') || (sale.notes || '').includes('AUTO');
 
                   return (
-                    <tr key={sale.id} className="hover:bg-slate-50/80 transition">
+                    <tr key={sale.id} className="hover:bg-[#1a070e]/60 transition">
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-sm">{sale.clientName}</div>
-                        <div className="text-[11px] font-mono text-indigo-600 mt-0.5 font-semibold">#{sale.invoiceNumber}</div>
+                        <div className="font-bold text-white text-sm font-['Outfit',sans-serif]">{sale.clientName}</div>
+                        <div className="text-[11px] font-mono text-orange-400 mt-0.5 font-semibold">#{sale.invoiceNumber}</div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-slate-700">
+                      <td className="py-3.5 px-4 text-slate-300">
                         <div className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <Calendar className="w-3.5 h-3.5 text-orange-400/80" />
                           {sale.saleDate}
                         </div>
                       </td>
@@ -209,10 +209,10 @@ export const SalesList: React.FC<SalesListProps> = ({
                       <td className="py-3.5 px-4">
                         <div className="space-y-1">
                           {(sale.items || []).map((item, idx) => (
-                            <div key={idx} className="text-slate-700">
-                              <span className="font-semibold text-slate-900">{item.stoneName}</span> • {item.quantity}x @ {currencySymbol}{item.unitPrice}
+                            <div key={idx} className="text-slate-300">
+                              <span className="font-semibold text-white">{item.stoneName}</span> • {item.quantity}x @ {currencySymbol}{item.unitPrice}
                               {item.certificateNumber && (
-                                <span className="text-[10px] text-slate-400 ml-1.5 font-mono">
+                                <span className="text-[10px] text-orange-300/80 ml-1.5 font-mono">
                                   [Cert: {item.certificateNumber}]
                                 </span>
                               )}
@@ -221,13 +221,13 @@ export const SalesList: React.FC<SalesListProps> = ({
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-slate-700">
+                      <td className="py-3.5 px-4 text-slate-300">
                         <div className="space-y-1">
-                          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold inline-block">
+                          <span className="px-2 py-0.5 rounded-full bg-[#1c060e] text-orange-300 border border-red-900/60 text-[10px] font-semibold inline-block">
                             {sale.paymentMethod || 'Credit Card'}
                           </span>
                           {isAuto && (
-                            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200 font-bold block w-fit">
+                            <span className="text-[10px] bg-[#250813] text-orange-300 px-2 py-0.5 rounded-md border border-orange-500/30 font-bold block w-fit">
                               ⚡ Auto-Dispensed
                             </span>
                           )}
@@ -235,10 +235,10 @@ export const SalesList: React.FC<SalesListProps> = ({
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="text-base font-bold text-emerald-700">
+                        <div className="text-base font-bold text-orange-400 font-['Cinzel',serif]">
                           {currencySymbol}{(sale.grandTotal || 0).toLocaleString()}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-slate-500">
                           Tax: {currencySymbol}{sale.taxAmount || 0}
                         </div>
                       </td>
@@ -246,9 +246,9 @@ export const SalesList: React.FC<SalesListProps> = ({
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={() => setSelectedInvoiceForPrint(sale)}
-                          className="px-3 py-1.5 bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ml-auto border border-slate-200 cursor-pointer"
+                          className="px-3 py-1.5 bg-[#14050a] hover:bg-orange-500/20 text-slate-200 hover:text-orange-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ml-auto border border-red-950 cursor-pointer"
                         >
-                          <Printer className="w-3.5 h-3.5 text-indigo-600" />
+                          <Printer className="w-3.5 h-3.5 text-orange-400" />
                           Print Invoice
                         </button>
                       </td>

@@ -1,5 +1,6 @@
 /**
  * Astrological Aspects Matrix & Table Component
+ * Styled in the Executive Command Center Theme (#0e0307 background, red/orange accents, Outfit/Cinzel typography)
  */
 
 import React from 'react';
@@ -11,13 +12,14 @@ interface AspectsMatrixProps {
 
 export const AspectsMatrix: React.FC<AspectsMatrixProps> = ({ aspects }) => {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm text-slate-800">
+    <div className="bg-[#120408] border border-red-900/60 rounded-2xl p-5 sm:p-6 shadow-xl text-slate-100 font-sans">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <span className="text-indigo-600 font-bold text-base">☌</span> Major Planetary Aspects & Orbs
+        <h3 className="text-sm font-bold text-white flex items-center gap-2 font-['Outfit',sans-serif]">
+          <span className="text-orange-500 font-bold text-base">☌</span>
+          <span>Major Planetary Aspects & Orbs</span>
         </h3>
-        <span className="text-xs text-slate-500 font-medium">
-          Total Aspects Detected: {aspects.length}
+        <span className="text-xs text-orange-400 font-medium px-2 py-0.5 bg-red-950/80 border border-orange-600/40 rounded-lg">
+          Total Aspects: {aspects.length}
         </span>
       </div>
 
@@ -25,35 +27,35 @@ export const AspectsMatrix: React.FC<AspectsMatrixProps> = ({ aspects }) => {
         {aspects.map((asp, idx) => (
           <div
             key={`aspect-card-${idx}`}
-            className="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-indigo-300 transition flex items-center justify-between text-xs"
+            className="p-3.5 bg-[#16050b] border border-red-950/80 rounded-xl hover:border-orange-500/50 transition flex items-center justify-between text-xs shadow-sm"
           >
-            <div className="flex items-center gap-2">
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm ${
-                asp.nature === 'Harmonious' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                asp.nature === 'Dynamic' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
-                'bg-violet-50 text-violet-700 border border-violet-200'
+            <div className="flex items-center gap-2.5">
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                asp.nature === 'Harmonious' ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60' :
+                asp.nature === 'Dynamic' ? 'bg-rose-950/80 text-rose-300 border border-rose-800/80' :
+                'bg-orange-950/80 text-orange-300 border border-orange-700/60'
               }`}>
                 {asp.symbol}
               </span>
               <div>
-                <div className="font-semibold text-slate-900">
-                  {asp.planet1} <span className="text-slate-500 text-[10px] font-normal">{asp.aspectType}</span> {asp.planet2}
+                <div className="font-semibold text-white">
+                  {asp.planet1} <span className="text-orange-400/80 text-[10px] font-normal">{asp.aspectType}</span> {asp.planet2}
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-slate-400">
                   {asp.angle.toFixed(1)}° (Orb: {asp.orb.toFixed(1)}°)
                 </div>
               </div>
             </div>
 
             <div className="text-right">
-              <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
-                asp.nature === 'Harmonious' ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' :
-                asp.nature === 'Dynamic' ? 'text-rose-700 bg-rose-50 border border-rose-200' :
-                'text-indigo-700 bg-indigo-50 border border-indigo-200'
+              <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
+                asp.nature === 'Harmonious' ? 'text-emerald-300 bg-emerald-950/80 border border-emerald-700/60' :
+                asp.nature === 'Dynamic' ? 'text-rose-300 bg-rose-950/80 border border-rose-800/80' :
+                'text-orange-300 bg-orange-950/80 border border-orange-700/60'
               }`}>
                 {asp.nature}
               </span>
-              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
+              <div className="text-[10px] text-slate-400 mt-1 font-medium">
                 {asp.isApplying ? 'Applying' : 'Separating'}
               </div>
             </div>

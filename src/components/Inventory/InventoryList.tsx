@@ -115,21 +115,21 @@ export const InventoryList: React.FC<InventoryListProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Header and Controls */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Gem className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-bold text-slate-900">
+            <Gem className="w-5 h-5 text-orange-400" />
+            <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
               Jyotish Gemstone & Vault Inventory
             </h2>
-            <span className="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-emerald-600" />
+            <span className="text-[11px] bg-[#250813] text-orange-300 font-bold px-2 py-0.5 rounded-md border border-orange-500/30 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-orange-400" />
               Auto-Purchases Active
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Certified natural gemstones, planetary talismans, rudraksha beads, and remedial inventory.
           </p>
         </div>
@@ -138,33 +138,33 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           {onOpenScanner && (
             <button
               onClick={onOpenScanner}
-              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-indigo-200 transition cursor-pointer shadow-xs"
+              className="px-3.5 py-2 bg-[#1c060e] hover:bg-[#2a0914] text-orange-200 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-orange-500/30 transition cursor-pointer shadow-xs"
             >
-              <Camera className="w-4 h-4 text-indigo-600" />
+              <Camera className="w-4 h-4 text-orange-400" />
               Camera / Barcode Scan
             </button>
           )}
 
           <button
             onClick={onOpenCsvImportModal}
-            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-[#14050a] hover:bg-[#1f0710] text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-red-950/80 transition cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5" />
+            <Upload className="w-3.5 h-3.5 text-orange-400" />
             Import Excel (.xlsx) / CSV
           </button>
 
           <button
             onClick={exportInventoryCSV}
-            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition cursor-pointer"
+            className="px-3.5 py-2 bg-[#14050a] hover:bg-[#1f0710] text-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-red-950/80 transition cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-orange-400" />
             Export CSV
           </button>
 
           <button
             id="btn-add-stone-inventory"
             onClick={onOpenAddStoneModal}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             + Add Gemstone / Lot
@@ -174,16 +174,16 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
       {/* Low Stock Auto-Procure Callout Banner */}
       {lowStockCount > 0 && onAutoRestockAll && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-indigo-500/10 border border-amber-300/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <div className="bg-gradient-to-r from-red-950/60 via-orange-950/40 to-[#14050a] border border-orange-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-orange-500 text-white flex items-center justify-center shadow-xs">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-white flex items-center gap-1.5 font-['Outfit',sans-serif]">
                 {lowStockCount} Gemstone Lots Below Min Stock Threshold
               </h4>
-              <p className="text-[11px] text-slate-600">
+              <p className="text-[11px] text-orange-200/80">
                 Replenish all depleted items with 1 click. Zero manual data entry needed for supplier orders.
               </p>
             </div>
@@ -191,9 +191,9 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           <button
             type="button"
             onClick={onAutoRestockAll}
-            className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             ⚡ Auto-Procure & Restock All ({lowStockCount} Lots)
           </button>
         </div>
@@ -201,37 +201,37 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Total Filtered Items</span>
-            <div className="text-2xl font-bold text-slate-900 mt-1">{filteredItems.length} Lots</div>
+            <span className="text-xs text-slate-400 font-medium">Total Filtered Items</span>
+            <div className="text-2xl font-bold text-white mt-1 font-['Cinzel',serif]">{filteredItems.length} Lots</div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-orange-400 border border-orange-500/20">
             <Gem className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Vault Retail Valuation</span>
-            <div className="text-2xl font-bold text-emerald-700 mt-1">
+            <span className="text-xs text-slate-400 font-medium">Vault Retail Valuation</span>
+            <div className="text-2xl font-bold text-orange-400 mt-1 font-['Cinzel',serif]">
               {currencySymbol}{totalVaultValue.toLocaleString()}
             </div>
-            <span className="text-xs text-slate-400">Cost: {currencySymbol}{totalCostValue.toLocaleString()}</span>
+            <span className="text-xs text-slate-500">Cost: {currencySymbol}{totalCostValue.toLocaleString()}</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-orange-400 border border-orange-500/20">
             <Tag className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl p-5 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 font-medium">Depleted / Reorder Alerts</span>
-            <div className="text-2xl font-bold text-rose-600 mt-1">
+            <span className="text-xs text-slate-400 font-medium">Depleted / Reorder Alerts</span>
+            <div className="text-2xl font-bold text-red-400 mt-1 font-['Cinzel',serif]">
               {lowStockCount} Items
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
+          <div className="w-10 h-10 rounded-xl bg-[#250813] flex items-center justify-center text-red-400 border border-red-500/20">
             <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
@@ -240,14 +240,14 @@ export const InventoryList: React.FC<InventoryListProps> = ({
       {/* Filter and Search Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="relative flex-1 min-w-[280px] max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-orange-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             id="search-inventory-input"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search by SKU, Stone name, Planet, Lab Cert..."
-            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-[#0e0307] border border-red-950/80 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:outline-none"
           />
         </div>
 
@@ -256,7 +256,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            className="bg-[#0e0307] border border-red-950/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
           >
             <option value="all">All Categories</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -266,7 +266,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
           <select
             value={planetFilter}
             onChange={e => setPlanetFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            className="bg-[#0e0307] border border-red-950/80 text-slate-200 px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
           >
             <option value="all">All Astrological Planets</option>
             {planets.map(p => <option key={p} value={p}>{p}</option>)}
@@ -277,22 +277,22 @@ export const InventoryList: React.FC<InventoryListProps> = ({
             onClick={() => setShowLowStockOnly(!showLowStockOnly)}
             className={`px-3 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition cursor-pointer border ${
               showLowStockOnly
-                ? 'bg-rose-50 text-rose-700 border-rose-200'
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                ? 'bg-[#2a0914] text-orange-300 border-orange-500/40'
+                : 'bg-[#14050a] text-slate-300 border-red-950/80 hover:bg-[#1f0710]'
             }`}
           >
-            <AlertTriangle className="w-3.5 h-3.5" />
+            <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />
             Low Stock Only
           </button>
         </div>
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-[#0e0307]/90 border border-red-950/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 uppercase font-semibold tracking-wider border-b border-slate-200">
+              <tr className="bg-[#14050a] text-orange-200 uppercase font-semibold tracking-wider border-b border-red-950/80 font-['Outfit',sans-serif]">
                 <th className="py-3 px-4">SKU & Gemstone Name</th>
                 <th className="py-3 px-4">Planet & Remedy</th>
                 <th className="py-3 px-4">Weight & Origin</th>
@@ -302,13 +302,13 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+            <tbody className="divide-y divide-red-950/50 font-medium text-slate-300">
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-500 space-y-2">
-                    <Gem className="w-8 h-8 mx-auto text-slate-400" />
-                    <p className="font-semibold text-slate-700">No gemstone lots found.</p>
-                    <p className="text-xs text-slate-400">Add manually, import from Excel (.xlsx), or scan with camera.</p>
+                    <Gem className="w-8 h-8 mx-auto text-slate-600" />
+                    <p className="font-semibold text-slate-300">No gemstone lots found.</p>
+                    <p className="text-xs text-slate-500">Add manually, import from Excel (.xlsx), or scan with camera.</p>
                   </td>
                 </tr>
               ) : (
@@ -316,17 +316,17 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                   const isLow = (item.stockQuantity || 0) <= (item.minStockThreshold || 1);
 
                   return (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition">
+                    <tr key={item.id} className="hover:bg-[#1a070e]/60 transition">
                       {/* Name & SKU */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <div className="font-bold text-white text-sm flex items-center gap-2 font-['Outfit',sans-serif]">
                           <span>{item.name}</span>
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-indigo-700 border border-slate-200">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1c060e] text-orange-400 border border-red-900/60">
                             {item.sku}
                           </span>
                         </div>
                         {item.sanskritName && (
-                          <div className="text-indigo-600 text-[11px] font-serif mt-0.5">
+                          <div className="text-orange-300 text-[11px] font-serif mt-0.5">
                             {item.sanskritName} • {item.category || item.categoryName || 'Gemstone'}
                           </div>
                         )}
@@ -336,48 +336,48 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                       <td className="py-3.5 px-4">
                         {(item.associatedPlanet || item.rulingPlanet) ? (
                           <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-indigo-600" />
-                            <span className="text-slate-900 font-semibold">{item.associatedPlanet || item.rulingPlanet}</span>
+                            <span className="w-2 h-2 rounded-full bg-orange-500" />
+                            <span className="text-white font-semibold">{item.associatedPlanet || item.rulingPlanet}</span>
                           </div>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-500">—</span>
                         )}
-                        <div className="text-[10px] text-slate-500 mt-0.5">{item.color || ''}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{item.color || ''}</div>
                       </td>
 
                       {/* Weight & Origin */}
-                      <td className="py-3.5 px-4 text-slate-700">
-                        <div>{item.weightCarats ? `${item.weightCarats} Carat` : ''} {item.weightRatti ? `(${item.weightRatti} Ratti)` : ''}</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">{item.origin || 'Natural / Mine'}</div>
+                      <td className="py-3.5 px-4 text-slate-300">
+                        <div className="text-white">{item.weightCarats ? `${item.weightCarats} Carat` : ''} {item.weightRatti ? `(${item.weightRatti} Ratti)` : ''}</div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">{item.origin || 'Natural / Mine'}</div>
                       </td>
 
                       {/* Certification */}
                       <td className="py-3.5 px-4">
                         {item.isCertified || item.certificationLab ? (
                           <div className="space-y-0.5">
-                            <span className="text-emerald-700 font-bold flex items-center gap-1">
-                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-orange-300 font-bold flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
                               {item.certificationLab || 'Certified'}
                             </span>
                             {item.certificateNumber && (
-                              <span className="text-[10px] font-mono text-slate-400 block">
+                              <span className="text-[10px] font-mono text-slate-500 block">
                                 #{item.certificateNumber}
                               </span>
                             )}
                           </div>
                         ) : (
-                          <span className="text-slate-400 text-[11px]">Uncertified</span>
+                          <span className="text-slate-500 text-[11px]">Uncertified</span>
                         )}
                       </td>
 
                       {/* Stock Quantity */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
-                          <span className={`font-bold text-sm ${isLow ? 'text-rose-600' : 'text-emerald-700'}`}>
+                          <span className={`font-bold text-sm ${isLow ? 'text-red-400' : 'text-orange-300'}`}>
                             {item.stockQuantity ?? 0} in stock
                           </span>
                           {isLow && (
-                            <span className="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded border border-rose-200 font-bold">
+                            <span className="text-[10px] bg-[#2a0914] text-red-300 px-1.5 py-0.5 rounded border border-red-800 font-bold">
                               Low (Min: {item.minStockThreshold ?? 1})
                             </span>
                           )}
@@ -386,10 +386,10 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
                       {/* Price */}
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-emerald-700 text-sm">
+                        <div className="font-bold text-orange-400 text-sm font-['Cinzel',serif]">
                           {currencySymbol}{(item.sellingPrice ?? item.salePrice ?? 0).toLocaleString()}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-slate-500">
                           Cost: {currencySymbol}{(item.costPrice ?? item.purchasePrice ?? 0).toLocaleString()}
                         </div>
                       </td>
@@ -401,7 +401,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                             <button
                               onClick={() => onIssueSaleForStone(item)}
                               title="Sell / Invoice this Stone"
-                              className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold border border-emerald-200 transition cursor-pointer"
+                              className="px-2.5 py-1 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-lg text-xs font-bold shadow-xs transition cursor-pointer"
                             >
                               Sell
                             </button>
@@ -409,14 +409,14 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                           <button
                             onClick={() => onEditStone(item)}
                             title="Edit Stone"
-                            className="p-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                            className="p-1.5 bg-[#14050a] hover:bg-orange-500/20 text-slate-300 hover:text-orange-300 rounded-lg border border-red-950 transition cursor-pointer"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => onDeleteStone(item.id)}
                             title="Delete Item"
-                            className="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg border border-slate-200 transition cursor-pointer"
+                            className="p-1.5 bg-[#14050a] hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg border border-red-950 transition cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
