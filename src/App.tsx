@@ -24,6 +24,13 @@ import {
   AuditLog,
   StoreSettings,
   SubscriptionBillingRecord,
+  Lead,
+  LeadFollowup,
+  LeadActivity,
+  LeadMessage,
+  LeadSettingsData,
+  LeadStatus,
+  LeadPriority,
 } from './types';
 
 // Home Landing Page Component
@@ -41,6 +48,13 @@ import { PrintableReportModal } from './components/PublicAstrology/PrintableRepo
 import { ComprehensivePredictionsWindow } from './components/PublicAstrology/ComprehensivePredictionsWindow';
 import { LanguageSelector } from './components/Common/LanguageSelector';
 import { LanguageCode } from './utils/indianLanguages';
+
+// Lead Management & WhatsApp CRM
+import { LeadManagementModule } from './components/Leads/LeadManagementModule';
+import { LeadConvertModal } from './components/Leads/LeadConvertModal';
+
+// Mobile Android App View
+import { AndroidAppView } from './components/Mobile/AndroidAppView';
 
 // Back-Office ERP Components
 import { OverviewDashboard } from './components/Dashboard/OverviewDashboard';
@@ -97,6 +111,7 @@ import {
   X,
   Eye,
   ArrowRight,
+  Smartphone,
 } from 'lucide-react';
 import { calculateFullAstrologyChart } from './utils/ephemerisEngine';
 import {
@@ -104,11 +119,21 @@ import {
   saveLocalRecord,
   calculateDashboardStats,
   DEFAULT_SUBSCRIPTION_BILLING,
+  DEFAULT_LEAD_SETTINGS,
 } from './data/initialDemoData';
 
 export function App() {
   // Navigation: defaults to Home Landing Page
   const [activeTab, setActiveTab] = useState<string>('home');
+
+  // Android Mobile App Interface Mode (Optimized for Daily Operations)
+  const [isMobileAppMode, setIsMobileAppMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
+  const [mobileConvertLead, setMobileConvertLead] = useState<Lead | null>(null);
 
   // Application Data States
   const [chartData, setChartData] = useState<AstrologyChartData | null>(null);
@@ -125,6 +150,13 @@ export function App() {
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [subscriptions, setSubscriptions] = useState<SubscriptionBillingRecord[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>('hi');
+
+  // Lead Management & WhatsApp CRM Data States
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leadFollowups, setLeadFollowups] = useState<LeadFollowup[]>([]);
+  const [leadActivities, setLeadActivities] = useState<LeadActivity[]>([]);
+  const [leadMessages, setLeadMessages] = useState<LeadMessage[]>([]);
+  const [leadSettings, setLeadSettings] = useState<LeadSettingsData>(DEFAULT_LEAD_SETTINGS);
 
   // Modals & Selected items
   const [selectedClientForView, setSelectedClientForView] = useState<Client | null>(null);
@@ -192,7 +224,12 @@ export function App() {
     inv = inventory,
     a = appointments,
     p = purchases,
-    s = sales
+    s = sales,
+    ld = leads,
+    flw = leadFollowups,
+    act = leadActivities,
+    msg = leadMessages,
+    ls = leadSettings
   ) => {
     if (currentUser && currentUser.role !== 'super_admin' && currentUser.role !== 'demo_user') {
       try {
@@ -204,6 +241,11 @@ export function App() {
             appointments: a,
             purchases: p,
             sales: s,
+            leads: ld,
+            leadFollowups: flw,
+            leadActivities: act,
+            leadMessages: msg,
+            leadSettings: ls,
           })
         );
       } catch (e) {
@@ -220,6 +262,11 @@ export function App() {
       setAppointments(seed.appointments);
       setPurchases(seed.purchases);
       setSales(seed.sales);
+      setLeads(seed.leads || []);
+      setLeadFollowups(seed.leadFollowups || []);
+      setLeadActivities(seed.leadActivities || []);
+      setLeadMessages(seed.leadMessages || []);
+      setLeadSettings(seed.leadSettings || DEFAULT_LEAD_SETTINGS);
       refreshStats(seed.clients, seed.appointments, seed.inventory, seed.sales, auditLogs);
     } else {
       // Regular client / astrologer account (must start with 0 data unless saved)
@@ -232,11 +279,22 @@ export function App() {
           const tApts = parsed.appointments || [];
           const tPurchases = parsed.purchases || [];
           const tSales = parsed.sales || [];
+          const tLeads = parsed.leads || [];
+          const tFollowups = parsed.leadFollowups || [];
+          const tActivities = parsed.leadActivities || [];
+          const tMessages = parsed.leadMessages || [];
+          const tLeadSettings = parsed.leadSettings || DEFAULT_LEAD_SETTINGS;
+
           setClients(tClients);
           setInventory(tInv);
           setAppointments(tApts);
           setPurchases(tPurchases);
           setSales(tSales);
+          setLeads(tLeads);
+          setLeadFollowups(tFollowups);
+          setLeadActivities(tActivities);
+          setLeadMessages(tMessages);
+          setLeadSettings(tLeadSettings);
           refreshStats(tClients, tApts, tInv, tSales, auditLogs);
         } else {
           // Zero-data state for fresh account
@@ -245,6 +303,11 @@ export function App() {
           setAppointments([]);
           setPurchases([]);
           setSales([]);
+          setLeads([]);
+          setLeadFollowups([]);
+          setLeadActivities([]);
+          setLeadMessages([]);
+          setLeadSettings(DEFAULT_LEAD_SETTINGS);
           refreshStats([], [], [], [], auditLogs);
         }
       } catch (e) {
@@ -253,6 +316,11 @@ export function App() {
         setAppointments([]);
         setPurchases([]);
         setSales([]);
+        setLeads([]);
+        setLeadFollowups([]);
+        setLeadActivities([]);
+        setLeadMessages([]);
+        setLeadSettings(DEFAULT_LEAD_SETTINGS);
         refreshStats([], [], [], [], auditLogs);
       }
     }
@@ -850,6 +918,719 @@ export function App() {
     }
   };
 
+  // =========================================================================
+  // Lead Management & WhatsApp CRM Handlers
+  // =========================================================================
+  const handleSaveLead = (leadData: Partial<Lead>) => {
+    try {
+      let updatedLeads: Lead[] = [];
+      let savedLead: Lead;
+
+      if (leadData.id && leads.some(l => l.id === leadData.id)) {
+        savedLead = {
+          ...leads.find(l => l.id === leadData.id)!,
+          ...leadData,
+          updated_at: new Date().toISOString(),
+        };
+        updatedLeads = leads.map(l => (l.id === leadData.id ? savedLead : l));
+
+        const newAct: LeadActivity = {
+          id: 'act_' + Date.now(),
+          lead_id: savedLead.id,
+          activity_type: 'lead_updated',
+          title: 'Lead Profile Updated',
+          description: `Updated details for ${savedLead.name || 'Lead'}.`,
+          user_id: currentUser?.id || 'usr_1',
+          user_name: currentUser?.name || 'System',
+          created_at: new Date().toISOString(),
+        };
+        const updatedActs = [newAct, ...leadActivities];
+        setLeadActivities(updatedActs);
+        saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+      } else {
+        const leadId = leadData.id || 'lead_' + Date.now();
+        savedLead = {
+          id: leadId,
+          name: leadData.name || 'New Lead',
+          phone: leadData.phone || '',
+          email: leadData.email || '',
+          city: leadData.city || '',
+          service_interested: leadData.service_interested || 'Kundli Analysis & Horoscope',
+          notes: leadData.notes || '',
+          source: leadData.source || 'Manual Entry',
+          campaign_name: leadData.campaign_name || '',
+          ad_name: leadData.ad_name || '',
+          lead_status: leadData.lead_status || 'NEW',
+          priority: leadData.priority || 'MEDIUM',
+          assigned_to_id: leadData.assigned_to_id || currentUser?.id,
+          assigned_to_name: leadData.assigned_to_name || currentUser?.name,
+          tags: leadData.tags || ['Direct Enquiry'],
+          total_touchpoints: 1,
+          unread_messages_count: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        updatedLeads = [savedLead, ...leads];
+
+        const newAct: LeadActivity = {
+          id: 'act_' + Date.now(),
+          lead_id: savedLead.id,
+          activity_type: 'lead_created',
+          title: 'Lead Created',
+          description: `Created new lead record via ${savedLead.source}.`,
+          user_id: currentUser?.id || 'usr_1',
+          user_name: currentUser?.name || 'System',
+          created_at: new Date().toISOString(),
+        };
+        const updatedActs = [newAct, ...leadActivities];
+        setLeadActivities(updatedActs);
+        saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+      }
+
+      setLeads(updatedLeads);
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      showAutomationNotice(
+        'Lead Record Saved',
+        `${savedLead.name} (${savedLead.phone}) saved in pipeline.`
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUpdateLeadStatus = (leadId: string, newStatus: LeadStatus) => {
+    try {
+      const target = leads.find(l => l.id === leadId);
+      if (!target) return;
+
+      const prevStatus = target.lead_status;
+      const updatedLeads = leads.map(l =>
+        l.id === leadId ? { ...l, lead_status: newStatus, updated_at: new Date().toISOString() } : l
+      );
+
+      setLeads(updatedLeads);
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'status_changed',
+        title: 'Status Transitioned',
+        description: `Stage moved from ${prevStatus} to ${newStatus}.`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUpdateLeadPriority = (leadId: string, newPriority: LeadPriority) => {
+    try {
+      const updatedLeads = leads.map(l =>
+        l.id === leadId ? { ...l, priority: newPriority, updated_at: new Date().toISOString() } : l
+      );
+      setLeads(updatedLeads);
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUpdateLeadAssignee = (leadId: string, assignedToId: string, assignedToName: string) => {
+    try {
+      const updatedLeads = leads.map(l =>
+        l.id === leadId
+          ? { ...l, assigned_to_id: assignedToId, assigned_to_name: assignedToName, updated_at: new Date().toISOString() }
+          : l
+      );
+      setLeads(updatedLeads);
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'assigned',
+        title: 'Lead Reassigned',
+        description: `Lead assigned to ${assignedToName}.`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteLead = (leadId: string) => {
+    if (!window.confirm('Are you sure you want to delete this lead record?')) return;
+    try {
+      const updatedLeads = leads.filter(l => l.id !== leadId);
+      setLeads(updatedLeads);
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      showAutomationNotice('Lead Removed', 'Lead profile and history deleted.');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleConvertLead = (
+    leadId: string,
+    conversionData: {
+      servicePurchased: string;
+      paymentAmount: number;
+      paymentMethod: string;
+      notes?: string;
+      createClient: boolean;
+    }
+  ) => {
+    try {
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      let createdClient: Client | null = null;
+      let updatedClients = clients;
+
+      if (conversionData.createClient) {
+        const existingClient = clients.find(
+          c => (c.phone && c.phone === lead.phone) || (c.email && c.email === lead.email)
+        );
+        if (existingClient) {
+          createdClient = existingClient;
+        } else {
+          createdClient = {
+            id: 'cli_' + Date.now(),
+            name: lead.name || 'Converted Customer',
+            email: lead.email || '',
+            phone: lead.phone || '',
+            placeOfBirth: lead.city || 'India',
+            dateOfBirth: '1990-01-01',
+            timeOfBirth: '12:00',
+            latitude: 28.6139,
+            longitude: 77.209,
+            gender: 'Prefer not to say',
+            tags: ['Converted Lead', lead.source, lead.service_interested || 'General'].filter(Boolean),
+            notes: `Converted from WhatsApp/Meta Lead. Original enquiry: "${lead.notes || lead.service_interested}". Service: ${conversionData.servicePurchased}.`,
+            attachedCharts: [],
+            totalConsultations: 1,
+            totalSpent: conversionData.paymentAmount || 0,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          updatedClients = [createdClient, ...clients];
+          setClients(updatedClients);
+          saveLocalRecord('CLIENTS', updatedClients);
+          saveClientToCloud(createdClient).catch(() => {});
+        }
+      }
+
+      let updatedSales = sales;
+      if (conversionData.paymentAmount > 0) {
+        const newSale: Sale = {
+          id: 'inv_' + Date.now(),
+          invoiceNumber: `INV-CONV-${Date.now().toString().slice(-6)}`,
+          clientId: createdClient?.id || clients[0]?.id || '',
+          clientName: lead.name || 'Converted Lead Customer',
+          clientPhone: lead.phone || '',
+          clientEmail: lead.email || '',
+          clientAddress: lead.city || '',
+          saleDate: new Date().toISOString().split('T')[0],
+          items: [
+            {
+              id: 'item_' + Date.now(),
+              stoneId: 'srv_consult',
+              stoneName: conversionData.servicePurchased || 'Astrological Consultation & Remedy',
+              stoneSku: 'SRV-ASTRO',
+              weightCarats: 1,
+              weightRatti: 1,
+              unitPrice: conversionData.paymentAmount,
+              quantity: 1,
+              totalPrice: conversionData.paymentAmount,
+            },
+          ],
+          subtotal: conversionData.paymentAmount,
+          discountAmount: 0,
+          taxRatePercent: 0,
+          taxAmount: 0,
+          grandTotal: conversionData.paymentAmount,
+          paymentMethod: conversionData.paymentMethod || 'UPI / Online',
+          astrologerRecommended: currentUser?.name || 'Vedic Astrologer',
+          prescriptionDetails: `Lead conversion for ${conversionData.servicePurchased}`,
+          notes: conversionData.notes || `Lead converted from ${lead.source} campaign ${lead.campaign_name || ''}`,
+          createdAt: new Date().toISOString(),
+        };
+        updatedSales = [newSale, ...sales];
+        setSales(updatedSales);
+        saveLocalRecord('SALES', updatedSales);
+        saveSaleToCloud(newSale).catch(() => {});
+      }
+
+      const updatedLeads = leads.map(l =>
+        l.id === leadId
+          ? {
+              ...l,
+              lead_status: 'CONVERTED' as const,
+              converted_at: new Date().toISOString(),
+              converted_value: conversionData.paymentAmount,
+              service_purchased: conversionData.servicePurchased,
+              customer_id: createdClient?.id,
+              updated_at: new Date().toISOString(),
+            }
+          : l
+      );
+      setLeads(updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'converted',
+        title: 'Lead Converted to Customer',
+        description: `Successfully converted with ${conversionData.servicePurchased} for ${currencySymbol}${conversionData.paymentAmount.toLocaleString()} via ${conversionData.paymentMethod}.`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(
+        updatedClients,
+        inventory,
+        appointments,
+        purchases,
+        updatedSales,
+        updatedLeads,
+        leadFollowups,
+        updatedActs,
+        leadMessages,
+        leadSettings
+      );
+      refreshStats(updatedClients, appointments, inventory, updatedSales);
+
+      showAutomationNotice(
+        '🎉 Lead Converted!',
+        `${lead.name} marked CONVERTED for ${currencySymbol}${conversionData.paymentAmount}. Client profile and sales invoice auto-generated.`,
+        'View CRM Clients',
+        () => setActiveTab('clients')
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleMarkLeadLost = (leadId: string, reason: string, notes: string, isRejected: boolean) => {
+    try {
+      const targetStatus: LeadStatus = isRejected ? 'REJECTED' : 'LOST';
+      const updatedLeads = leads.map(l =>
+        l.id === leadId
+          ? {
+              ...l,
+              lead_status: targetStatus,
+              lost_reason: reason,
+              notes: notes ? `${l.notes}\n[Closure Note: ${notes}]` : l.notes,
+              updated_at: new Date().toISOString(),
+            }
+          : l
+      );
+      setLeads(updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'status_changed',
+        title: isRejected ? 'Lead Marked as Rejected' : 'Lead Marked as Lost',
+        description: `Reason: ${reason}. ${notes ? `Notes: ${notes}` : ''}`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(clients, inventory, appointments, purchases, sales, updatedLeads);
+      showAutomationNotice('Lead Closed', `Marked as ${targetStatus} (${reason}).`);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddFollowup = (leadId: string, followup: Partial<LeadFollowup>) => {
+    try {
+      const lead = leads.find(l => l.id === leadId);
+      const newFollowup: LeadFollowup = {
+        id: 'flw_' + Date.now(),
+        lead_id: leadId,
+        followup_date: followup.followup_date || new Date().toISOString().split('T')[0],
+        followup_time: followup.followup_time || '11:00',
+        followup_type: followup.followup_type || 'whatsapp',
+        assigned_to_id: followup.assigned_to_id || currentUser?.id || 'usr_1',
+        assigned_to_name: followup.assigned_to_name || currentUser?.name || 'System Staff',
+        status: 'pending',
+        notes: followup.notes || 'Follow-up scheduled.',
+        created_at: new Date().toISOString(),
+      };
+
+      const updatedFollowups = [newFollowup, ...leadFollowups];
+      setLeadFollowups(updatedFollowups);
+      saveLocalRecord('LEAD_FOLLOWUPS', updatedFollowups);
+
+      const updatedLeads = leads.map(l =>
+        l.id === leadId
+          ? {
+              ...l,
+              next_followup_date: newFollowup.followup_date,
+              lead_status: l.lead_status === 'NEW' ? ('FOLLOW_UP' as const) : l.lead_status,
+              updated_at: new Date().toISOString(),
+            }
+          : l
+      );
+      setLeads(updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'followup_scheduled',
+        title: 'Follow-up Scheduled',
+        description: `Follow-up on ${newFollowup.followup_date} at ${newFollowup.followup_time} (${newFollowup.followup_type.toUpperCase()}).`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(
+        clients,
+        inventory,
+        appointments,
+        purchases,
+        sales,
+        updatedLeads,
+        updatedFollowups,
+        updatedActs
+      );
+
+      showAutomationNotice(
+        'Follow-up Booked',
+        `Scheduled for ${lead?.name || 'Lead'} on ${newFollowup.followup_date} at ${newFollowup.followup_time}.`
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCompleteFollowup = (leadId: string, followupId: string, outcomeNotes: string) => {
+    try {
+      const updatedFollowups = leadFollowups.map(f =>
+        f.id === followupId
+          ? {
+              ...f,
+              status: 'completed' as const,
+              completed_at: new Date().toISOString(),
+              outcome_notes: outcomeNotes,
+            }
+          : f
+      );
+      setLeadFollowups(updatedFollowups);
+      saveLocalRecord('LEAD_FOLLOWUPS', updatedFollowups);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'followup_completed',
+        title: 'Follow-up Completed',
+        description: `Completed follow-up. Outcome: "${outcomeNotes || 'No notes'}"`,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(
+        clients,
+        inventory,
+        appointments,
+        purchases,
+        sales,
+        leads,
+        updatedFollowups,
+        updatedActs
+      );
+      showAutomationNotice('Follow-up Completed', 'Outcome recorded in timeline.');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddTimelineNote = (leadId: string, noteText: string) => {
+    try {
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'note_added',
+        title: 'Note Added to Lead',
+        description: noteText,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(
+        clients,
+        inventory,
+        appointments,
+        purchases,
+        sales,
+        leads,
+        leadFollowups,
+        updatedActs
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSendMessage = (leadId: string, text: string) => {
+    try {
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      const newMsg: LeadMessage = {
+        id: 'msg_' + Date.now(),
+        lead_id: leadId,
+        direction: 'outbound',
+        message_type: 'text',
+        body: text,
+        sender_name: currentUser?.name || 'AstroNexus Support',
+        status: 'delivered',
+        created_at: new Date().toISOString(),
+      };
+      const updatedMsgs = [...leadMessages, newMsg];
+      setLeadMessages(updatedMsgs);
+      saveLocalRecord('LEAD_MESSAGES', updatedMsgs);
+
+      const updatedLeads = leads.map(l =>
+        l.id === leadId
+          ? {
+              ...l,
+              last_contact_date: new Date().toISOString(),
+              total_touchpoints: (l.total_touchpoints || 0) + 1,
+              lead_status: l.lead_status === 'NEW' ? ('CONTACTED' as const) : l.lead_status,
+              updated_at: new Date().toISOString(),
+            }
+          : l
+      );
+      setLeads(updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const newAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'whatsapp_message_sent',
+        title: 'WhatsApp Message Sent',
+        description: text.length > 80 ? text.slice(0, 80) + '...' : text,
+        user_id: currentUser?.id || 'usr_1',
+        user_name: currentUser?.name || 'System',
+        created_at: new Date().toISOString(),
+      };
+      const updatedActs = [newAct, ...leadActivities];
+      setLeadActivities(updatedActs);
+      saveLocalRecord('LEAD_ACTIVITIES', updatedActs);
+
+      persistCurrentTenantData(
+        clients,
+        inventory,
+        appointments,
+        purchases,
+        sales,
+        updatedLeads,
+        leadFollowups,
+        updatedActs,
+        updatedMsgs
+      );
+
+      fetch(`/api/leads/${leadId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageText: text }),
+      }).catch(() => {});
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveLeadSettings = (newSettings: LeadSettingsData) => {
+    setLeadSettings(newSettings);
+    saveLocalRecord('LEAD_SETTINGS', newSettings);
+    showAutomationNotice('Settings Updated', 'WhatsApp CRM & Auto-Assignment rules updated.');
+  };
+
+  const handleSimulateInboundLead = (payload: {
+    senderPhone: string;
+    senderName: string;
+    messageText: string;
+    source: string;
+    campaign: string;
+    adName?: string;
+  }) => {
+    try {
+      const cleanPhone = payload.senderPhone.trim();
+      const existingLead = leads.find(l => l.phone.replace(/\D/g, '') === cleanPhone.replace(/\D/g, ''));
+
+      let leadId = existingLead?.id || 'lead_' + Date.now();
+      let updatedLeads = [...leads];
+
+      if (existingLead) {
+        updatedLeads = leads.map(l =>
+          l.id === existingLead.id
+            ? {
+                ...l,
+                total_touchpoints: (l.total_touchpoints || 0) + 1,
+                unread_messages_count: (l.unread_messages_count || 0) + 1,
+                last_contact_date: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              }
+            : l
+        );
+      } else {
+        let assignedUser =
+          users.find(u => u.role === 'astrologer' || u.role === 'staff') || currentUser || users[0];
+        if (leadSettings.autoAssignEnabled && leadSettings.assignedStaffIds && leadSettings.assignedStaffIds.length > 0) {
+          const matched = users.find(u => leadSettings.assignedStaffIds?.includes(u.id));
+          if (matched) assignedUser = matched;
+        }
+
+        const newLead: Lead = {
+          id: leadId,
+          name: payload.senderName || 'WhatsApp Inquirer',
+          phone: payload.senderPhone,
+          email: '',
+          city: 'India',
+          service_interested: 'Kundli Analysis & Ratna Jyotish',
+          notes: `Inbound WhatsApp Enquiry: "${payload.messageText}"`,
+          source: (payload.source as any) || 'WhatsApp Direct',
+          campaign_name: payload.campaign || 'Meta Click-to-WhatsApp Campaign',
+          ad_name: payload.adName || 'Vedic Astrology Consultation Ad',
+          lead_status: 'NEW',
+          priority: 'HOT',
+          assigned_to_id: assignedUser?.id,
+          assigned_to_name: assignedUser?.name,
+          tags: ['Inbound WhatsApp', 'Meta Ad Lead', 'Auto-Captured'],
+          total_touchpoints: 1,
+          unread_messages_count: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        updatedLeads = [newLead, ...leads];
+      }
+
+      setLeads(updatedLeads);
+      saveLocalRecord('LEADS', updatedLeads);
+
+      const inMsg: LeadMessage = {
+        id: 'msg_' + Date.now(),
+        lead_id: leadId,
+        direction: 'inbound',
+        message_type: 'text',
+        body: payload.messageText,
+        sender_name: payload.senderName,
+        status: 'received',
+        created_at: new Date().toISOString(),
+      };
+      let currentMsgs = [...leadMessages, inMsg];
+
+      const inAct: LeadActivity = {
+        id: 'act_' + Date.now(),
+        lead_id: leadId,
+        activity_type: 'whatsapp_message_received',
+        title: 'Inbound WhatsApp Message',
+        description: `"${payload.messageText}"`,
+        user_id: 'system',
+        user_name: 'Meta Webhook',
+        created_at: new Date().toISOString(),
+      };
+      let currentActs = [inAct, ...leadActivities];
+
+      if (leadSettings.autoReplyEnabled && leadSettings.welcomeMessage) {
+        const autoText = leadSettings.welcomeMessage.replace('{{name}}', payload.senderName || 'there');
+        const autoMsg: LeadMessage = {
+          id: 'msg_auto_' + (Date.now() + 100),
+          lead_id: leadId,
+          direction: 'outbound',
+          message_type: 'text',
+          body: autoText,
+          sender_name: 'AstroNexus Bot',
+          status: 'sent',
+          created_at: new Date(Date.now() + 1000).toISOString(),
+        };
+        currentMsgs.push(autoMsg);
+
+        const autoAct: LeadActivity = {
+          id: 'act_auto_' + (Date.now() + 100),
+          lead_id: leadId,
+          activity_type: 'whatsapp_message_sent',
+          title: 'Automated Welcome Reply Sent',
+          description: autoText,
+          user_id: 'system_bot',
+          user_name: 'Auto-Responder',
+          created_at: new Date(Date.now() + 1000).toISOString(),
+        };
+        currentActs.push(autoAct);
+      }
+
+      setLeadMessages(currentMsgs);
+      saveLocalRecord('LEAD_MESSAGES', currentMsgs);
+      setLeadActivities(currentActs);
+      saveLocalRecord('LEAD_ACTIVITIES', currentActs);
+
+      persistCurrentTenantData(
+        clients,
+        inventory,
+        appointments,
+        purchases,
+        sales,
+        updatedLeads,
+        leadFollowups,
+        currentActs,
+        currentMsgs
+      );
+
+      showAutomationNotice(
+        `⚡ New Lead: ${payload.senderName}`,
+        `Captured from ${payload.source} (${payload.campaign || 'Campaign'}). Auto-reply delivered.`,
+        'Open Lead CRM',
+        () => setActiveTab('leads')
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Admin & Tenant Management Handlers
   const handleAddUser = (user: User) => {
     const updated = [...users, user];
@@ -1219,7 +2000,7 @@ export function App() {
     );
   };
 
-  const currencySymbol = settings?.currencySymbol || '$';
+  const currencySymbol = settings?.currencySymbol || '₹';
 
   return (
     <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col lg:flex-row font-sans antialiased selection:bg-indigo-600 selection:text-white relative w-full">
@@ -1258,6 +2039,96 @@ export function App() {
             settings={settings}
           />
         </div>
+      ) : isMobileAppMode ? (
+        /* ========================================================================= */
+        /* NATIVE ANDROID MOBILE APP VIEW (Optimized for Daily Operations)           */
+        /* ========================================================================= */
+        <AndroidAppView
+          currentUser={currentUser}
+          settings={settings}
+          currencySymbol={currencySymbol}
+          clients={clients}
+          inventory={inventory}
+          appointments={appointments}
+          sales={sales}
+          leads={leads}
+          followups={leadFollowups}
+          onSwitchToDesktop={() => setIsMobileAppMode(false)}
+          onOpenNewClientModal={() => {
+            setClientToEdit(null);
+            setIsClientFormModalOpen(true);
+          }}
+          onOpenNewAppointmentModal={() => {
+            setAppointmentPrefillClient(null);
+            setIsAppointmentModalOpen(true);
+          }}
+          onOpenNewSaleModal={() => {
+            setSalePrefillStone(null);
+            setIsSaleModalOpen(true);
+          }}
+          onOpenNewStoneModal={() => {
+            setStoneToEdit(null);
+            setIsStoneModalOpen(true);
+          }}
+          onOpenNewLeadModal={() => {
+            setIsMobileAppMode(false);
+            setActiveTab('leads');
+          }}
+          onOpenConvertModal={lead => {
+            setMobileConvertLead(lead);
+          }}
+          onUpdateLeadStatus={handleUpdateLeadStatus}
+          onUpdateAppointmentStatus={(aptId, status) => {
+            const updated = appointments.map(a => (a.id === aptId ? { ...a, status } : a));
+            setAppointments(updated);
+            saveLocalRecord('APPOINTMENTS', updated);
+            saveAppointmentToCloud(updated.find(a => a.id === aptId)!).catch(() => {});
+          }}
+          onCreateSale={newSaleData => {
+            const fullSale: Sale = {
+              id: 'sale_' + Date.now(),
+              invoiceNumber: newSaleData.invoiceNumber || `INV-${Date.now().toString().slice(-6)}`,
+              clientId: newSaleData.clientId || 'cli_walkin',
+              clientName: newSaleData.clientName || 'Walk-in Client',
+              clientPhone: newSaleData.clientPhone || '',
+              items: newSaleData.items || [],
+              subtotal: newSaleData.subtotal || newSaleData.grandTotal || 0,
+              discountAmount: 0,
+              taxRatePercent: 0,
+              taxAmount: 0,
+              grandTotal: newSaleData.grandTotal || 0,
+              paymentMethod: newSaleData.paymentMethod || 'UPI',
+              paymentStatus: 'paid',
+              saleDate: newSaleData.saleDate || new Date().toISOString().split('T')[0],
+              createdAt: new Date().toISOString(),
+              notes: newSaleData.notes || 'Instant Mobile Sale',
+            };
+            const updated = [fullSale, ...sales];
+            setSales(updated);
+            saveLocalRecord('SALES', updated);
+            saveSaleToCloud(fullSale).catch(() => {});
+            persistCurrentTenantData(
+              clients,
+              inventory,
+              appointments,
+              purchases,
+              updated,
+              leads,
+              leadFollowups,
+              leadActivities,
+              leadMessages,
+              leadSettings
+            );
+            refreshStats(clients, appointments, inventory, updated);
+            showAutomationNotice(
+              '🧾 Bill Created & Saved',
+              `Invoice #${fullSale.invoiceNumber} for ${currencySymbol}${fullSale.grandTotal} logged successfully.`
+            );
+          }}
+          onSaveClient={clientData => {
+            handleCreateOrUpdateClient(clientData);
+          }}
+        />
       ) : (
         <>
           {/* Sidebar Navigation (Desktop Fixed Sidebar / Mobile Top Bar) */}
@@ -1271,6 +2142,8 @@ export function App() {
             }}
             onGoToHome={() => setActiveTab('home')}
             onOpenCloudModal={() => setIsCloudModalOpen(true)}
+            onToggleMobileAppMode={() => setIsMobileAppMode(true)}
+            isMobileAppMode={isMobileAppMode}
             settings={settings}
           />
 
@@ -1313,6 +2186,16 @@ export function App() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileAppMode(true)}
+                    className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition cursor-pointer px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-700/60"
+                    title="Switch to Android Mobile App View"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Android App Mode (₹)</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       setScannerPurpose('stock_add');
@@ -1562,6 +2445,35 @@ export function App() {
                       });
                       setActiveTab('astrology');
                     }}
+                    currencySymbol={currencySymbol}
+                  />
+                )}
+
+                {/* ========================================================================= */}
+                {/* VIEW 2.5: WhatsApp CRM & Lead Management Pipeline                         */}
+                {/* ========================================================================= */}
+                {activeTab === 'leads' && (
+                  <LeadManagementModule
+                    leads={leads}
+                    followups={leadFollowups}
+                    activities={leadActivities}
+                    messages={leadMessages}
+                    leadSettings={leadSettings}
+                    staffUsers={users}
+                    currentUser={currentUser || users[0]}
+                    onSaveLead={handleSaveLead}
+                    onUpdateLeadStatus={handleUpdateLeadStatus}
+                    onUpdateLeadPriority={handleUpdateLeadPriority}
+                    onUpdateLeadAssignee={handleUpdateLeadAssignee}
+                    onDeleteLead={handleDeleteLead}
+                    onConvertLead={handleConvertLead}
+                    onMarkLeadLost={handleMarkLeadLost}
+                    onAddFollowup={handleAddFollowup}
+                    onCompleteFollowup={handleCompleteFollowup}
+                    onAddTimelineNote={handleAddTimelineNote}
+                    onSendMessage={handleSendMessage}
+                    onSaveSettings={handleSaveLeadSettings}
+                    onSimulateInboundLead={handleSimulateInboundLead}
                     currencySymbol={currencySymbol}
                   />
                 )}
@@ -1834,6 +2746,20 @@ export function App() {
           loadTenantWorkspace(u);
         }}
       />
+
+      {/* Lead Convert Modal for Mobile App View */}
+      {mobileConvertLead && (
+        <LeadConvertModal
+          isOpen={!!mobileConvertLead}
+          lead={mobileConvertLead}
+          onClose={() => setMobileConvertLead(null)}
+          onConvert={(leadId, conversionData) => {
+            handleConvertLead(leadId, conversionData);
+            setMobileConvertLead(null);
+          }}
+          currencySymbol={currencySymbol}
+        />
+      )}
 
       {/* Cloud Database & SEO Manager Modal */}
       <CloudDatabaseModal

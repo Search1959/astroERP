@@ -17,8 +17,29 @@ import {
   StoreSettings,
   DashboardStats,
   SubscriptionBillingRecord,
+  Lead,
+  LeadFollowup,
+  LeadActivity,
+  LeadMessage,
+  LeadSettingsData,
+  LeadDashboardMetrics,
 } from '../types';
 import { calculateFullAstrologyChart } from '../utils/ephemerisEngine';
+import {
+  DEFAULT_LEADS,
+  DEFAULT_LEAD_FOLLOWUPS,
+  DEFAULT_LEAD_ACTIVITIES,
+  DEFAULT_LEAD_MESSAGES,
+  DEFAULT_LEAD_SETTINGS,
+} from './leadDemoData';
+
+export {
+  DEFAULT_LEADS,
+  DEFAULT_LEAD_FOLLOWUPS,
+  DEFAULT_LEAD_ACTIVITIES,
+  DEFAULT_LEAD_MESSAGES,
+  DEFAULT_LEAD_SETTINGS,
+};
 
 // Top Global & Indian Cities for autocomplete
 export const WORLD_CITIES = [
@@ -765,16 +786,18 @@ export const DEFAULT_AUDIT_LOGS: SystemLog[] = [
 export const DEFAULT_SETTINGS: StoreSettings = {
   businessName: 'VedicAstro Gems & Astrology Studio',
   tagline: 'Authentic Astrological Consultations & Certified Jyotish Gemstones',
-  address: 'Suite 408, Celestial Tower, MG Road, Bangalore & 5th Ave, New York',
-  phone: '+1 (800) 555-ASTRO / +91 98450 12345',
-  email: 'consult@vedicastro.com',
-  website: 'https://vedicastro-gems.com',
-  taxRatePercent: 5.0,
-  currencySymbol: '$',
-  currencyCode: 'USD',
-  defaultHouseSystem: 'placidus',
-  defaultZodiacSystem: 'tropical',
-  invoiceFooterNote: 'All gemstones are 100% natural, lab-certified, and astrologically energized (Pran Pratishtha performed). Consultations are confidential.',
+  address: 'Suite 408, Celestial Tower, MG Road, Bangalore - 560001, Karnataka, India',
+  phone: '+91 98450 12345 / +91 80 4123 4567',
+  email: 'consult@vedicastro.in',
+  website: 'https://vedicastro-gems.in',
+  taxRatePercent: 3.0,
+  currencySymbol: '₹',
+  currencyCode: 'INR',
+  currency: 'INR',
+  defaultHouseSystem: 'whole_sign',
+  defaultZodiacSystem: 'sidereal_lahiri',
+  defaultAyanamsha: 'lahiri',
+  invoiceFooterNote: 'All gemstones are 100% natural, lab-certified with Govt approved certification, and astrologically energized (Pran Pratishtha performed). Consultations are confidential. GST Registered.',
 };
 
 export const calculateDashboardStats = (
@@ -832,6 +855,173 @@ const STORAGE_KEYS = {
   USERS: 'astroerp_users',
   LOGS: 'astroerp_logs',
   SUBSCRIPTIONS: 'astroerp_subscriptions',
+  LEADS: 'astroerp_leads',
+  LEAD_FOLLOWUPS: 'astroerp_lead_followups',
+  LEAD_ACTIVITIES: 'astroerp_lead_activities',
+  LEAD_MESSAGES: 'astroerp_lead_messages',
+  LEAD_SETTINGS: 'astroerp_lead_settings',
+};
+
+export const calculateLeadMetrics = (
+  leads: Lead[] = [],
+  followups: LeadFollowup[] = []
+): LeadDashboardMetrics => {
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const safeFollowups = Array.isArray(followups) ? followups : [];
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const totalLeads = safeLeads.length;
+  const newLeads = safeLeads.filter(l => l.lead_status === 'NEW').length;
+  const contactedLeads = safeLeads.filter(l => l.lead_status === 'CONTACTED').length;
+  const interestedLeads = safeLeads.filter(l => l.lead_status === 'INTERESTED').length;
+  const convertedLeads = safeLeads.filter(l => l.lead_status === 'CONVERTED').length;
+  const rejectedLeads = safeLeads.filter(l => l.lead_status === 'REJECTED').length;
+  const lostLeads = safeLeads.filter(l => l.lead_status === 'LOST').length;
+
+  const followupsDueToday = safeFollowups.filter(
+    f => f.status === 'pending' && f.followup_date === todayStr
+  ).length;
+
+  const followupsOverdue = safeFollowups.filter(
+    f => f.status === 'pending' && f.followup_date < todayStr
+  ).length;
+
+  const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 1000) / 10 : 0;
+  const totalRevenue = safeLeads
+    .filter(l => l.lead_status === 'CONVERTED')
+    .reduce((sum, l) => sum + (l.converted_value || 0), 0);
+
+  // Group by Source
+  const sourceMap = new Map<string, { total: number; converted: number; revenue: number }>();
+  safeLeads.forEach(lead => {
+    const src = lead.source || 'Other';
+    const curr = sourceMap.get(src) || { total: 0, converted: 0, revenue: 0 };
+    curr.total += 1;
+    if (lead.lead_status === 'CONVERTED') {
+      curr.converted += 1;
+      curr.revenue += lead.converted_value || 0;
+    }
+    sourceMap.set(src, curr);
+  });
+
+  const leadsBySource = Array.from(sourceMap.entries()).map(([source, data]) => ({
+    source,
+    leadCount: data.total,
+    convertedCount: data.converted,
+    conversionRate: data.total > 0 ? Math.round((data.converted / data.total) * 1000) / 10 : 0,
+    revenue: data.revenue,
+  }));
+
+  // Group by Campaign
+  const campaignMap = new Map<string, { source: string; total: number; converted: number; revenue: number }>();
+  safeLeads.forEach(lead => {
+    const cmp = lead.campaign_name || 'Direct / Organic';
+    const curr = campaignMap.get(cmp) || { source: lead.source || 'Direct', total: 0, converted: 0, revenue: 0 };
+    curr.total += 1;
+    if (lead.lead_status === 'CONVERTED') {
+      curr.converted += 1;
+      curr.revenue += lead.converted_value || 0;
+    }
+    campaignMap.set(cmp, curr);
+  });
+
+  const leadsByCampaign = Array.from(campaignMap.entries()).map(([campaign, data]) => ({
+    campaign,
+    source: data.source,
+    leadCount: data.total,
+    convertedCount: data.converted,
+    conversionRate: data.total > 0 ? Math.round((data.converted / data.total) * 1000) / 10 : 0,
+    revenue: data.revenue,
+  }));
+
+  // Status Distribution
+  const statusColors: Record<string, string> = {
+    NEW: '#3b82f6',
+    CONTACTED: '#8b5cf6',
+    INTERESTED: '#f59e0b',
+    FOLLOW_UP: '#06b6d4',
+    CONVERTED: '#10b981',
+    NO_RESPONSE: '#64748b',
+    NOT_INTERESTED: '#94a3b8',
+    REJECTED: '#ef4444',
+    WRONG_NUMBER: '#f97316',
+    LOST: '#dc2626',
+  };
+
+  const statusLabels: Record<string, string> = {
+    NEW: 'New Lead',
+    CONTACTED: 'Contacted',
+    INTERESTED: 'Interested',
+    FOLLOW_UP: 'Follow-up Scheduled',
+    CONVERTED: 'Converted / Paid',
+    NO_RESPONSE: 'No Response',
+    NOT_INTERESTED: 'Not Interested',
+    REJECTED: 'Rejected',
+    WRONG_NUMBER: 'Wrong Number',
+    LOST: 'Lost Lead',
+  };
+
+  const statusCountMap = new Map<string, number>();
+  safeLeads.forEach(l => {
+    const s = l.lead_status || 'NEW';
+    statusCountMap.set(s, (statusCountMap.get(s) || 0) + 1);
+  });
+
+  const leadStatusDistribution = Array.from(statusCountMap.entries()).map(([status, count]) => ({
+    status: status as any,
+    label: statusLabels[status] || status,
+    count,
+    color: statusColors[status] || '#64748b',
+  }));
+
+  // Leads by Day (Past 7 Days)
+  const dayMap = new Map<string, { count: number; converted: number }>();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    dayMap.set(d, { count: 0, converted: 0 });
+  }
+
+  safeLeads.forEach(lead => {
+    const day = (lead.created_at || '').split('T')[0];
+    if (dayMap.has(day)) {
+      const val = dayMap.get(day)!;
+      val.count += 1;
+      if (lead.lead_status === 'CONVERTED') {
+        val.converted += 1;
+      }
+    }
+  });
+
+  const leadsByDay = Array.from(dayMap.entries()).map(([date, data]) => ({
+    date,
+    count: data.count,
+    converted: data.converted,
+  }));
+
+  const conversionTrend = [
+    { month: 'Jun', rate: 22.4, count: 18, revenue: 145000 },
+    { month: 'Jul', rate: 26.8, count: 24, revenue: 210000 },
+    { month: 'Aug', rate: conversionRate || 28.5, count: convertedLeads, revenue: totalRevenue },
+  ];
+
+  return {
+    totalLeads,
+    newLeads,
+    contactedLeads,
+    interestedLeads,
+    followupsDueToday,
+    followupsOverdue,
+    convertedLeads,
+    rejectedLeads,
+    lostLeads,
+    conversionRate,
+    totalRevenue,
+    leadsByDay,
+    leadsBySource,
+    leadsByCampaign,
+    leadStatusDistribution,
+    conversionTrend,
+  };
 };
 
 export function getLocalOrSeedData() {
@@ -846,6 +1036,11 @@ export function getLocalOrSeedData() {
       users: DEFAULT_USERS,
       logs: DEFAULT_AUDIT_LOGS,
       subscriptions: DEFAULT_SUBSCRIPTION_BILLING,
+      leads: DEFAULT_LEADS,
+      leadFollowups: DEFAULT_LEAD_FOLLOWUPS,
+      leadActivities: DEFAULT_LEAD_ACTIVITIES,
+      leadMessages: DEFAULT_LEAD_MESSAGES,
+      leadSettings: DEFAULT_LEAD_SETTINGS,
     };
   }
 
@@ -859,13 +1054,29 @@ export function getLocalOrSeedData() {
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
     const rawLogs = localStorage.getItem(STORAGE_KEYS.LOGS);
     const rawSubs = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTIONS);
+    const rawLeads = localStorage.getItem(STORAGE_KEYS.LEADS);
+    const rawFollowups = localStorage.getItem(STORAGE_KEYS.LEAD_FOLLOWUPS);
+    const rawActivities = localStorage.getItem(STORAGE_KEYS.LEAD_ACTIVITIES);
+    const rawMessages = localStorage.getItem(STORAGE_KEYS.LEAD_MESSAGES);
+    const rawLeadSettings = localStorage.getItem(STORAGE_KEYS.LEAD_SETTINGS);
 
     const clients: Client[] = rawClients ? JSON.parse(rawClients) : DEFAULT_CLIENTS;
     const inventory: GemstoneItem[] = rawInventory ? JSON.parse(rawInventory) : DEFAULT_INVENTORY;
     const appointments: Appointment[] = rawApts ? JSON.parse(rawApts) : DEFAULT_APPOINTMENTS;
     const purchases: PurchaseEntry[] = rawPurchases ? JSON.parse(rawPurchases) : DEFAULT_PURCHASES;
     const sales: SalesInvoice[] = rawSales ? JSON.parse(rawSales) : DEFAULT_SALES;
-    const settings: StoreSettings = rawSettings ? JSON.parse(rawSettings) : DEFAULT_SETTINGS;
+    let settings: StoreSettings = rawSettings ? JSON.parse(rawSettings) : DEFAULT_SETTINGS;
+    
+    // Default currency to INR (₹) for Indian users
+    if (!settings.currencySymbol || settings.currencySymbol === '$') {
+      settings = {
+        ...settings,
+        currencySymbol: '₹',
+        currencyCode: 'INR',
+        currency: 'INR',
+      };
+    }
+
     let users: User[] = rawUsers ? JSON.parse(rawUsers) : DEFAULT_USERS;
     
     // Ensure Super Admin apex7tech account is present with valid password
@@ -888,8 +1099,28 @@ export function getLocalOrSeedData() {
 
     const logs: SystemLog[] = rawLogs ? JSON.parse(rawLogs) : DEFAULT_AUDIT_LOGS;
     const subscriptions: SubscriptionBillingRecord[] = rawSubs ? JSON.parse(rawSubs) : DEFAULT_SUBSCRIPTION_BILLING;
+    const leads: Lead[] = rawLeads ? JSON.parse(rawLeads) : DEFAULT_LEADS;
+    const leadFollowups: LeadFollowup[] = rawFollowups ? JSON.parse(rawFollowups) : DEFAULT_LEAD_FOLLOWUPS;
+    const leadActivities: LeadActivity[] = rawActivities ? JSON.parse(rawActivities) : DEFAULT_LEAD_ACTIVITIES;
+    const leadMessages: LeadMessage[] = rawMessages ? JSON.parse(rawMessages) : DEFAULT_LEAD_MESSAGES;
+    const leadSettings: LeadSettingsData = rawLeadSettings ? JSON.parse(rawLeadSettings) : DEFAULT_LEAD_SETTINGS;
 
-    return { clients, inventory, appointments, purchases, sales, settings, users, logs, subscriptions };
+    return {
+      clients,
+      inventory,
+      appointments,
+      purchases,
+      sales,
+      settings,
+      users,
+      logs,
+      subscriptions,
+      leads,
+      leadFollowups,
+      leadActivities,
+      leadMessages,
+      leadSettings,
+    };
   } catch (e) {
     console.warn('LocalStorage retrieval failed, falling back to defaults:', e);
     return {
@@ -902,6 +1133,11 @@ export function getLocalOrSeedData() {
       users: DEFAULT_USERS,
       logs: DEFAULT_AUDIT_LOGS,
       subscriptions: DEFAULT_SUBSCRIPTION_BILLING,
+      leads: DEFAULT_LEADS,
+      leadFollowups: DEFAULT_LEAD_FOLLOWUPS,
+      leadActivities: DEFAULT_LEAD_ACTIVITIES,
+      leadMessages: DEFAULT_LEAD_MESSAGES,
+      leadSettings: DEFAULT_LEAD_SETTINGS,
     };
   }
 }

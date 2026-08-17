@@ -36,7 +36,7 @@ export const StoneFormModal: React.FC<StoneFormModalProps> = ({
   onSubmit,
   editingStone = null,
   onOpenScanner,
-  currencySymbol = '$',
+  currencySymbol = '₹',
 }) => {
   if (!isOpen) return null;
 

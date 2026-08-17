@@ -58,6 +58,8 @@ export interface Client {
   placeOfBirth: string;
   latitude: number;
   longitude: number;
+  timezone?: number;
+  timezoneOffset?: number;
   gender?: 'Male' | 'Female' | 'Other' | 'Prefer not to say';
   address?: string;
   occupation?: string;
@@ -202,10 +204,12 @@ export interface PurchaseEntry {
 export type Purchase = PurchaseEntry;
 
 export interface SaleItem {
+  id?: string;
   stoneId: string;
   stoneName: string;
   categoryName?: string;
-  sku: string;
+  sku?: string;
+  stoneSku?: string;
   weightCarats?: number;
   weightRatti?: number;
   quantity: number;
@@ -271,9 +275,9 @@ export interface StoreSettings {
   currencySymbol: string;
   currencyCode?: string;
   currency?: string;
-  defaultHouseSystem: 'placidus' | 'equal' | 'whole_sign';
-  defaultZodiacSystem?: 'tropical' | 'sidereal_lahiri';
-  defaultAyanamsha?: 'tropical' | 'sidereal_lahiri';
+  defaultHouseSystem: 'placidus' | 'equal' | 'whole_sign' | string;
+  defaultZodiacSystem?: 'tropical' | 'sidereal_lahiri' | string;
+  defaultAyanamsha?: 'lahiri' | 'raman' | 'krishnamurti' | 'tropical' | 'sidereal_lahiri' | string;
   defaultLanguage?: string;
   invoiceFooterNote?: string;
   enablePublicCalculator?: boolean;
@@ -489,4 +493,243 @@ export interface AstrologyChartData {
     houseSystem?: string;
     zodiacSystem?: string;
   };
+}
+
+// ------------------------------------------------------------- //
+//             LEAD MANAGEMENT & WHATSAPP CRM TYPES              //
+// ------------------------------------------------------------- //
+
+export type LeadStatus =
+  | 'NEW'
+  | 'CONTACTED'
+  | 'INTERESTED'
+  | 'FOLLOW_UP'
+  | 'CONVERTED'
+  | 'NO_RESPONSE'
+  | 'NOT_INTERESTED'
+  | 'REJECTED'
+  | 'WRONG_NUMBER'
+  | 'LOST';
+
+export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'HOT';
+
+export type LeadSource =
+  | 'Meta Ads'
+  | 'Facebook'
+  | 'Instagram'
+  | 'WhatsApp'
+  | 'WhatsApp Direct'
+  | 'Google Ads'
+  | 'Website'
+  | 'Referral'
+  | 'Walk-in'
+  | 'Existing Customer'
+  | 'Phone'
+  | 'Manual'
+  | 'Manual Entry'
+  | 'Other';
+
+export interface Lead {
+  id?: string;
+  lead_id?: string;
+  customer_id?: string;
+  name: string;
+  phone?: string;
+  whatsapp_number?: string;
+  alternate_phone?: string;
+  email?: string;
+  city?: string;
+  source: LeadSource | string;
+  campaign_name?: string;
+  ad_set_name?: string;
+  ad_name?: string;
+  service_interested?: string;
+  service_purchased?: string;
+  requirement?: string;
+  lead_status: LeadStatus;
+  priority: LeadPriority;
+  assigned_to?: string;
+  assigned_to_id?: string;
+  assigned_to_name?: string;
+  created_at: string;
+  last_contact_at?: string;
+  last_contact_date?: string;
+  next_followup_date?: string;
+  next_followup_time?: string;
+  conversion_date?: string;
+  converted_at?: string;
+  converted_value?: number;
+  conversion_details?: {
+    servicePurchased?: string;
+    invoiceNumber?: string;
+    paymentAmount?: number;
+    paymentMethod?: string;
+    clientId?: string;
+  };
+  lost_reason?: string;
+  notes?: string;
+  tags?: string[];
+  total_touchpoints?: number;
+  unread_messages_count?: number;
+  created_by?: string;
+  updated_at?: string;
+  is_archived?: boolean;
+}
+
+export type LeadFollowupType = 'WhatsApp' | 'Phone Call' | 'Meeting' | 'Consultation' | 'Email' | 'Other' | 'whatsapp' | 'call' | 'meeting' | 'email';
+export type LeadFollowupStatus = 'pending' | 'completed' | 'cancelled' | 'overdue';
+
+export interface LeadFollowup {
+  id?: string;
+  followup_id?: string;
+  lead_id: string;
+  lead_name?: string;
+  whatsapp_number?: string;
+  followup_date: string;
+  followup_time: string;
+  type?: LeadFollowupType | string;
+  followup_type?: string;
+  notes?: string;
+  outcome_notes?: string;
+  assigned_to?: string;
+  assigned_to_id?: string;
+  assigned_to_name?: string;
+  status: LeadFollowupStatus;
+  completed_at?: string;
+  created_at: string;
+}
+
+export type LeadActivityType =
+  | 'lead_created'
+  | 'lead_updated'
+  | 'whatsapp_received'
+  | 'whatsapp_sent'
+  | 'whatsapp_message_received'
+  | 'whatsapp_message_sent'
+  | 'phone_call'
+  | 'followup_scheduled'
+  | 'followup_completed'
+  | 'status_changed'
+  | 'assigned_to_staff'
+  | 'assigned'
+  | 'note_added'
+  | 'appointment_created'
+  | 'payment_received'
+  | 'lead_converted'
+  | 'converted'
+  | 'lead_rejected';
+
+export interface LeadActivity {
+  id?: string;
+  activity_id?: string;
+  lead_id: string;
+  type?: LeadActivityType | string;
+  activity_type?: LeadActivityType | string;
+  title: string;
+  description: string;
+  timestamp?: string;
+  created_at?: string;
+  performed_by_id?: string;
+  performed_by_name?: string;
+  user_id?: string;
+  user_name?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface LeadMessage {
+  id?: string;
+  message_id?: string;
+  lead_id: string;
+  direction: 'inbound' | 'outbound';
+  sender_number?: string;
+  sender_name?: string;
+  recipient_number?: string;
+  message_text?: string;
+  body?: string;
+  message_type?: string;
+  media_url?: string;
+  media_type?: string;
+  raw_payload?: unknown;
+  timestamp?: string;
+  created_at?: string;
+  status?: 'sent' | 'delivered' | 'read' | 'failed' | 'received';
+  channel?: 'whatsapp_cloud_api' | 'whatsapp_manual' | 'sms' | string;
+  source?: string;
+  meta_message_id?: string;
+  template_name?: string;
+}
+
+export interface WhatsAppConfig {
+  isConnected: boolean;
+  businessAccountId: string;
+  phoneNumberId: string;
+  accessToken: string;
+  webhookVerifyToken: string;
+  apiEndpoint: string;
+  webhookUrl: string;
+  businessPhoneNumber: string;
+  displayPhoneNumberName?: string;
+  autoLeadCreation: boolean;
+  defaultAssignedUserId?: string;
+  defaultSource?: string;
+  defaultCampaign?: string;
+  autoWelcomeMessage?: boolean;
+  welcomeMessageTemplate?: string;
+}
+
+export interface LeadSettingsData {
+  whatsappConfig?: WhatsAppConfig;
+  defaultFollowupDays?: number;
+  autoAssignStrategy?: 'round_robin' | 'specific_user' | 'manual';
+  auto_assign_enabled?: boolean;
+  auto_assign_rule?: string;
+  autoAssignEnabled?: boolean;
+  assignedStaffIds?: string[];
+  autoReplyEnabled?: boolean;
+  welcomeMessage?: string;
+  whatsapp_verify_token?: string;
+  whatsapp_phone_number_id?: string;
+  whatsapp_business_account_id?: string;
+  whatsapp_access_token?: string;
+  customSources?: string[];
+  customServices?: string[];
+  lostReasons?: string[];
+  lost_reasons?: string[];
+  templates?: { id: string; name: string; content: string; category: string }[];
+}
+
+export interface LeadSourceStats {
+  source: string;
+  leadCount: number;
+  convertedCount: number;
+  conversionRate: number;
+  revenue: number;
+}
+
+export interface LeadCampaignStats {
+  campaign: string;
+  source: string;
+  leadCount: number;
+  convertedCount: number;
+  conversionRate: number;
+  revenue: number;
+}
+
+export interface LeadDashboardMetrics {
+  totalLeads: number;
+  newLeads: number;
+  contactedLeads: number;
+  interestedLeads: number;
+  followupsDueToday: number;
+  followupsOverdue: number;
+  convertedLeads: number;
+  rejectedLeads: number;
+  lostLeads: number;
+  conversionRate: number;
+  totalRevenue: number;
+  leadsByDay: { date: string; count: number; converted: number }[];
+  leadsBySource: LeadSourceStats[];
+  leadsByCampaign: LeadCampaignStats[];
+  leadStatusDistribution: { status: LeadStatus; label: string; count: number; color: string }[];
+  conversionTrend: { month: string; rate: number; count: number; revenue: number }[];
 }

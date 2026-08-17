@@ -13,8 +13,21 @@ import {
   SystemLog,
   StoreSettings,
   DashboardStats,
+  Lead,
+  LeadFollowup,
+  LeadActivity,
+  LeadMessage,
+  LeadSettingsData,
+  LeadDashboardMetrics,
 } from '../src/types';
 import { calculateFullAstrologyChart } from './astronomy/ephemeris';
+import {
+  DEFAULT_LEADS,
+  DEFAULT_LEAD_FOLLOWUPS,
+  DEFAULT_LEAD_ACTIVITIES,
+  DEFAULT_LEAD_MESSAGES,
+  DEFAULT_LEAD_SETTINGS,
+} from '../src/data/leadDemoData';
 
 export class StorageEngine {
   public users: User[] = [];
@@ -25,18 +38,24 @@ export class StorageEngine {
   public purchases: PurchaseEntry[] = [];
   public sales: SalesInvoice[] = [];
   public logs: SystemLog[] = [];
+  public leads: Lead[] = [];
+  public leadFollowups: LeadFollowup[] = [];
+  public leadActivities: LeadActivity[] = [];
+  public leadMessages: LeadMessage[] = [];
+  public leadSettings: LeadSettingsData = DEFAULT_LEAD_SETTINGS;
   public settings: StoreSettings = {
     businessName: 'VedicAstro Gems & Astrology Studio',
     tagline: 'Authentic Astrological Consultations & Certified Jyotish Gemstones',
-    address: 'Suite 408, Celestial Tower, MG Road, Bangalore & 5th Ave, New York',
-    phone: '+1 (800) 555-ASTRO / +91 98450 12345',
-    email: 'consult@vedicastro.com',
-    website: 'https://vedicastro-gems.com',
-    taxRatePercent: 5.0,
-    currencySymbol: '$',
-    currencyCode: 'USD',
-    defaultHouseSystem: 'placidus',
-    defaultZodiacSystem: 'tropical',
+    address: 'Suite 408, Celestial Tower, MG Road, Bangalore & Connaught Place, New Delhi',
+    phone: '+91 98450 12345 / +91 11 2334 5678',
+    email: 'consult@vedicastro.in',
+    website: 'https://vedicastro-gems.in',
+    taxRatePercent: 18.0,
+    currencySymbol: '₹',
+    currencyCode: 'INR',
+    currency: 'INR',
+    defaultHouseSystem: 'whole_sign',
+    defaultZodiacSystem: 'sidereal_lahiri',
     invoiceFooterNote: 'All gemstones are 100% natural, lab-certified, and astrologically energized (Pran Pratishtha performed). Consultations are confidential.',
   };
 
@@ -654,9 +673,16 @@ export class StorageEngine {
         userRole: 'super_admin',
         action: 'SALES_INVOICE_GENERATED',
         module: 'Sales',
-        details: 'Issued Invoice #INV-2025-0090 to Client Ananya Deshmukh for $1,837.50',
+        details: 'Issued Invoice #INV-2025-0090 to Client Ananya Deshmukh for ₹1,83,750',
       },
     ];
+
+    // 8. Pre-seeded Leads, Follow-ups, Activities, Messages & Settings
+    this.leads = [...DEFAULT_LEADS];
+    this.leadFollowups = [...DEFAULT_LEAD_FOLLOWUPS];
+    this.leadActivities = [...DEFAULT_LEAD_ACTIVITIES];
+    this.leadMessages = [...DEFAULT_LEAD_MESSAGES];
+    this.leadSettings = { ...DEFAULT_LEAD_SETTINGS };
   }
 
   // Activity Logger Helper
@@ -702,6 +728,204 @@ export class StorageEngine {
       upcomingAppointments: this.appointments.filter(a => a.status === 'scheduled').slice(0, 5),
       lowStockItems,
       recentLogs: this.logs.slice(0, 8),
+    };
+  }
+
+  // ---------------- LEAD MANAGEMENT METHODS ---------------- //
+
+  public normalizePhone(phone: string): string {
+    if (!phone) return '';
+    const clean = phone.replace(/[^0-9+]/g, '');
+    if (clean.startsWith('+')) return clean;
+    if (clean.length === 10) return '+91' + clean;
+    if (clean.startsWith('91') && clean.length === 12) return '+' + clean;
+    return '+' + clean;
+  }
+
+  public findLeadByPhone(phone: string): Lead | undefined {
+    const normalized = this.normalizePhone(phone);
+    return this.leads.find(l => {
+      const leadNorm = this.normalizePhone(l.whatsapp_number);
+      const altNorm = l.alternate_phone ? this.normalizePhone(l.alternate_phone) : '';
+      return leadNorm === normalized || (altNorm && altNorm === normalized);
+    });
+  }
+
+  public logLeadActivity(
+    lead_id: string,
+    type: any,
+    title: string,
+    description: string,
+    performed_by_name: string = 'System',
+    performed_by_id?: string,
+    metadata?: Record<string, unknown>
+  ) {
+    const activity: LeadActivity = {
+      activity_id: 'act_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      lead_id,
+      type,
+      title,
+      description,
+      timestamp: new Date().toISOString(),
+      performed_by_name,
+      performed_by_id,
+      metadata,
+    };
+    this.leadActivities.unshift(activity);
+    return activity;
+  }
+
+  public getLeadMetrics(): LeadDashboardMetrics {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const totalLeads = this.leads.length;
+    const newLeads = this.leads.filter(l => l.lead_status === 'NEW').length;
+    const contactedLeads = this.leads.filter(l => l.lead_status === 'CONTACTED').length;
+    const interestedLeads = this.leads.filter(l => l.lead_status === 'INTERESTED').length;
+    const convertedLeads = this.leads.filter(l => l.lead_status === 'CONVERTED').length;
+    const rejectedLeads = this.leads.filter(l => l.lead_status === 'REJECTED').length;
+    const lostLeads = this.leads.filter(l => l.lead_status === 'LOST').length;
+
+    const followupsDueToday = this.leadFollowups.filter(
+      f => f.status === 'pending' && f.followup_date === todayStr
+    ).length;
+
+    const followupsOverdue = this.leadFollowups.filter(
+      f => f.status === 'pending' && f.followup_date < todayStr
+    ).length;
+
+    const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 1000) / 10 : 0;
+    const totalRevenue = this.leads
+      .filter(l => l.lead_status === 'CONVERTED')
+      .reduce((sum, l) => sum + (l.converted_value || 0), 0);
+
+    // Group by source
+    const sourceMap = new Map<string, { total: number; converted: number; revenue: number }>();
+    this.leads.forEach(l => {
+      const src = l.source || 'Other';
+      const curr = sourceMap.get(src) || { total: 0, converted: 0, revenue: 0 };
+      curr.total += 1;
+      if (l.lead_status === 'CONVERTED') {
+        curr.converted += 1;
+        curr.revenue += l.converted_value || 0;
+      }
+      sourceMap.set(src, curr);
+    });
+
+    const leadsBySource = Array.from(sourceMap.entries()).map(([source, data]) => ({
+      source,
+      leadCount: data.total,
+      convertedCount: data.converted,
+      conversionRate: data.total > 0 ? Math.round((data.converted / data.total) * 1000) / 10 : 0,
+      revenue: data.revenue,
+    }));
+
+    // Group by campaign
+    const campaignMap = new Map<string, { source: string; total: number; converted: number; revenue: number }>();
+    this.leads.forEach(l => {
+      const cmp = l.campaign_name || 'Direct / Organic';
+      const curr = campaignMap.get(cmp) || { source: l.source || 'Direct', total: 0, converted: 0, revenue: 0 };
+      curr.total += 1;
+      if (l.lead_status === 'CONVERTED') {
+        curr.converted += 1;
+        curr.revenue += l.converted_value || 0;
+      }
+      campaignMap.set(cmp, curr);
+    });
+
+    const leadsByCampaign = Array.from(campaignMap.entries()).map(([campaign, data]) => ({
+      campaign,
+      source: data.source,
+      leadCount: data.total,
+      convertedCount: data.converted,
+      conversionRate: data.total > 0 ? Math.round((data.converted / data.total) * 1000) / 10 : 0,
+      revenue: data.revenue,
+    }));
+
+    const statusColors: Record<string, string> = {
+      NEW: '#3b82f6',
+      CONTACTED: '#8b5cf6',
+      INTERESTED: '#f59e0b',
+      FOLLOW_UP: '#06b6d4',
+      CONVERTED: '#10b981',
+      NO_RESPONSE: '#64748b',
+      NOT_INTERESTED: '#94a3b8',
+      REJECTED: '#ef4444',
+      WRONG_NUMBER: '#f97316',
+      LOST: '#dc2626',
+    };
+
+    const statusLabels: Record<string, string> = {
+      NEW: 'New Lead',
+      CONTACTED: 'Contacted',
+      INTERESTED: 'Interested',
+      FOLLOW_UP: 'Follow-up Scheduled',
+      CONVERTED: 'Converted / Paid',
+      NO_RESPONSE: 'No Response',
+      NOT_INTERESTED: 'Not Interested',
+      REJECTED: 'Rejected',
+      WRONG_NUMBER: 'Wrong Number',
+      LOST: 'Lost Lead',
+    };
+
+    const statusCountMap = new Map<string, number>();
+    this.leads.forEach(l => {
+      const s = l.lead_status || 'NEW';
+      statusCountMap.set(s, (statusCountMap.get(s) || 0) + 1);
+    });
+
+    const leadStatusDistribution = Array.from(statusCountMap.entries()).map(([status, count]) => ({
+      status: status as any,
+      label: statusLabels[status] || status,
+      count,
+      color: statusColors[status] || '#64748b',
+    }));
+
+    const dayMap = new Map<string, { count: number; converted: number }>();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+      dayMap.set(d, { count: 0, converted: 0 });
+    }
+
+    this.leads.forEach(l => {
+      const day = (l.created_at || '').split('T')[0];
+      if (dayMap.has(day)) {
+        const val = dayMap.get(day)!;
+        val.count += 1;
+        if (l.lead_status === 'CONVERTED') {
+          val.converted += 1;
+        }
+      }
+    });
+
+    const leadsByDay = Array.from(dayMap.entries()).map(([date, data]) => ({
+      date,
+      count: data.count,
+      converted: data.converted,
+    }));
+
+    const conversionTrend = [
+      { month: 'Jun', rate: 22.4, count: 18, revenue: 145000 },
+      { month: 'Jul', rate: 26.8, count: 24, revenue: 210000 },
+      { month: 'Aug', rate: conversionRate || 28.5, count: convertedLeads, revenue: totalRevenue },
+    ];
+
+    return {
+      totalLeads,
+      newLeads,
+      contactedLeads,
+      interestedLeads,
+      followupsDueToday,
+      followupsOverdue,
+      convertedLeads,
+      rejectedLeads,
+      lostLeads,
+      conversionRate,
+      totalRevenue,
+      leadsByDay,
+      leadsBySource,
+      leadsByCampaign,
+      leadStatusDistribution,
+      conversionTrend,
     };
   }
 }

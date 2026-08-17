@@ -13,7 +13,7 @@ import { generateAstrologicalPredictions } from './predictionEngine';
  */
 export function generateAstrologyReportPDF(
   chart: AstrologyChartData,
-  currencySymbol: string = '$',
+  currencySymbol: string = '₹',
   selectedLanguage: LanguageCode | string = 'en'
 ): void {
   const doc = new jsPDF({

@@ -85,7 +85,7 @@ export function autoDispensePrescribedGemstone(
   inventory: InventoryItem[],
   sales: Sale[],
   astrologerName = 'Acharya Rajesh Sharma',
-  currencySymbol = '$'
+  currencySymbol = '₹'
 ): {
   success: boolean;
   message: string;

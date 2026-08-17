@@ -36,7 +36,7 @@ export const SalesList: React.FC<SalesListProps> = ({
   inventory,
   onOpenNewSaleModal,
   onOpenScanner,
-  currencySymbol = '$',
+  currencySymbol = '₹',
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState<Sale | null>(null);

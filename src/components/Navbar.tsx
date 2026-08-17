@@ -22,6 +22,8 @@ import {
   Home,
   LogOut,
   Eye,
+  MessageSquare,
+  Smartphone,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -35,6 +37,8 @@ interface NavbarProps {
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onOpenCloudModal?: () => void;
+  onToggleMobileAppMode?: () => void;
+  isMobileAppMode?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -45,6 +49,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onGoToHome,
   settings,
   onOpenCloudModal,
+  onToggleMobileAppMode,
+  isMobileAppMode = false,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -53,6 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const baseTabs = [
     { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard },
+    { id: 'leads', label: 'Leads & WhatsApp', icon: MessageSquare, badge: 'CRM' },
     { id: 'astrology', label: 'Astro Engine', icon: Sparkles, badge: 'Ephemeris' },
     { id: 'clients', label: 'Client CRM', icon: Users },
     { id: 'appointments', label: 'Consultations', icon: Calendar },
@@ -183,6 +190,31 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
+        {/* Android App Mode Switcher */}
+        {onToggleMobileAppMode && (
+          <div className="px-3 py-1.5">
+            <button
+              type="button"
+              id="btn-switch-android-app"
+              onClick={onToggleMobileAppMode}
+              className="w-full flex items-center justify-between p-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/90 border border-emerald-600/60 text-emerald-200 transition cursor-pointer group shadow-2xs"
+            >
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-400 shrink-0 group-hover:scale-110 transition" />
+                <div className="text-left">
+                  <span className="text-xs font-bold text-white group-hover:text-emerald-300 transition block leading-tight">
+                    Android App Mode
+                  </span>
+                  <span className="text-[9px] text-emerald-400 font-mono">Daily Mobile Ops</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono bg-emerald-900/90 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/50">
+                INR ₹
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* Cloud Database & SEO Status Button */}
         {onOpenCloudModal && (
           <div className="px-3 py-1.5">
@@ -249,7 +281,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {onToggleMobileAppMode && (
+            <button
+              type="button"
+              onClick={onToggleMobileAppMode}
+              className="px-2 py-1 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/60 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+              title="Switch to Android App Mode"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>App</span>
+            </button>
+          )}
+
           {onGoToHome && (
             <button
               type="button"

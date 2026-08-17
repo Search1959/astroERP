@@ -74,7 +74,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   onOpenCsvImportModal,
   onOpenPredictionsWindow,
   onQuickCalculate,
-  currencySymbol = '$',
+  currencySymbol = '₹',
 }) => {
   const [quickName, setQuickName] = useState('Ananya Sharma');
   const [quickDate, setQuickDate] = useState('1995-11-18');

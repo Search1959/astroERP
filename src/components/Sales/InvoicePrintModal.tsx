@@ -17,7 +17,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
   sale,
   isOpen,
   onClose,
-  currencySymbol = '$',
+  currencySymbol = '₹',
 }) => {
   if (!isOpen) return null;
 

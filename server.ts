@@ -9,7 +9,7 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { db, WORLD_CITIES } from './server/storage';
 import { calculateFullAstrologyChart } from './server/astronomy/ephemeris';
-import { Client, GemstoneItem, SalesInvoice, PurchaseEntry, Appointment, User } from './src/types';
+import { Client, GemstoneItem, SalesInvoice, PurchaseEntry, Appointment, User, Lead, LeadFollowup, LeadActivity, LeadMessage } from './src/types';
 
 async function startServer() {
   const app = express();
@@ -835,6 +835,701 @@ Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml
 </urlset>`;
     res.type('application/xml');
     res.send(sitemap);
+  });
+
+  // ---------------- LEAD MANAGEMENT & WHATSAPP CRM APIs ---------------- //
+
+  // 1. WhatsApp Webhook Verification (Meta Graph API)
+  app.get('/api/webhooks/whatsapp', (req, res) => {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+
+    const verifyToken = db.leadSettings?.whatsappConfig?.webhookVerifyToken || 'astronexus_wa_verify_secure_2026';
+
+    if (mode && token) {
+      if (mode === 'subscribe' && token === verifyToken) {
+        console.log('✅ WhatsApp Webhook verified successfully');
+        return res.status(200).send(challenge);
+      } else {
+        console.warn('❌ WhatsApp Webhook token mismatch:', token);
+        return res.sendStatus(403);
+      }
+    }
+    return res.status(200).json({ status: 'active', message: 'WhatsApp Webhook Endpoint Ready' });
+  });
+
+  // 2. WhatsApp Incoming Webhook Event Ingestion (Meta Click-to-WhatsApp Ads & Messages)
+  app.post('/api/webhooks/whatsapp', (req, res) => {
+    try {
+      const body = req.body;
+      console.log('📩 Incoming WhatsApp Webhook Payload:', JSON.stringify(body, null, 2));
+
+      if (body.object === 'whatsapp_business_account' || body.entry) {
+        const entries = body.entry || [];
+        for (const entry of entries) {
+          const changes = entry.changes || [];
+          for (const change of changes) {
+            const value = change.value;
+            if (value && value.messages && value.messages.length > 0) {
+              for (const msg of value.messages) {
+                const senderPhone = '+' + (msg.from || '').replace(/[^0-9]/g, '');
+                const contact = value.contacts?.find((c: any) => c.wa_id === msg.from);
+                const senderName = contact?.profile?.name || 'WhatsApp Customer';
+
+                let messageText = '';
+                if (msg.type === 'text') {
+                  messageText = msg.text?.body || '';
+                } else if (msg.type === 'button') {
+                  messageText = msg.button?.text || msg.button?.payload || '[Button Clicked]';
+                } else if (msg.type === 'interactive') {
+                  messageText = msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title || '[Interactive Response]';
+                } else {
+                  messageText = `[${msg.type || 'Media'} message]`;
+                }
+
+                // Extract referral info (Meta Ads click-to-WhatsApp)
+                const referral = msg.referral || {};
+                const source = referral.source_type === 'ad' ? 'Meta Ads' : 'WhatsApp';
+                const campaign_name = referral.headline || referral.source_id || db.leadSettings.whatsappConfig.defaultCampaign || 'Meta_ClickToWhatsApp';
+                const ad_name = referral.body || referral.source_url || '';
+
+                // Find or create lead
+                let lead = db.findLeadByPhone(senderPhone);
+                const isNew = !lead;
+
+                if (!lead) {
+                  const leadId = `LEAD-${new Date().getFullYear()}-${1000 + db.leads.length + 1}`;
+                  lead = {
+                    lead_id: leadId,
+                    name: senderName,
+                    whatsapp_number: senderPhone,
+                    source: source as any,
+                    campaign_name: campaign_name,
+                    ad_name: ad_name,
+                    service_interested: 'Gemstone Consultation & Prescription',
+                    requirement: messageText,
+                    lead_status: 'NEW',
+                    priority: 'HIGH',
+                    assigned_to: db.leadSettings.whatsappConfig.defaultAssignedUserId || 'usr_astro_1',
+                    assigned_to_name: 'Dr. Elena Rostova',
+                    created_at: new Date().toISOString(),
+                    last_contact_at: new Date().toISOString(),
+                    next_followup_date: new Date().toISOString().split('T')[0],
+                    notes: `Lead captured automatically from ${source}. First message: "${messageText}"`,
+                    tags: ['WhatsApp Inbound', 'Meta Lead'],
+                    created_by: 'WhatsApp Webhook',
+                    updated_at: new Date().toISOString(),
+                    unread_messages_count: 1,
+                  };
+                  db.leads.unshift(lead);
+
+                  db.logLeadActivity(
+                    lead.lead_id,
+                    'lead_created',
+                    'New Lead via WhatsApp',
+                    `Inbound message from ${senderPhone} (${senderName}): "${messageText}"`,
+                    'WhatsApp Webhook'
+                  );
+                } else {
+                  lead.last_contact_at = new Date().toISOString();
+                  lead.updated_at = new Date().toISOString();
+                  lead.unread_messages_count = (lead.unread_messages_count || 0) + 1;
+                  if (lead.lead_status === 'NO_RESPONSE' || lead.lead_status === 'LOST') {
+                    lead.lead_status = 'CONTACTED';
+                  }
+
+                  db.logLeadActivity(
+                    lead.lead_id,
+                    'whatsapp_received',
+                    'WhatsApp Message Received',
+                    `"${messageText}"`,
+                    senderName
+                  );
+                }
+
+                // Store message record
+                const newMsg: LeadMessage = {
+                  message_id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                  lead_id: lead.lead_id,
+                  direction: 'inbound',
+                  sender_number: senderPhone,
+                  sender_name: senderName,
+                  recipient_number: db.leadSettings.whatsappConfig.businessPhoneNumber,
+                  message_text: messageText,
+                  timestamp: new Date().toISOString(),
+                  status: 'received',
+                  channel: 'whatsapp_cloud_api',
+                  raw_payload: msg,
+                };
+                db.leadMessages.push(newMsg);
+              }
+            }
+          }
+        }
+      }
+
+      return res.status(200).json({ success: true, message: 'EVENT_RECEIVED' });
+    } catch (err: any) {
+      console.error('WhatsApp Webhook Error:', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 3. Lead Dashboard Metrics
+  app.get('/api/leads/dashboard/stats', (req, res) => {
+    const stats = db.getLeadMetrics();
+    return res.json({ success: true, data: stats });
+  });
+
+  // 4. Lead Settings
+  app.get('/api/leads/settings', (req, res) => {
+    return res.json({ success: true, data: db.leadSettings });
+  });
+
+  app.post('/api/leads/settings', (req, res) => {
+    db.leadSettings = {
+      ...db.leadSettings,
+      ...req.body,
+    };
+    db.logAction('sys', 'Admin', 'super_admin', 'LEAD_SETTINGS_UPDATE', 'CRM', 'Updated CRM & WhatsApp configuration');
+    return res.json({ success: true, data: db.leadSettings });
+  });
+
+  // 5. Check Duplicate
+  app.get('/api/leads/check-duplicate', (req, res) => {
+    const { phone, email } = req.query;
+    if (!phone && !email) {
+      return res.json({ success: true, duplicate: false });
+    }
+
+    let existingLead: Lead | undefined;
+    if (phone && typeof phone === 'string') {
+      existingLead = db.findLeadByPhone(phone);
+    }
+    if (!existingLead && email && typeof email === 'string') {
+      existingLead = db.leads.find(l => l.email?.toLowerCase() === email.toLowerCase());
+    }
+
+    if (existingLead) {
+      return res.json({
+        success: true,
+        duplicate: true,
+        lead: existingLead,
+        message: `A lead already exists with this contact (${existingLead.name} - ${existingLead.lead_id})`,
+      });
+    }
+    return res.json({ success: true, duplicate: false });
+  });
+
+  // 6. Get All Leads (with filtering, search, sorting)
+  app.get('/api/leads', (req, res) => {
+    let result = [...db.leads];
+    const { status, source, campaign, priority, assigned_to, q, date_from, date_to } = req.query;
+
+    if (status && typeof status === 'string' && status !== 'ALL') {
+      result = result.filter(l => l.lead_status === status);
+    }
+    if (source && typeof source === 'string' && source !== 'ALL') {
+      result = result.filter(l => l.source === source);
+    }
+    if (campaign && typeof campaign === 'string' && campaign !== 'ALL') {
+      result = result.filter(l => l.campaign_name === campaign);
+    }
+    if (priority && typeof priority === 'string' && priority !== 'ALL') {
+      result = result.filter(l => l.priority === priority);
+    }
+    if (assigned_to && typeof assigned_to === 'string' && assigned_to !== 'ALL') {
+      result = result.filter(l => l.assigned_to === assigned_to);
+    }
+    if (date_from && typeof date_from === 'string') {
+      result = result.filter(l => (l.created_at || '').split('T')[0] >= date_from);
+    }
+    if (date_to && typeof date_to === 'string') {
+      result = result.filter(l => (l.created_at || '').split('T')[0] <= date_to);
+    }
+    if (q && typeof q === 'string') {
+      const search = q.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(search) ||
+        l.whatsapp_number.includes(search) ||
+        (l.email && l.email.toLowerCase().includes(search)) ||
+        (l.lead_id && l.lead_id.toLowerCase().includes(search)) ||
+        (l.service_interested && l.service_interested.toLowerCase().includes(search)) ||
+        (l.notes && l.notes.toLowerCase().includes(search))
+      );
+    }
+
+    // Sort by updated_at / created_at descending
+    result.sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime());
+
+    return res.json({ success: true, data: result, total: result.length });
+  });
+
+  // 7. Create New Lead (Manual Entry or API)
+  app.post('/api/leads', (req, res) => {
+    const {
+      name,
+      whatsapp_number,
+      alternate_phone,
+      email,
+      source,
+      campaign_name,
+      ad_set_name,
+      ad_name,
+      service_interested,
+      requirement,
+      lead_status,
+      priority,
+      assigned_to,
+      assigned_to_name,
+      next_followup_date,
+      next_followup_time,
+      notes,
+      tags,
+    } = req.body;
+
+    if (!name || !whatsapp_number) {
+      return res.status(400).json({ success: false, error: 'Full Name and WhatsApp number are required.' });
+    }
+
+    const normalizedPhone = db.normalizePhone(whatsapp_number);
+
+    // Duplicate check
+    const existing = db.findLeadByPhone(normalizedPhone);
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        error: `Duplicate Lead: Phone number already exists under ${existing.name} (${existing.lead_id})`,
+        lead: existing,
+      });
+    }
+
+    const leadId = `LEAD-${new Date().getFullYear()}-${1000 + db.leads.length + 1}`;
+    const newLead: Lead = {
+      lead_id: leadId,
+      name,
+      whatsapp_number: normalizedPhone,
+      alternate_phone: alternate_phone ? db.normalizePhone(alternate_phone) : undefined,
+      email,
+      source: source || 'Manual',
+      campaign_name: campaign_name || 'Direct_WalkIn',
+      ad_set_name,
+      ad_name,
+      service_interested: service_interested || 'Gemstone Consultation & Prescription',
+      requirement: requirement || '',
+      lead_status: lead_status || 'NEW',
+      priority: priority || 'MEDIUM',
+      assigned_to: assigned_to || 'usr_admin_1',
+      assigned_to_name: assigned_to_name || 'Apex7 Admin',
+      created_at: new Date().toISOString(),
+      last_contact_at: new Date().toISOString(),
+      next_followup_date,
+      next_followup_time,
+      notes: notes || '',
+      tags: Array.isArray(tags) ? tags : ['Manual Lead'],
+      created_by: 'Staff / Admin',
+      updated_at: new Date().toISOString(),
+      unread_messages_count: 0,
+    };
+
+    db.leads.unshift(newLead);
+
+    // Log Activity
+    db.logLeadActivity(
+      newLead.lead_id,
+      'lead_created',
+      'Lead Created',
+      `Manual lead created by staff for ${newLead.name} (${newLead.whatsapp_number})`,
+      assigned_to_name || 'Staff'
+    );
+
+    // If followup date is specified, create followup item
+    if (next_followup_date) {
+      const followup: LeadFollowup = {
+        followup_id: 'flw_' + Date.now(),
+        lead_id: newLead.lead_id,
+        lead_name: newLead.name,
+        whatsapp_number: newLead.whatsapp_number,
+        followup_date: next_followup_date,
+        followup_time: next_followup_time || '11:00',
+        type: 'WhatsApp',
+        notes: notes || 'Initial follow-up',
+        assigned_to: newLead.assigned_to,
+        assigned_to_name: newLead.assigned_to_name,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      };
+      db.leadFollowups.unshift(followup);
+    }
+
+    return res.status(201).json({ success: true, data: newLead });
+  });
+
+  // 8. Get Single Lead with full details
+  app.get('/api/leads/:id', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const followups = db.leadFollowups.filter(f => f.lead_id === id);
+    const activities = db.leadActivities.filter(a => a.lead_id === id);
+    const messages = db.leadMessages.filter(m => m.lead_id === id);
+
+    // Reset unread messages count on opening
+    lead.unread_messages_count = 0;
+
+    return res.json({
+      success: true,
+      data: {
+        ...lead,
+        followups,
+        activities,
+        messages,
+      },
+    });
+  });
+
+  // 9. Update Lead
+  app.put('/api/leads/:id', (req, res) => {
+    const { id } = req.params;
+    const index = db.leads.findIndex(l => l.lead_id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const oldLead = db.leads[index];
+    const updates = req.body;
+
+    // Track status change activity
+    if (updates.lead_status && updates.lead_status !== oldLead.lead_status) {
+      db.logLeadActivity(
+        id,
+        'status_changed',
+        `Status changed to ${updates.lead_status}`,
+        `Moved from ${oldLead.lead_status} to ${updates.lead_status}`,
+        updates.performer_name || 'Staff'
+      );
+    }
+
+    // Track assignment change
+    if (updates.assigned_to && updates.assigned_to !== oldLead.assigned_to) {
+      db.logLeadActivity(
+        id,
+        'lead_assigned',
+        `Lead Reassigned`,
+        `Assigned to ${updates.assigned_to_name || updates.assigned_to}`,
+        updates.performer_name || 'Admin'
+      );
+    }
+
+    db.leads[index] = {
+      ...oldLead,
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    return res.json({ success: true, data: db.leads[index] });
+  });
+
+  // 10. Delete Lead
+  app.delete('/api/leads/:id', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    db.leads = db.leads.filter(l => l.lead_id !== id);
+    db.leadFollowups = db.leadFollowups.filter(f => f.lead_id !== id);
+    db.leadActivities = db.leadActivities.filter(a => a.lead_id !== id);
+    db.leadMessages = db.leadMessages.filter(m => m.lead_id !== id);
+
+    db.logAction('sys', 'Admin', 'super_admin', 'DELETE_LEAD', 'CRM', `Deleted lead ${lead.name} (${lead.lead_id})`);
+    return res.json({ success: true, message: 'Lead deleted successfully' });
+  });
+
+  // 11. Convert Lead to Customer (Creates AstroERP Client and/or Invoice)
+  app.post('/api/leads/:id/convert', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const { servicePurchased, paymentAmount, paymentMethod, notes, createClient = true } = req.body;
+
+    let clientId = lead.customer_id;
+
+    // Create client in AstroERP if requested or not already linked
+    if (createClient && !clientId) {
+      clientId = 'cli_' + Date.now();
+      const newClient: Client = {
+        id: clientId,
+        name: lead.name,
+        phone: lead.whatsapp_number || lead.phone || '',
+        email: lead.email || '',
+        gender: 'Other',
+        address: '',
+        dateOfBirth: '1995-01-01',
+        timeOfBirth: '12:00',
+        placeOfBirth: 'Bangalore, India',
+        latitude: 12.9716,
+        longitude: 77.5946,
+        timezone: 5.5,
+        notes: `Converted from Lead ${lead.lead_id}. Requirement: ${lead.requirement || 'Vedic consultation'}`,
+        createdAt: new Date().toISOString(),
+      };
+      db.clients.unshift(newClient);
+    }
+
+    const amount = Number(paymentAmount) || 0;
+    const invoiceNumber = `INV-${new Date().getFullYear()}-${1000 + db.sales.length + 1}`;
+
+    // Optionally create sales invoice
+    if (amount > 0) {
+      const newInvoice: SalesInvoice = {
+        id: 'sale_' + Date.now(),
+        invoiceNumber,
+        clientId: clientId || 'cli_walkin',
+        clientName: lead.name,
+        clientPhone: lead.whatsapp_number || lead.phone || '',
+        items: [
+          {
+            stoneId: 'srv_' + Date.now(),
+            stoneName: servicePurchased || lead.service_interested || 'Vedic Astrology Consultation',
+            sku: 'SRV-ASTRO',
+            quantity: 1,
+            unitPrice: amount,
+            totalPrice: amount,
+            total: amount,
+          },
+        ],
+        subtotal: amount,
+        taxAmount: 0,
+        discountAmount: 0,
+        grandTotal: amount,
+        paymentMethod: paymentMethod || 'UPI',
+        paymentStatus: 'paid',
+        saleDate: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        notes: `Generated on Lead Conversion (${lead.lead_id})`,
+      };
+      db.sales.unshift(newInvoice);
+    }
+
+    // Update Lead state
+    lead.lead_status = 'CONVERTED';
+    lead.customer_id = clientId;
+    lead.conversion_date = new Date().toISOString().split('T')[0];
+    lead.converted_at = new Date().toISOString();
+    lead.converted_value = amount;
+    lead.conversion_details = {
+      servicePurchased: servicePurchased || lead.service_interested,
+      invoiceNumber: amount > 0 ? invoiceNumber : undefined,
+      paymentAmount: amount,
+      paymentMethod: paymentMethod || 'UPI',
+      clientId,
+    };
+    lead.updated_at = new Date().toISOString();
+
+    // Log Activity
+    db.logLeadActivity(
+      lead.lead_id,
+      'lead_converted',
+      'Lead Converted to Customer! 🎉',
+      `Converted for ${servicePurchased || 'Service'} (₹${amount.toLocaleString('en-IN')}). Linked Client ID: ${clientId}`,
+      req.body.performer_name || 'Staff'
+    );
+
+    return res.json({
+      success: true,
+      message: 'Lead converted successfully',
+      data: {
+        lead,
+        clientId,
+        invoiceNumber: amount > 0 ? invoiceNumber : undefined,
+      },
+    });
+  });
+
+  // 12. Mark Lead Lost / Rejected
+  app.post('/api/leads/:id/reject', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const { reason, notes, isRejected = false } = req.body;
+
+    lead.lead_status = isRejected ? 'REJECTED' : 'LOST';
+    lead.lost_reason = reason || 'Not Interested';
+    if (notes) {
+      lead.notes = lead.notes ? `${lead.notes}\n[Lost Reason]: ${notes}` : `[Lost Reason]: ${notes}`;
+    }
+    lead.updated_at = new Date().toISOString();
+
+    db.logLeadActivity(
+      lead.lead_id,
+      'lead_lost',
+      `Lead Marked as ${lead.lead_status}`,
+      `Reason: ${lead.lost_reason}. Notes: ${notes || 'None'}`,
+      req.body.performer_name || 'Staff'
+    );
+
+    return res.json({ success: true, data: lead });
+  });
+
+  // 13. Follow-ups
+  app.get('/api/leads/:id/followups', (req, res) => {
+    const { id } = req.params;
+    const followups = db.leadFollowups.filter(f => f.lead_id === id);
+    return res.json({ success: true, data: followups });
+  });
+
+  app.post('/api/leads/:id/followups', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const { followup_date, followup_time, type, notes, assigned_to, assigned_to_name } = req.body;
+
+    if (!followup_date) {
+      return res.status(400).json({ success: false, error: 'Follow-up date is required.' });
+    }
+
+    const newFollowup: LeadFollowup = {
+      followup_id: 'flw_' + Date.now(),
+      lead_id: id,
+      lead_name: lead.name,
+      whatsapp_number: lead.whatsapp_number,
+      followup_date,
+      followup_time: followup_time || '12:00',
+      type: type || 'WhatsApp',
+      notes: notes || '',
+      assigned_to: assigned_to || lead.assigned_to,
+      assigned_to_name: assigned_to_name || lead.assigned_to_name,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    };
+
+    db.leadFollowups.unshift(newFollowup);
+
+    // Update lead next follow-up date and status
+    lead.next_followup_date = followup_date;
+    lead.next_followup_time = followup_time;
+    if (lead.lead_status === 'NEW' || lead.lead_status === 'CONTACTED') {
+      lead.lead_status = 'FOLLOW_UP';
+    }
+    lead.updated_at = new Date().toISOString();
+
+    db.logLeadActivity(
+      id,
+      'followup_scheduled',
+      `Follow-up Scheduled (${newFollowup.type})`,
+      `Scheduled for ${followup_date} at ${followup_time || '12:00'}. Note: "${notes || 'Follow up'}"`,
+      assigned_to_name || 'Staff'
+    );
+
+    return res.status(201).json({ success: true, data: newFollowup });
+  });
+
+  app.put('/api/leads/:id/followups/:fId', (req, res) => {
+    const { id, fId } = req.params;
+    const followup = db.leadFollowups.find(f => f.followup_id === fId && f.lead_id === id);
+    if (!followup) return res.status(404).json({ success: false, error: 'Follow-up not found' });
+
+    const { status, outcome_notes } = req.body;
+    if (status) followup.status = status;
+    if (outcome_notes) followup.outcome_notes = outcome_notes;
+    if (status === 'completed') {
+      followup.completed_at = new Date().toISOString();
+      db.logLeadActivity(
+        id,
+        'followup_completed',
+        'Follow-up Completed',
+        `Outcome: ${outcome_notes || 'Completed successfully'}`,
+        req.body.performer_name || 'Staff'
+      );
+    }
+
+    return res.json({ success: true, data: followup });
+  });
+
+  // 14. Lead Activities / Timeline
+  app.get('/api/leads/:id/activities', (req, res) => {
+    const { id } = req.params;
+    const activities = db.leadActivities.filter(a => a.lead_id === id);
+    activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return res.json({ success: true, data: activities });
+  });
+
+  app.post('/api/leads/:id/activities', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const { type, title, description, performer_name } = req.body;
+    const activity = db.logLeadActivity(
+      id,
+      type || 'note_added',
+      title || 'Timeline Note Added',
+      description || '',
+      performer_name || 'Staff'
+    );
+
+    return res.status(201).json({ success: true, data: activity });
+  });
+
+  // 15. Messages / WhatsApp Chat Thread
+  app.get('/api/leads/:id/messages', (req, res) => {
+    const { id } = req.params;
+    const messages = db.leadMessages.filter(m => m.lead_id === id);
+    messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    return res.json({ success: true, data: messages });
+  });
+
+  app.post('/api/leads/:id/messages', (req, res) => {
+    const { id } = req.params;
+    const lead = db.leads.find(l => l.lead_id === id);
+    if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
+
+    const { message_text, media_url, media_type, sender_name } = req.body;
+    if (!message_text && !media_url) {
+      return res.status(400).json({ success: false, error: 'Message text is required.' });
+    }
+
+    const newMsg: LeadMessage = {
+      message_id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      lead_id: id,
+      direction: 'outbound',
+      sender_number: db.leadSettings.whatsappConfig.businessPhoneNumber,
+      sender_name: sender_name || 'AstroNexus Jyotish Astrologer',
+      recipient_number: lead.whatsapp_number,
+      message_text: message_text || '',
+      media_url,
+      media_type,
+      timestamp: new Date().toISOString(),
+      status: 'sent',
+      channel: 'whatsapp_cloud_api',
+    };
+
+    db.leadMessages.push(newMsg);
+
+    // Update lead contact time and status
+    lead.last_contact_at = new Date().toISOString();
+    lead.updated_at = new Date().toISOString();
+    if (lead.lead_status === 'NEW') {
+      lead.lead_status = 'CONTACTED';
+    }
+
+    // Log Activity
+    db.logLeadActivity(
+      id,
+      'whatsapp_sent',
+      'WhatsApp Message Sent',
+      `"${message_text}"`,
+      sender_name || 'Staff'
+    );
+
+    return res.status(201).json({
+      success: true,
+      data: newMsg,
+      message: 'WhatsApp message dispatched and logged in CRM history.',
+    });
   });
 
   // API 404 handler - MUST be before frontend middleware so API calls never return index.html
