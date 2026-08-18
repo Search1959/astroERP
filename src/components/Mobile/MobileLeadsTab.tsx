@@ -58,24 +58,24 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-24 select-none font-sans">
       {/* Top Header with Stats */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+      <div className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400 font-bold shadow-xs">
               <MessageSquare className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Leads & WhatsApp CRM</h2>
-              <p className="text-[11px] text-slate-400">{leads.length} Total Captured Inquiries</p>
+              <h2 className="text-sm font-bold text-white font-['Outfit',sans-serif]">Leads & WhatsApp CRM</h2>
+              <p className="text-[11px] text-slate-400 font-mono">{leads.length} Total Captured Inquiries</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onOpenNewLeadModal}
-            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-md"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Lead</span>
@@ -84,13 +84,13 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-orange-400/70 absolute left-3 top-2.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search lead by name, phone or service..."
-            className="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            className="w-full pl-9 pr-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition shadow-inner"
           />
         </div>
 
@@ -104,10 +104,10 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                 type="button"
                 key={filterKey}
                 onClick={() => setActiveFilter(filterKey)}
-                className={`px-3 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition cursor-pointer ${
+                className={`px-3 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition cursor-pointer font-['Outfit',sans-serif] ${
                   isActive
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white'
+                    ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-xs'
+                    : 'bg-[#14050b] text-slate-400 hover:text-white border border-red-950'
                 }`}
               >
                 {filterKey === 'ALL' ? 'All' : filterKey.replace('_', ' ')} ({count})
@@ -120,8 +120,8 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
       {/* Leads List */}
       <div className="space-y-3">
         {filteredLeads.length === 0 ? (
-          <div className="text-center py-8 bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <MessageSquare className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
+          <div className="text-center py-8 bg-[#0e0307] border border-red-950/80 rounded-3xl p-4">
+            <MessageSquare className="w-8 h-8 text-slate-600 mx-auto mb-2 opacity-50" />
             <p className="text-xs text-slate-400">No leads found in this filter.</p>
           </div>
         ) : (
@@ -134,41 +134,41 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
             return (
               <div
                 key={lead.lead_id}
-                className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md space-y-3"
+                className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl space-y-3"
               >
                 {/* Lead Header */}
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-white">{lead.name}</h3>
+                      <h3 className="text-sm font-bold text-white font-['Outfit',sans-serif]">{lead.name}</h3>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           lead.lead_status === 'NEW'
-                            ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                            ? 'bg-blue-950/80 text-blue-300 border border-blue-700/60'
                             : lead.lead_status === 'FOLLOW_UP'
-                            ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                            ? 'bg-amber-950/80 text-amber-300 border border-amber-700/60'
                             : lead.lead_status === 'INTERESTED'
-                            ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                            ? 'bg-purple-950/80 text-purple-300 border border-purple-700/60'
                             : lead.lead_status === 'CONVERTED'
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                            : 'bg-slate-800 text-slate-400'
+                            ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                            : 'bg-[#14050b] text-slate-400 border border-red-950'
                         }`}
                       >
                         {lead.lead_status}
                       </span>
                     </div>
 
-                    <p className="text-xs text-amber-300/90 font-medium mt-0.5">
+                    <p className="text-xs text-orange-400 font-medium mt-0.5">
                       {lead.service_interested || 'Kundli Analysis'}
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      Source: <span className="text-slate-300 font-semibold">{lead.source}</span> • {rawPhone}
+                      Source: <span className="text-slate-200 font-semibold">{lead.source}</span> • {rawPhone}
                     </p>
                   </div>
 
                   {((lead.converted_value && lead.converted_value > 0) || (lead.conversion_details?.paymentAmount && lead.conversion_details.paymentAmount > 0)) && (
                     <div className="text-right">
-                      <span className="text-xs font-bold text-emerald-400">
+                      <span className="text-xs font-bold text-emerald-400 font-mono">
                         {currencySymbol}{(lead.converted_value || lead.conversion_details?.paymentAmount || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
@@ -176,7 +176,7 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                 </div>
 
                 {/* Direct 1-Tap Action Row */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-red-950/70">
                   {rawPhone ? (
                     <a
                       href={`https://wa.me/${waPhone}?text=${encodeURIComponent(
@@ -184,13 +184,13 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="py-2 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs"
+                      className="py-2 px-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>WhatsApp</span>
                     </a>
                   ) : (
-                    <button disabled className="py-2 px-2 bg-slate-800 text-slate-500 rounded-xl text-[11px] font-medium">
+                    <button disabled className="py-2 px-2 bg-[#120408] text-slate-600 rounded-xl text-[11px] font-medium border border-red-950">
                       No Phone
                     </button>
                   )}
@@ -198,9 +198,9 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                   {rawPhone ? (
                     <a
                       href={`tel:${rawPhone}`}
-                      className="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-slate-700"
+                      className="py-2 px-2 bg-[#1c060e] hover:bg-[#280814] text-slate-200 hover:text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-red-900/60 shadow-xs"
                     >
-                      <Phone className="w-3.5 h-3.5 text-sky-400" />
+                      <Phone className="w-3.5 h-3.5 text-rose-400" />
                       <span>Call</span>
                     </a>
                   ) : null}
@@ -209,13 +209,13 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenConvertModal(lead)}
-                      className="py-2 px-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer"
+                      className="py-2 px-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
                       <span>Convert</span>
                     </button>
                   ) : (
-                    <div className="py-2 px-2 bg-emerald-950/60 text-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-emerald-800/40">
+                    <div className="py-2 px-2 bg-emerald-950/80 text-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-emerald-700/60">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Customer</span>
                     </div>
@@ -232,10 +232,10 @@ export const MobileLeadsTab: React.FC<MobileLeadsTabProps> = ({
                           type="button"
                           key={st}
                           onClick={() => onUpdateLeadStatus(lead.lead_id || lead.id || '', st)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold cursor-pointer ${
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold cursor-pointer transition ${
                             lead.lead_status === st
-                              ? 'bg-slate-700 text-white'
-                              : 'text-slate-400 hover:text-slate-200'
+                              ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40 font-bold'
+                              : 'text-slate-400 hover:text-slate-200 bg-[#120408] border border-red-950/60'
                           }`}
                         >
                           {st.replace('_', ' ')}

@@ -43,24 +43,24 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
   });
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-24 select-none font-sans">
       {/* Top Header Card */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+      <div className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-rose-950/80 border border-rose-700/60 flex items-center justify-center text-rose-400 font-bold shadow-xs">
               <Calendar className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Consultations & Bookings</h2>
-              <p className="text-[11px] text-slate-400">{appointments.length} Total Bookings</p>
+              <h2 className="text-sm font-bold text-white font-['Outfit',sans-serif]">Consultations & Bookings</h2>
+              <p className="text-[11px] text-slate-400 font-mono">{appointments.length} Total Bookings</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onOpenNewAppointmentModal}
-            className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-md"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Book Slot</span>
@@ -74,10 +74,10 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
               type="button"
               key={mode}
               onClick={() => setFilterMode(mode)}
-              className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold text-center transition cursor-pointer ${
+              className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold text-center transition cursor-pointer font-['Outfit',sans-serif] ${
                 filterMode === mode
-                  ? 'bg-sky-600 text-white shadow-xs'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-xs'
+                  : 'bg-[#14050b] text-slate-400 hover:text-white border border-red-950'
               }`}
             >
               {mode === 'TODAY' ? 'Today' : mode === 'UPCOMING' ? 'Upcoming' : mode === 'COMPLETED' ? 'Done' : 'All'}
@@ -89,13 +89,13 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
       {/* Appointment Cards */}
       <div className="space-y-3">
         {filteredAppointments.length === 0 ? (
-          <div className="text-center py-10 bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <Clock className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
+          <div className="text-center py-10 bg-[#0e0307] border border-red-950/80 rounded-3xl p-4">
+            <Clock className="w-8 h-8 text-slate-600 mx-auto mb-2 opacity-50" />
             <p className="text-xs text-slate-400">No appointments found under {filterMode.toLowerCase()}.</p>
             <button
               type="button"
               onClick={onOpenNewAppointmentModal}
-              className="mt-3 px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
+              className="mt-3 px-3 py-1.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1 cursor-pointer shadow-md"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Book Appointment</span>
@@ -111,34 +111,34 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
             return (
               <div
                 key={apt.id}
-                className={`bg-slate-900/90 border rounded-2xl p-4 shadow-md space-y-3 ${
+                className={`bg-[#0e0307] border rounded-3xl p-4 shadow-xl space-y-3 ${
                   apt.status === 'completed'
-                    ? 'border-slate-800/80 bg-slate-950/40 opacity-80'
-                    : 'border-slate-800'
+                    ? 'border-red-950/50 bg-[#0e0307]/70 opacity-75'
+                    : 'border-red-950/80'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-950 border border-sky-800/60 flex flex-col items-center justify-center text-sky-300 font-bold">
-                      <span className="text-[10px] text-sky-400">{apt.date?.slice(5)}</span>
-                      <span className="text-xs">{apt.time || '10:00'}</span>
+                    <div className="w-11 h-11 rounded-2xl bg-[#1c060e] border border-rose-900/60 flex flex-col items-center justify-center text-rose-300 font-bold shadow-xs">
+                      <span className="text-[10px] text-rose-400 font-mono">{apt.date?.slice(5)}</span>
+                      <span className="text-xs font-mono font-bold text-white">{apt.time || '10:00'}</span>
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white">{apt.clientName}</h3>
-                      <p className="text-xs text-amber-300 font-medium">{apt.serviceType || 'Kundli Analysis'}</p>
+                      <h3 className="text-sm font-bold text-white font-['Outfit',sans-serif]">{apt.clientName}</h3>
+                      <p className="text-xs text-orange-400 font-medium">{apt.serviceType || 'Kundli Analysis'}</p>
                       <p className="text-[11px] text-slate-400">{apt.meetingMode || 'In-Person / Phone'}</p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs font-bold text-white block">
+                    <span className="text-xs font-bold text-white font-mono block">
                       {currencySymbol}{apt.fee || 1100}
                     </span>
                     <span
                       className={`text-[9px] px-2 py-0.5 rounded-full inline-block mt-1 font-semibold ${
                         apt.status === 'completed'
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          : 'bg-amber-950 text-amber-300 border border-amber-800'
+                          ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                          : 'bg-amber-950/80 text-amber-300 border border-amber-700/60'
                       }`}
                     >
                       {apt.status === 'completed' ? 'Completed' : 'Scheduled'}
@@ -147,7 +147,7 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
                 </div>
 
                 {/* 1-Tap Action Bar */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-red-950/70">
                   {rawPhone ? (
                     <a
                       href={`https://wa.me/${waPhone}?text=Namaste%20${encodeURIComponent(
@@ -157,7 +157,7 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
                       )}%20on%20${apt.date}%20at%20${apt.time}.`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="py-2 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs"
+                      className="py-2 px-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>WhatsApp</span>
@@ -167,9 +167,9 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
                   {rawPhone ? (
                     <a
                       href={`tel:${rawPhone}`}
-                      className="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-slate-700"
+                      className="py-2 px-2 bg-[#1c060e] hover:bg-[#280814] text-slate-200 hover:text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-red-900/60 shadow-xs"
                     >
-                      <Phone className="w-3.5 h-3.5 text-sky-400" />
+                      <Phone className="w-3.5 h-3.5 text-rose-400" />
                       <span>Call</span>
                     </a>
                   ) : null}
@@ -178,13 +178,13 @@ export const MobileConsultationsTab: React.FC<MobileConsultationsTabProps> = ({
                     <button
                       type="button"
                       onClick={() => onUpdateAppointmentStatus(apt.id, 'completed')}
-                      className="py-2 px-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer"
+                      className="py-2 px-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Mark Done</span>
                     </button>
                   ) : (
-                    <div className="py-2 px-2 bg-slate-800/80 text-emerald-400 rounded-xl text-[11px] font-medium flex items-center justify-center gap-1">
+                    <div className="py-2 px-2 bg-emerald-950/80 text-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-emerald-700/60">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Attended</span>
                     </div>

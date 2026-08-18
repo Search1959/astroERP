@@ -38,24 +38,24 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
   });
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-24 select-none font-sans">
       {/* Top Header Card */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md">
+      <div className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-amber-950/80 border border-amber-700/60 flex items-center justify-center text-amber-400 font-bold shadow-xs">
               <Gem className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Gemstone Vault (Ratna Shastra)</h2>
-              <p className="text-[11px] text-slate-400">{inventory.length} Certified Stones in Stock</p>
+              <h2 className="text-sm font-bold text-white font-['Outfit',sans-serif]">Gemstone Vault (Ratna Shastra)</h2>
+              <p className="text-[11px] text-slate-400 font-mono">{inventory.length} Certified Stones in Stock</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onOpenNewStoneModal}
-            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shadow-md"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Gem</span>
@@ -64,13 +64,13 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
 
         {/* Search Input */}
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-orange-400/70 absolute left-3 top-2.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search Pukhraj, Neelam, Manik, Panna..."
-            className="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+            className="w-full pl-9 pr-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition"
           />
         </div>
 
@@ -81,10 +81,10 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
               type="button"
               key={planet}
               onClick={() => setSelectedPlanet(planet)}
-              className={`px-3 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition cursor-pointer ${
+              className={`px-3 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition cursor-pointer font-['Outfit',sans-serif] ${
                 selectedPlanet === planet
-                  ? 'bg-amber-500 text-slate-950 font-bold'
-                  : 'bg-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold shadow-xs'
+                  : 'bg-[#14050b] text-slate-400 hover:text-white border border-red-950'
               }`}
             >
               {planet}
@@ -96,8 +96,8 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
       {/* Gemstone Items List */}
       <div className="space-y-3">
         {filteredInventory.length === 0 ? (
-          <div className="text-center py-10 bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <Gem className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
+          <div className="text-center py-10 bg-[#0e0307] border border-red-950/80 rounded-3xl p-4">
+            <Gem className="w-8 h-8 text-slate-600 mx-auto mb-2 opacity-50" />
             <p className="text-xs text-slate-400">No gemstones found.</p>
           </div>
         ) : (
@@ -108,26 +108,26 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
             return (
               <div
                 key={item.id}
-                className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md space-y-3"
+                className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl space-y-3"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-white">{item.name}</h3>
+                      <h3 className="text-sm font-bold text-white font-['Outfit',sans-serif]">{item.name}</h3>
                       {item.sanskritName && (
                         <span className="text-[11px] text-amber-300 font-serif">({item.sanskritName})</span>
                       )}
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Planet: <strong className="text-indigo-300">{item.associatedPlanet || item.rulingPlanet || 'Jupiter'}</strong> •{' '}
+                      Planet: <strong className="text-orange-400">{item.associatedPlanet || item.rulingPlanet || 'Jupiter'}</strong> •{' '}
                       {item.weightCarats || 4.5} Carats ({item.weightRatti || 4.95} Ratti)
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      <span className="text-[10px] px-2 py-0.5 rounded-lg bg-[#14050b] text-slate-300 border border-red-950/80 font-mono">
                         Lab: {item.certificationLab || 'Govt Certified'}
                       </span>
                       {item.isCertified && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-0.5 font-medium">
+                        <span className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 flex items-center gap-0.5 font-medium">
                           <Sparkles className="w-2.5 h-2.5" /> Certified
                         </span>
                       )}
@@ -135,14 +135,14 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
                   </div>
 
                   <div className="text-right">
-                    <span className="text-sm font-bold text-emerald-400 block">
+                    <span className="text-sm font-bold text-emerald-400 font-mono block">
                       {currencySymbol}{price.toLocaleString('en-IN')}
                     </span>
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-1 font-mono ${
                         inStock
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          : 'bg-rose-950 text-rose-300 border border-rose-800'
+                          ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                          : 'bg-rose-950/80 text-rose-300 border border-rose-700/60'
                       }`}
                     >
                       {inStock ? `${item.stockQuantity} in stock` : 'Out of stock'}
@@ -152,11 +152,11 @@ export const MobileInventoryTab: React.FC<MobileInventoryTabProps> = ({
 
                 {/* Sell / Dispense Action */}
                 {onQuickSellStone && inStock && (
-                  <div className="pt-2 border-t border-slate-800">
+                  <div className="pt-2 border-t border-red-950/70">
                     <button
                       type="button"
                       onClick={() => onQuickSellStone(item)}
-                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                      className="w-full py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-orange-600/20"
                     >
                       <Gem className="w-3.5 h-3.5" />
                       <span>Dispense & Create Invoice ({currencySymbol}{price.toLocaleString('en-IN')})</span>

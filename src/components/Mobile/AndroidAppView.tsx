@@ -94,21 +94,21 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
   const todayAppointmentsCount = appointments.filter(a => a.date === todayStr && a.status === 'scheduled').length;
 
   return (
-    <div className="w-full min-h-screen bg-[#070A12] text-slate-100 flex flex-col font-sans relative antialiased selection:bg-indigo-600 selection:text-white">
+    <div className="w-full min-h-screen bg-[#080104] text-slate-100 flex flex-col font-sans relative antialiased selection:bg-orange-600 selection:text-white">
       {/* ========================================================================= */}
       {/* NATIVE ANDROID STATUS BAR                                                  */}
       {/* ========================================================================= */}
-      <div className="bg-[#0B0F19] px-4 py-1.5 flex items-center justify-between text-[11px] font-medium text-slate-300 border-b border-slate-800/80 shrink-0 sticky top-0 z-50">
+      <div className="bg-[#0e0307] px-4 py-1.5 flex items-center justify-between text-[11px] font-medium text-slate-300 border-b border-red-950/80 shrink-0 sticky top-0 z-50">
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold">{currentTime || '10:30 AM'}</span>
-          <span className="text-[10px] text-amber-400 font-mono font-bold ml-1">IST</span>
+          <span className="font-semibold text-white">{currentTime || '10:30 AM'}</span>
+          <span className="text-[10px] text-orange-400 font-mono font-bold ml-1">IST</span>
         </div>
 
         <div className="flex items-center gap-2 text-slate-300">
           <span className="text-[10px] font-mono text-emerald-400 font-bold">5G</span>
           <Wifi className="w-3.5 h-3.5 text-slate-200" />
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-mono">98%</span>
+            <span className="text-[10px] font-mono text-white">98%</span>
             <BatteryCharging className="w-3.5 h-3.5 text-emerald-400" />
           </div>
         </div>
@@ -117,21 +117,21 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
       {/* ========================================================================= */}
       {/* ANDROID TOP APP BAR                                                       */}
       {/* ========================================================================= */}
-      <header className="bg-[#0F172A] border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-[29px] z-40 shadow-md">
+      <header className="bg-[#120408] border-b border-red-950 px-4 py-3 flex items-center justify-between sticky top-[29px] z-40 shadow-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
-            <span className="text-amber-100 font-serif">ॐ</span>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 via-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-base shadow-md shadow-orange-600/20">
+            <span className="text-white font-serif">ॐ</span>
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="text-sm font-bold text-white tracking-tight leading-tight">
-                {settings?.storeName || 'AstroERP India'}
+              <h1 className="text-sm font-bold text-white tracking-tight leading-tight font-['Outfit',sans-serif]">
+                {settings?.storeName || 'AstroNexus Pro'}
               </h1>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
                 INR ₹
               </span>
             </div>
-            <p className="text-[10px] text-slate-400">Android Astrologer App</p>
+            <p className="text-[10px] text-slate-400">Executive Astrologer Mobile Terminal</p>
           </div>
         </div>
 
@@ -140,16 +140,16 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
           <button
             type="button"
             onClick={onSwitchToDesktop}
-            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 border border-indigo-500/30 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
+            className="px-2.5 py-1.5 bg-[#1c060e] hover:bg-[#2a0815] active:scale-95 text-orange-300 border border-red-900/80 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
             title="Switch to Desktop View"
           >
-            <Monitor className="w-3.5 h-3.5 text-indigo-400" />
+            <Monitor className="w-3.5 h-3.5 text-orange-400" />
             <span className="hidden sm:inline">Desktop ERP</span>
-            <span className="sm:hidden">Desktop</span>
+            <span className="sm:hidden font-medium">Desktop</span>
           </button>
 
           {/* User Avatar */}
-          <div className="w-8 h-8 rounded-full bg-indigo-900 border border-indigo-700/60 flex items-center justify-center text-indigo-200 text-xs font-bold shadow-xs">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-orange-500 border border-orange-400/40 flex items-center justify-center text-white text-xs font-bold shadow-xs">
             {(currentUser?.name || 'A').charAt(0)}
           </div>
         </div>
@@ -158,7 +158,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
       {/* ========================================================================= */}
       {/* SCROLLABLE MAIN APP CONTENT AREA                                          */}
       {/* ========================================================================= */}
-      <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full">
+      <main className="flex-1 px-3 sm:px-4 py-4 max-w-lg mx-auto w-full">
         {activeTab === 'today' && (
           <MobileTodayTab
             currentUser={currentUser}
@@ -242,7 +242,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
                 setIsFabOpen(false);
                 onOpenNewLeadModal();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer border border-emerald-400/40"
             >
               <span>+ New WhatsApp Lead</span>
               <MessageSquare className="w-4 h-4" />
@@ -254,10 +254,10 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
                 setIsFabOpen(false);
                 setActiveTab('kundli');
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer border border-orange-400/40"
             >
               <span>+ Quick Kundli Check</span>
-              <Sparkles className="w-4 h-4 text-amber-300" />
+              <Sparkles className="w-4 h-4 text-amber-200" />
             </button>
 
             <button
@@ -266,7 +266,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
                 setIsFabOpen(false);
                 onOpenNewAppointmentModal();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer border border-rose-400/40"
             >
               <span>+ Book Consultation</span>
               <Calendar className="w-4 h-4" />
@@ -278,7 +278,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
                 setIsFabOpen(false);
                 setActiveTab('billing');
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-full shadow-xl text-xs font-bold cursor-pointer border border-purple-400/40"
             >
               <span>+ Quick UPI Bill</span>
               <QrCode className="w-4 h-4" />
@@ -290,7 +290,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
         <button
           type="button"
           onClick={() => setIsFabOpen(!isFabOpen)}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-2xl flex items-center justify-center active:scale-90 transition transform cursor-pointer border-2 border-indigo-400/40"
+          className="w-14 h-14 rounded-full bg-gradient-to-tr from-red-600 via-orange-500 to-amber-400 hover:scale-105 text-white shadow-2xl flex items-center justify-center active:scale-95 transition transform cursor-pointer border border-orange-300/40 shadow-orange-600/30"
           aria-label="Quick Actions"
         >
           {isFabOpen ? <X className="w-6 h-6" /> : <Plus className="w-7 h-7" />}
@@ -300,7 +300,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
       {/* Backdrop overlay for FAB */}
       {isFabOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-30"
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30"
           onClick={() => setIsFabOpen(false)}
         />
       )}
@@ -308,24 +308,24 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
       {/* ========================================================================= */}
       {/* MATERIAL 3 BOTTOM NAVIGATION BAR                                          */}
       {/* ========================================================================= */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0F172A]/95 backdrop-blur-md border-t border-slate-800 z-40 py-1 px-2 select-none shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#0e0307]/95 backdrop-blur-md border-t border-red-950/80 z-40 py-1.5 px-2 select-none shadow-2xl">
         <div className="max-w-lg mx-auto flex items-center justify-around">
           {/* 1. Today Hub */}
           <button
             type="button"
             onClick={() => setActiveTab('today')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-2xl transition cursor-pointer relative ${
-              activeTab === 'today' ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'today' ? 'text-orange-400 font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-full transition ${
-                activeTab === 'today' ? 'bg-indigo-600/20 text-indigo-400' : ''
+                activeTab === 'today' ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/40' : ''
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5">Today</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Today</span>
           </button>
 
           {/* 2. Leads & WhatsApp */}
@@ -338,7 +338,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
           >
             <div
               className={`p-1 rounded-full transition relative ${
-                activeTab === 'leads' ? 'bg-emerald-600/20 text-emerald-400' : ''
+                activeTab === 'leads' ? 'bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/40' : ''
               }`}
             >
               <MessageSquare className="w-5 h-5" />
@@ -348,7 +348,7 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Leads</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Leads</span>
           </button>
 
           {/* 3. Instant Kundli */}
@@ -361,12 +361,12 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
           >
             <div
               className={`p-1 rounded-full transition ${
-                activeTab === 'kundli' ? 'bg-amber-500/20 text-amber-400' : ''
+                activeTab === 'kundli' ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40' : ''
               }`}
             >
               <Sparkles className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5">Kundli</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Kundli</span>
           </button>
 
           {/* 4. Consultations */}
@@ -374,22 +374,22 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
             type="button"
             onClick={() => setActiveTab('consultations')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-2xl transition cursor-pointer relative ${
-              activeTab === 'consultations' ? 'text-sky-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'consultations' ? 'text-rose-400 font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-full transition relative ${
-                activeTab === 'consultations' ? 'bg-sky-600/20 text-sky-400' : ''
+                activeTab === 'consultations' ? 'bg-rose-600/20 text-rose-400 ring-1 ring-rose-500/40' : ''
               }`}
             >
               <Calendar className="w-5 h-5" />
               {todayAppointmentsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 text-slate-950 rounded-full text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
                   {todayAppointmentsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">Bookings</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Bookings</span>
           </button>
 
           {/* 5. UPI Billing */}
@@ -402,12 +402,12 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
           >
             <div
               className={`p-1 rounded-full transition ${
-                activeTab === 'billing' ? 'bg-purple-600/20 text-purple-400' : ''
+                activeTab === 'billing' ? 'bg-purple-600/20 text-purple-400 ring-1 ring-purple-500/40' : ''
               }`}
             >
               <CreditCard className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5">Billing</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Billing</span>
           </button>
 
           {/* 6. Stock Vault */}
@@ -415,17 +415,17 @@ export const AndroidAppView: React.FC<AndroidAppViewProps> = ({
             type="button"
             onClick={() => setActiveTab('inventory')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-2xl transition cursor-pointer relative ${
-              activeTab === 'inventory' ? 'text-amber-300 font-bold' : 'text-slate-400 hover:text-slate-200'
+              activeTab === 'inventory' ? 'text-orange-400 font-bold' : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-full transition ${
-                activeTab === 'inventory' ? 'bg-amber-500/20 text-amber-300' : ''
+                activeTab === 'inventory' ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/40' : ''
               }`}
             >
               <Gem className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5">Stock</span>
+            <span className="text-[10px] mt-0.5 font-['Outfit',sans-serif]">Stock</span>
           </button>
         </div>
       </nav>
