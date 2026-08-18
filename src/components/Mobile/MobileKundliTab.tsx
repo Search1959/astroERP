@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AstrologyChartData, Client, GemstoneRecommendation } from '../../types';
 import { TOP_INDIAN_CITIES, IndianCity } from '../../data/indianCities';
-import { calculateFullAstrologyChart } from '../../utils/ephemerisEngine';
+import { calculateFullAstrologyChart, ZODIAC_SIGNS } from '../../utils/ephemerisEngine';
 import { generateAstrologicalPredictions } from '../../utils/predictionEngine';
 import { generateAstrologyReportPDF } from '../../utils/astrologyEngine';
 import {
@@ -9,11 +9,14 @@ import {
   INDIAN_LANGUAGES,
   getTranslation,
   getSignName,
+  getPlanetName,
   getGemstoneName,
   getStatusName,
 } from '../../utils/indianLanguages';
 import { ComprehensivePredictionsWindow } from '../PublicAstrology/ComprehensivePredictionsWindow';
 import { PrintableReportModal } from '../PublicAstrology/PrintableReportModal';
+import { NorthIndianKundliChart } from '../PublicAstrology/NorthIndianKundliChart';
+import { NatalWheelChart } from '../PublicAstrology/NatalWheelChart';
 import {
   Sparkles,
   Search,
@@ -43,6 +46,9 @@ import {
   FileText,
   Layers,
   Award,
+  Sun,
+  Moon as MoonIcon,
+  RotateCcw,
 } from 'lucide-react';
 
 interface MobileKundliTabProps {
@@ -56,10 +62,15 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
   onOpenNewSale,
   currencySymbol = '₹',
 }) => {
-  const [name, setName] = useState('Rahul Sharma');
-  const [date, setDate] = useState('1994-08-15');
-  const [time, setTime] = useState('07:30');
-  const [selectedCity, setSelectedCity] = useState<IndianCity>(TOP_INDIAN_CITIES[0]); // New Delhi
+  const [name, setName] = useState('Arun Kumar Jaiswal');
+  const [date, setDate] = useState('1959-04-16');
+  const [time, setTime] = useState('06:30');
+  const [selectedCity, setSelectedCity] = useState<IndianCity>(() => {
+    return TOP_INDIAN_CITIES.find(c => c.name.toLowerCase().includes('kolkata')) || TOP_INDIAN_CITIES[0];
+  });
+  const [zodiacSystem, setZodiacSystem] = useState<'sidereal_lahiri' | 'tropical'>('sidereal_lahiri');
+  const [houseSystem, setHouseSystem] = useState<'whole_sign' | 'equal' | 'placidus'>('whole_sign');
+  const [chartViewMode, setChartViewMode] = useState<'vedic_kundli' | 'natal_wheel' | 'table'>('vedic_kundli');
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>('en');
   const [activeSection, setActiveSection] = useState<'overview' | 'predictions' | 'report'>('overview');
   const [predictionTimeframe, setPredictionTimeframe] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
@@ -70,12 +81,12 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
 
   const [chart, setChart] = useState<AstrologyChartData | null>(() => {
     return calculateFullAstrologyChart({
-      name: 'Rahul Sharma',
-      birthDate: '1994-08-15',
-      birthTime: '07:30',
-      placeName: 'New Delhi',
-      latitude: 28.6139,
-      longitude: 77.2090,
+      name: 'Arun Kumar Jaiswal',
+      birthDate: '1959-04-16',
+      birthTime: '06:30',
+      placeName: 'Kolkata',
+      latitude: 22.5726,
+      longitude: 88.3639,
       zodiacSystem: 'sidereal_lahiri',
       houseSystem: 'whole_sign',
       timezoneOffset: 5.5,
@@ -84,8 +95,8 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
 
   const t = (key: string) => getTranslation(key, selectedLanguage);
 
-  const handleCalculate = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCalculate = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const result = calculateFullAstrologyChart({
       name,
       birthDate: date,
@@ -93,19 +104,40 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
       placeName: selectedCity.name,
       latitude: selectedCity.latitude,
       longitude: selectedCity.longitude,
-      zodiacSystem: 'sidereal_lahiri',
-      houseSystem: 'whole_sign',
+      zodiacSystem,
+      houseSystem,
       timezoneOffset: selectedCity.timezone,
+    });
+    setChart(result);
+  };
+
+  const applyPreset = (presetName: string, presetDate: string, presetTime: string, cityName: string) => {
+    setName(presetName);
+    setDate(presetDate);
+    setTime(presetTime);
+    const city = TOP_INDIAN_CITIES.find(c => c.name.toLowerCase().includes(cityName.toLowerCase())) || selectedCity;
+    setSelectedCity(city);
+    const result = calculateFullAstrologyChart({
+      name: presetName,
+      birthDate: presetDate,
+      birthTime: presetTime,
+      placeName: city.name,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      zodiacSystem,
+      houseSystem,
+      timezoneOffset: city.timezone,
     });
     setChart(result);
   };
 
   const sun = chart?.planets.find(p => p.name === 'Sun');
   const moon = chart?.planets.find(p => p.name === 'Moon');
-  const ascendant = chart?.interpretations?.coreAscendant?.sign || 'Simha (Leo)';
-  const moonSign = moon?.sign || 'Vrishchika (Scorpio)';
-  const sunSign = sun?.sign || 'Karka (Cancer)';
-  const primaryGemstone = chart?.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Yellow Sapphire (Pukhraj)';
+  const ascendant = chart?.interpretations?.coreAscendant?.sign || 'Aries';
+  const moonSign = moon?.sign || 'Gemini';
+  const sunSign = sun?.sign || 'Aries';
+  const primaryGemstone = chart?.interpretations?.gemstoneRecommendations?.[0]?.stone || 'Red Coral (Moonga)';
+  const lagnesha = ZODIAC_SIGNS.find(s => s.name.toLowerCase() === ascendant.toLowerCase())?.ruler || 'Mars';
 
   // Calculate dynamic Weekly, Monthly, and Yearly predictions
   const predictions = chart
@@ -153,7 +185,7 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
       return (
         `✨ *${currentPrediction.timeframeLabel} Life Predictions (${predictionTimeframe.toUpperCase()})*\n` +
         `👤 *Client:* ${name}\n` +
-        `🪐 *Lagna:* ${getSignName(ascendant, selectedLanguage)} | *Moon Sign:* ${getSignName(moonSign, selectedLanguage)}\n\n` +
+        `🪐 *Lagna:* ${getSignName(ascendant, selectedLanguage)} | *Sun:* ${getSignName(sunSign, selectedLanguage)} | *Moon:* ${getSignName(moonSign, selectedLanguage)}\n\n` +
         `🔮 *Key Forecast:*\n"${currentPrediction.headline}"\n\n` +
         `📊 *Overall Auspiciousness:* ${currentPrediction.overallScore}/100\n` +
         `💼 *Career & Finances:* ${currentPrediction.careerAndMoney.score}% - ${currentPrediction.careerAndMoney.status}\n` +
@@ -172,14 +204,14 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
       `🙏 *Vedic Kundli Summary - VedicAstro*\n\n` +
       `👤 *Name:* ${name}\n` +
       `📅 *DOB:* ${date} at ${time} (${selectedCity.name})\n\n` +
-      `✨ *Ascendant (Lagna):* ${ascendant}\n` +
-      `🌙 *Moon Sign (Rashi):* ${moonSign}\n` +
-      `☀️ *Sun Sign (Surya Rashi):* ${sunSign}\n` +
-      `🪐 *Current Mahadasha:* ${chart.interpretations?.planetaryPlacements?.[0]?.planet || 'Jupiter'}\n\n` +
+      `✨ *Ascendant (Lagna):* ${getSignName(ascendant, selectedLanguage)} (${ascendant})\n` +
+      `☀️ *Sun Sign (Surya):* ${getSignName(sunSign, selectedLanguage)} (${sun?.formattedDegrees || 'Exalted'})\n` +
+      `🌙 *Moon Sign (Chandra / Rashi):* ${getSignName(moonSign, selectedLanguage)} (${moon?.formattedDegrees || 'Janma Rashi'})\n` +
+      `🛡️ *Lagna Lord (Lagnesha):* ${lagnesha}\n` +
+      `🪐 *Current Mahadasha:* ${chart.interpretations?.planetaryPlacements?.[0]?.planet || 'Jupiter'} Mahadasha\n\n` +
       `💎 *Prescribed Gemstone:* ${primaryGemstone}\n` +
-      `📿 *Rudraksha:* 5 Mukhi Rudraksha\n` +
-      `🎨 *Lucky Color:* Saffron / Yellow\n` +
-      `🔢 *Lucky Number:* 3, 7\n\n` +
+      `🎨 *Lucky Colors:* Red, Saffron, Gold\n` +
+      `🔢 *Lucky Numbers:* 9, 1, 3\n\n` +
       `_For complete life predictions & gemstone energization, visit our center or reply here._`
     );
   };
@@ -215,7 +247,7 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
               <h2 className="text-sm font-bold text-white font-['Outfit',sans-serif]">
                 Instant Kundli & Predictions
               </h2>
-              <p className="text-[11px] text-slate-400">Swiss Ephemeris • Weekly/Monthly/Yearly</p>
+              <p className="text-[11px] text-slate-400">Swiss Ephemeris • Vedic Lahiri Sidereal</p>
             </div>
           </div>
 
@@ -236,15 +268,53 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
           </div>
         </div>
 
+        {/* Quick Presets Bar */}
+        <div className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px]">
+          <span className="text-slate-400 font-semibold shrink-0">Quick Profiles:</span>
+          <button
+            type="button"
+            onClick={() => applyPreset('Arun Kumar Jaiswal', '1959-04-16', '06:30', 'Kolkata')}
+            className={`px-2.5 py-1 rounded-lg shrink-0 font-bold transition cursor-pointer ${
+              date === '1959-04-16' && time === '06:30'
+                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-xs'
+                : 'bg-[#18050e] text-orange-300 border border-red-950 hover:bg-[#250816]'
+            }`}
+          >
+            16/04/1959 (Aries Lagna • Kolkata)
+          </button>
+          <button
+            type="button"
+            onClick={() => applyPreset('Rahul Sharma', '1994-08-15', '07:30', 'New Delhi')}
+            className={`px-2.5 py-1 rounded-lg shrink-0 font-bold transition cursor-pointer ${
+              date === '1994-08-15'
+                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-xs'
+                : 'bg-[#18050e] text-slate-300 border border-red-950 hover:bg-[#250816]'
+            }`}
+          >
+            Rahul (Leo Lagna • Delhi)
+          </button>
+          <button
+            type="button"
+            onClick={() => applyPreset('Ananya Deshmukh', '1995-11-18', '09:15', 'Mumbai')}
+            className={`px-2.5 py-1 rounded-lg shrink-0 font-bold transition cursor-pointer ${
+              date === '1995-11-18'
+                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-xs'
+                : 'bg-[#18050e] text-slate-300 border border-red-950 hover:bg-[#250816]'
+            }`}
+          >
+            Ananya (Scorpio Lagna • Mumbai)
+          </button>
+        </div>
+
         {/* Rapid Birth Input Form */}
         <form onSubmit={handleCalculate} className="space-y-3">
           <div>
-            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Client Full Name</label>
+            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Subject Full Name</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="e.g. Rahul Sharma"
+              placeholder="e.g. Arun Kumar Jaiswal"
               className="w-full px-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition font-medium"
               required
             />
@@ -273,22 +343,36 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Birth City (India)</label>
-            <select
-              value={selectedCity.name}
-              onChange={e => {
-                const found = TOP_INDIAN_CITIES.find(c => c.name === e.target.value);
-                if (found) setSelectedCity(found);
-              }}
-              className="w-full px-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white focus:outline-none focus:border-orange-500 transition"
-            >
-              {TOP_INDIAN_CITIES.map(city => (
-                <option key={city.name} value={city.name} className="bg-[#0e0307] text-white">
-                  {city.name} ({city.state})
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1">Birth City (India)</label>
+              <select
+                value={selectedCity.name}
+                onChange={e => {
+                  const found = TOP_INDIAN_CITIES.find(c => c.name === e.target.value);
+                  if (found) setSelectedCity(found);
+                }}
+                className="w-full px-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white focus:outline-none focus:border-orange-500 transition"
+              >
+                {TOP_INDIAN_CITIES.map(city => (
+                  <option key={city.name} value={city.name} className="bg-[#0e0307] text-white">
+                    {city.name} ({city.state})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1">Zodiac / Ayanamsha</label>
+              <select
+                value={zodiacSystem}
+                onChange={e => setZodiacSystem(e.target.value as 'sidereal_lahiri' | 'tropical')}
+                className="w-full px-3 py-2 bg-[#120408] border border-red-950/80 rounded-2xl text-xs text-white focus:outline-none focus:border-orange-500 transition"
+              >
+                <option value="sidereal_lahiri" className="bg-[#0e0307] text-white">Lahiri Sidereal (Vedic)</option>
+                <option value="tropical" className="bg-[#0e0307] text-white">Tropical (Western)</option>
+              </select>
+            </div>
           </div>
 
           <button
@@ -296,7 +380,7 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
             className="w-full py-2.5 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-orange-600/20 active:scale-98"
           >
             <Sparkles className="w-4 h-4 text-amber-200" />
-            <span>Calculate Vedic Kundli & Forecasts</span>
+            <span>Calculate Accurate Vedic Kundli & Report</span>
           </button>
         </form>
       </div>
@@ -314,7 +398,7 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>Kundli</span>
+            <span>Kundli & Chart</span>
           </button>
 
           <button
@@ -350,61 +434,188 @@ export const MobileKundliTab: React.FC<MobileKundliTabProps> = ({
       {/* ========================================================================= */}
       {chart && activeSection === 'overview' && (
         <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          {/* Quick Pillars Grid */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#0e0307] border border-red-950/80 p-3 rounded-3xl shadow-lg">
-              <span className="text-[10px] text-amber-400 font-semibold block uppercase">Ascendant (Lagna)</span>
-              <span className="text-sm font-bold text-white block mt-0.5 font-['Outfit',sans-serif]">{ascendant}</span>
-              <span className="text-[10px] text-slate-400">1st House (Life Path)</span>
-            </div>
-
-            <div className="bg-[#0e0307] border border-red-950/80 p-3 rounded-3xl shadow-lg">
-              <span className="text-[10px] text-orange-400 font-semibold block uppercase">Moon Sign (Rashi)</span>
-              <span className="text-sm font-bold text-white block mt-0.5 font-['Outfit',sans-serif]">
-                {moonSign}
+          {/* Quick 6 Pillars Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {/* 1. Ascendant / Lagna */}
+            <div className="bg-[#0e0307] border border-orange-900/60 p-3 rounded-3xl shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-12 h-12 bg-orange-600/10 rounded-bl-full pointer-events-none" />
+              <span className="text-[10px] text-amber-400 font-semibold block uppercase">
+                Ascendant (लग्न)
               </span>
-              <span className="text-[10px] text-slate-400">Mind & Janma Rashi</span>
+              <span className="text-sm font-black text-white block mt-0.5 font-['Outfit',sans-serif]">
+                {getSignName(ascendant, selectedLanguage)}
+              </span>
+              <span className="text-[10px] text-orange-300 font-mono">
+                1st House • {chart.ascendant.toFixed(1)}° ({ascendant})
+              </span>
             </div>
 
+            {/* 2. Sun Sign / Surya */}
+            <div className="bg-[#0e0307] border border-amber-900/60 p-3 rounded-3xl shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-12 h-12 bg-amber-600/10 rounded-bl-full pointer-events-none" />
+              <span className="text-[10px] text-amber-400 font-semibold block uppercase flex items-center justify-between">
+                <span>Sun (सूर्य)</span>
+                {sun?.dignity === 'Exalted' && (
+                  <span className="text-[9px] px-1.5 py-0.2 bg-emerald-950 text-emerald-300 border border-emerald-700/60 rounded font-bold">
+                    उच्च (Exalted)
+                  </span>
+                )}
+              </span>
+              <span className="text-sm font-black text-white block mt-0.5 font-['Outfit',sans-serif]">
+                {getSignName(sunSign, selectedLanguage)}
+              </span>
+              <span className="text-[10px] text-amber-300 font-mono">
+                {sun?.formattedDegrees || 'Aries'} • H{sun?.house || 1}
+              </span>
+            </div>
+
+            {/* 3. Moon Sign / Chandra */}
+            <div className="bg-[#0e0307] border border-cyan-900/60 p-3 rounded-3xl shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-12 h-12 bg-cyan-600/10 rounded-bl-full pointer-events-none" />
+              <span className="text-[10px] text-cyan-400 font-semibold block uppercase">
+                Moon (चन्द्र / राशि)
+              </span>
+              <span className="text-sm font-black text-white block mt-0.5 font-['Outfit',sans-serif]">
+                {getSignName(moonSign, selectedLanguage)}
+              </span>
+              <span className="text-[10px] text-cyan-300 font-mono">
+                Janma Rashi • {moon?.formattedDegrees || 'Gemini'}
+              </span>
+            </div>
+
+            {/* 4. Lagnesha / Ascendant Lord */}
+            <div className="bg-[#0e0307] border border-red-950/80 p-3 rounded-3xl shadow-lg">
+              <span className="text-[10px] text-rose-400 font-semibold block uppercase">
+                Lagna Lord (लग्नेश)
+              </span>
+              <span className="text-sm font-bold text-white block mt-0.5 font-['Outfit',sans-serif]">
+                {getPlanetName(lagnesha, selectedLanguage)}
+              </span>
+              <span className="text-[10px] text-slate-400">Vital Life Governor</span>
+            </div>
+
+            {/* 5. Active Mahadasha */}
             <div className="bg-[#0e0307] border border-red-950/80 p-3 rounded-3xl shadow-lg">
               <span className="text-[10px] text-purple-400 font-semibold block uppercase">Current Mahadasha</span>
               <span className="text-sm font-bold text-white block mt-0.5 font-['Outfit',sans-serif]">
-                {chart.interpretations?.planetaryPlacements?.[0]?.planet || 'Jupiter'} Mahadasha
+                {chart.interpretations?.planetaryPlacements?.[0]?.planet || 'Jupiter'} Dasha
               </span>
-              <span className="text-[10px] text-slate-400">Active Planetary Period</span>
+              <span className="text-[10px] text-slate-400">Vimshottari Cycle</span>
             </div>
 
+            {/* 6. Prescribed Gemstone */}
             <div className="bg-[#0e0307] border border-red-950/80 p-3 rounded-3xl shadow-lg">
-              <span className="text-[10px] text-emerald-400 font-semibold block uppercase">Prescribed Gemstone</span>
+              <span className="text-[10px] text-emerald-400 font-semibold block uppercase">Lagna Ratna</span>
               <span className="text-sm font-bold text-emerald-300 block mt-0.5 truncate font-['Outfit',sans-serif]">
                 {primaryGemstone}
               </span>
-              <span className="text-[10px] text-slate-400">Lucky Energized Gem</span>
+              <span className="text-[10px] text-slate-400">Energized Lucky Gem</span>
             </div>
           </div>
 
-          {/* Planetary Placements Table */}
-          <div className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-4 shadow-xl">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-2.5 flex items-center justify-between font-['Outfit',sans-serif]">
-              <span>Planetary Coordinates</span>
-              <span className="text-[10px] text-orange-400 font-mono">Lahiri Sidereal</span>
-            </h3>
+          {/* Interactive Chart Visualizer Section */}
+          <div className="bg-[#0e0307] border border-red-950/80 rounded-3xl p-3 shadow-xl space-y-3">
+            {/* Chart View Toggle Tabs */}
+            <div className="flex items-center justify-between border-b border-red-950/80 pb-2.5">
+              <span className="text-xs font-bold text-white font-['Outfit',sans-serif]">
+                Kundli Visualization
+              </span>
 
-            <div className="space-y-1.5 text-xs max-h-48 overflow-y-auto pr-1">
-              {(chart.planets || []).map(p => (
-                <div key={p.name} className="flex items-center justify-between p-2 bg-[#120408] rounded-xl border border-red-950/60">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-orange-400"></span>
-                    <span className="font-semibold text-white">{p.name}</span>
-                    {p.isRetrograde && <span className="text-[9px] text-rose-400 font-bold">(R)</span>}
-                  </div>
-                  <div className="text-right">
-                    <span className="text-amber-300 font-mono text-[11px]">{p.sign}</span>
-                    <span className="text-slate-400 text-[10px] ml-2">H{p.house}</span>
-                  </div>
-                </div>
-              ))}
+              <div className="flex items-center gap-1 bg-[#16050b] p-1 rounded-xl border border-red-950/80">
+                <button
+                  type="button"
+                  onClick={() => setChartViewMode('vedic_kundli')}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-lg transition cursor-pointer ${
+                    chartViewMode === 'vedic_kundli'
+                      ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Vedic Lagna (लग्न)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartViewMode('natal_wheel')}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-lg transition cursor-pointer ${
+                    chartViewMode === 'natal_wheel'
+                      ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Natal Wheel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartViewMode('table')}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-lg transition cursor-pointer ${
+                    chartViewMode === 'table'
+                      ? 'bg-gradient-to-r from-red-600 to-orange-500 text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Coordinates
+                </button>
+              </div>
             </div>
+
+            {/* 1. North Indian Kundli Chart */}
+            {chartViewMode === 'vedic_kundli' && (
+              <div className="flex flex-col items-center justify-center animate-in fade-in duration-200">
+                <NorthIndianKundliChart
+                  chartData={chart}
+                  size={340}
+                  selectedLanguage={selectedLanguage}
+                  className="w-full"
+                />
+                <p className="text-[10px] text-slate-400 text-center mt-1.5 italic">
+                  Tap any of the 12 houses to inspect Bhavas, Lords, and placed Grahas.
+                </p>
+              </div>
+            )}
+
+            {/* 2. Western Natal Wheel */}
+            {chartViewMode === 'natal_wheel' && (
+              <div className="flex flex-col items-center justify-center animate-in fade-in duration-200">
+                <NatalWheelChart chartData={chart} size={340} />
+              </div>
+            )}
+
+            {/* 3. Planetary Coordinates Table */}
+            {chartViewMode === 'table' && (
+              <div className="space-y-1.5 text-xs max-h-72 overflow-y-auto pr-1 animate-in fade-in duration-200">
+                {(chart.planets || []).map(p => (
+                  <div
+                    key={p.name}
+                    className="flex items-center justify-between p-2.5 bg-[#120408] rounded-2xl border border-red-950/60"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-400 font-bold">{p.symbol}</span>
+                      <span className="font-semibold text-white">
+                        {getPlanetName(p.name, selectedLanguage)}
+                      </span>
+                      {p.isRetrograde && (
+                        <span className="text-[9px] px-1 py-0.2 bg-rose-950 text-rose-300 border border-rose-800 rounded font-bold">
+                          Vakri (R)
+                        </span>
+                      )}
+                      {p.dignity === 'Exalted' && (
+                        <span className="text-[9px] px-1 py-0.2 bg-emerald-950 text-emerald-300 border border-emerald-700 rounded font-bold">
+                          Uchcha
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-amber-300 font-mono text-[11px]">
+                        {getSignName(p.sign, selectedLanguage)}
+                      </span>
+                      <span className="text-slate-400 font-mono text-[10px] ml-2">
+                        {p.formattedDegrees} • H{p.house}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 1-Tap Client Actions */}

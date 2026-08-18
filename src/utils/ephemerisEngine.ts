@@ -339,15 +339,15 @@ export function calculateAnglesAndHouses(
   const mcRad = Math.atan2(sinDeg(lst), cosDeg(lst) * cosDeg(eps));
   let mc = normalizeDegrees(radToDeg(mcRad));
 
-  // Ascendant calculation
-  const y = -cosDeg(lst);
-  const x = sinDeg(eps) * tanDeg(lat) + cosDeg(eps) * sinDeg(lst);
+  // Ascendant calculation: Eastern horizon rising ecliptic degree
+  const y = cosDeg(lst);
+  const x = -(sinDeg(eps) * tanDeg(lat) + cosDeg(eps) * sinDeg(lst));
   let asc = atan2Deg(y, x);
 
   // Vertex calculation
   const coLat = 90 - lat;
-  const yV = -cosDeg(lst + 180);
-  const xV = sinDeg(eps) * tanDeg(coLat) + cosDeg(eps) * sinDeg(lst + 180);
+  const yV = cosDeg(lst + 180);
+  const xV = -(sinDeg(eps) * tanDeg(coLat) + cosDeg(eps) * sinDeg(lst + 180));
   let vertex = atan2Deg(yV, xV);
 
   // Apply Sidereal offset if requested
